@@ -191,7 +191,7 @@ export default async function HomePage() {
         <div className="class-grid">
           {levels.map((level) => (
             <Link key={level.id} href={`/levels/${level.id}`} className="card-link">
-              <article className="class-card">
+              <article className="class-card" data-level={level.id}>
               <p className="eyebrow">{level.stage}</p>
               <h3>{level.title}</h3>
               <p className="subtle">{level.description}</p>
@@ -222,7 +222,11 @@ export default async function HomePage() {
 
         <div className="pricing-grid">
           {membershipPlans.map((plan) => (
-            <article key={plan.name} className="pricing-card">
+            <article
+              key={plan.name}
+              className="pricing-card"
+              data-audience={plan.name.toLowerCase().includes("parent") ? "parent" : "teacher"}
+            >
               <h3>{plan.name}</h3>
               <p className="subtle">{plan.audience}</p>
               <p className="price">

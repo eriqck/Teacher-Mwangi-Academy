@@ -1,5 +1,5 @@
 :root {
-  --bg: #f5efe3;
+  --bg: #f6f0e4;
   --surface: rgba(255, 252, 244, 0.84);
   --surface-strong: #fffaf0;
   --ink: #132a1c;
@@ -30,10 +30,37 @@ body {
   font-family: Georgia, "Times New Roman", serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(214, 164, 25, 0.22), transparent 24%),
-    radial-gradient(circle at 85% 10%, rgba(31, 111, 95, 0.18), transparent 26%),
-    linear-gradient(180deg, #fbf7ef 0%, #f3ead9 54%, #efe4cf 100%);
+    radial-gradient(circle at 12% 8%, rgba(255, 165, 90, 0.24), transparent 24%),
+    radial-gradient(circle at 84% 10%, rgba(33, 145, 122, 0.2), transparent 24%),
+    radial-gradient(circle at 85% 88%, rgba(62, 103, 199, 0.14), transparent 26%),
+    linear-gradient(180deg, #fff8ef 0%, #f3eee4 38%, #eef5f2 100%);
   min-height: 100vh;
+  position: relative;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 32rem;
+  height: 32rem;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(28px);
+  opacity: 0.45;
+}
+
+body::before {
+  top: -8rem;
+  right: -10rem;
+  background: radial-gradient(circle, rgba(214, 164, 25, 0.32), transparent 66%);
+}
+
+body::after {
+  bottom: -10rem;
+  left: -8rem;
+  background: radial-gradient(circle, rgba(31, 111, 95, 0.24), transparent 68%);
 }
 
 a {
@@ -367,6 +394,34 @@ main {
   padding: 24px;
 }
 
+.class-card,
+.pricing-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.class-card::before,
+.pricing-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.55), transparent 34%),
+    linear-gradient(
+      145deg,
+      var(--card-tint-start, rgba(255, 255, 255, 0.78)),
+      var(--card-tint-end, rgba(255, 255, 255, 0.42))
+    );
+  opacity: 0.95;
+  z-index: 0;
+}
+
+.class-card > *,
+.pricing-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 .card-link {
   display: block;
 }
@@ -378,7 +433,7 @@ main {
 
 .card-link:hover .class-card,
 .card-link:hover .resource-card {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
   border-color: rgba(31, 111, 95, 0.28);
 }
 
@@ -396,6 +451,97 @@ main {
 
 .class-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.class-card {
+  border-color: var(--card-border, rgba(19, 42, 28, 0.12));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.74)),
+    linear-gradient(
+      145deg,
+      var(--card-base-start, rgba(255, 252, 244, 0.9)),
+      var(--card-base-end, rgba(255, 252, 244, 0.8))
+    );
+  box-shadow:
+    0 18px 44px rgba(19, 42, 28, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.class-card .eyebrow {
+  background: var(--card-chip, rgba(255, 255, 255, 0.78));
+  color: var(--card-accent, var(--secondary));
+}
+
+.class-card .tag {
+  background: var(--card-tag-bg, rgba(255, 255, 255, 0.6));
+  color: var(--card-accent, var(--secondary));
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.class-card[data-level="grade-7"] {
+  --card-base-start: rgba(255, 240, 202, 0.94);
+  --card-base-end: rgba(255, 219, 181, 0.9);
+  --card-tint-start: rgba(255, 181, 71, 0.28);
+  --card-tint-end: rgba(255, 126, 95, 0.14);
+  --card-accent: #b8561e;
+  --card-chip: rgba(255, 246, 230, 0.88);
+  --card-tag-bg: rgba(255, 245, 226, 0.74);
+  --card-border: rgba(184, 86, 30, 0.2);
+}
+
+.class-card[data-level="grade-8"] {
+  --card-base-start: rgba(227, 246, 255, 0.94);
+  --card-base-end: rgba(198, 234, 255, 0.9);
+  --card-tint-start: rgba(67, 160, 255, 0.2);
+  --card-tint-end: rgba(0, 188, 212, 0.16);
+  --card-accent: #146a8b;
+  --card-chip: rgba(237, 250, 255, 0.88);
+  --card-tag-bg: rgba(232, 248, 255, 0.76);
+  --card-border: rgba(20, 106, 139, 0.2);
+}
+
+.class-card[data-level="grade-9"] {
+  --card-base-start: rgba(230, 246, 226, 0.94);
+  --card-base-end: rgba(201, 236, 206, 0.9);
+  --card-tint-start: rgba(63, 181, 111, 0.22);
+  --card-tint-end: rgba(136, 202, 80, 0.16);
+  --card-accent: #2b7b3f;
+  --card-chip: rgba(241, 252, 239, 0.9);
+  --card-tag-bg: rgba(236, 249, 233, 0.76);
+  --card-border: rgba(43, 123, 63, 0.2);
+}
+
+.class-card[data-level="grade-10"] {
+  --card-base-start: rgba(244, 232, 255, 0.94);
+  --card-base-end: rgba(229, 211, 255, 0.9);
+  --card-tint-start: rgba(142, 84, 233, 0.22);
+  --card-tint-end: rgba(74, 0, 224, 0.12);
+  --card-accent: #6f35a8;
+  --card-chip: rgba(248, 242, 255, 0.9);
+  --card-tag-bg: rgba(243, 235, 255, 0.78);
+  --card-border: rgba(111, 53, 168, 0.22);
+}
+
+.class-card[data-level="form-3"] {
+  --card-base-start: rgba(255, 236, 231, 0.94);
+  --card-base-end: rgba(255, 215, 214, 0.9);
+  --card-tint-start: rgba(230, 86, 72, 0.22);
+  --card-tint-end: rgba(255, 130, 98, 0.14);
+  --card-accent: #b24036;
+  --card-chip: rgba(255, 245, 243, 0.9);
+  --card-tag-bg: rgba(255, 238, 236, 0.8);
+  --card-border: rgba(178, 64, 54, 0.22);
+}
+
+.class-card[data-level="form-4"] {
+  --card-base-start: rgba(255, 244, 213, 0.94);
+  --card-base-end: rgba(246, 225, 166, 0.9);
+  --card-tint-start: rgba(214, 164, 25, 0.26);
+  --card-tint-end: rgba(255, 193, 7, 0.12);
+  --card-accent: #9b6d00;
+  --card-chip: rgba(255, 249, 230, 0.9);
+  --card-tag-bg: rgba(255, 246, 214, 0.82);
+  --card-border: rgba(155, 109, 0, 0.22);
 }
 
 .tag-row {
@@ -417,6 +563,60 @@ main {
 .pricing-grid,
 .dashboard-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pricing-card {
+  border-color: var(--pricing-border, rgba(19, 42, 28, 0.12));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78)),
+    linear-gradient(
+      155deg,
+      var(--pricing-base-start, rgba(255, 252, 244, 0.92)),
+      var(--pricing-base-end, rgba(255, 252, 244, 0.82))
+    );
+}
+
+.pricing-card .button {
+  background: var(--pricing-button, var(--accent));
+  box-shadow: var(--pricing-button-shadow, 0 14px 30px rgba(217, 93, 57, 0.3));
+}
+
+.pricing-card h3,
+.pricing-card .price {
+  color: var(--pricing-accent, var(--ink));
+}
+
+.pricing-card .subtle,
+.pricing-card .list {
+  color: var(--pricing-muted, var(--muted));
+}
+
+.pricing-card .list li::before {
+  color: var(--pricing-accent, var(--accent));
+}
+
+.pricing-card[data-audience="parent"] {
+  --pricing-base-start: rgba(255, 240, 226, 0.96);
+  --pricing-base-end: rgba(255, 219, 196, 0.92);
+  --pricing-border: rgba(194, 93, 34, 0.2);
+  --card-tint-start: rgba(255, 153, 102, 0.26);
+  --card-tint-end: rgba(255, 102, 102, 0.16);
+  --pricing-accent: #b74a1e;
+  --pricing-muted: #6b4f44;
+  --pricing-button: linear-gradient(135deg, #e85d2f, #f29b38);
+  --pricing-button-shadow: 0 14px 30px rgba(232, 93, 47, 0.26);
+}
+
+.pricing-card[data-audience="teacher"] {
+  --pricing-base-start: rgba(223, 245, 242, 0.96);
+  --pricing-base-end: rgba(191, 234, 225, 0.92);
+  --pricing-border: rgba(23, 112, 95, 0.22);
+  --card-tint-start: rgba(31, 111, 95, 0.24);
+  --card-tint-end: rgba(72, 187, 120, 0.12);
+  --pricing-accent: #185e51;
+  --pricing-muted: #425d57;
+  --pricing-button: linear-gradient(135deg, #1f6f5f, #249a82);
+  --pricing-button-shadow: 0 14px 30px rgba(31, 111, 95, 0.24);
 }
 
 .team-grid {
