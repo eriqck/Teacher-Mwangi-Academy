@@ -65,6 +65,7 @@ export default async function HomePage() {
                     alt="Teacher Mwangi portrait"
                     fill
                     sizes="220px"
+                    className="portrait-image founder-image"
                   />
                 ) : (
                   <span className="portrait-fallback">TM</span>
@@ -299,6 +300,7 @@ export default async function HomePage() {
                   alt="James Mwangi portrait"
                   fill
                   sizes="120px"
+                  className="portrait-image team-image"
                 />
               ) : (
                 <span className="portrait-fallback">JM</span>
