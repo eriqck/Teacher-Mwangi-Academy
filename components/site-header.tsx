@@ -5,9 +5,10 @@ import { academyName } from "@/lib/business";
 export async function SiteHeader() {
   const user = await getCurrentUser();
   const links = [
+    { href: "#about", label: "About" },
     { href: "#levels", label: "Levels" },
     { href: "#membership", label: "Membership" },
-    { href: "#library", label: "Library" },
+    { href: "#team", label: "Team" },
     { href: "/dashboard", label: "Dashboard" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];

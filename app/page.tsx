@@ -3,6 +3,24 @@ import { SiteHeader } from "@/components/site-header";
 import { academyName, schemeOfWorkPrice } from "@/lib/business";
 import { featuredResources, levels, membershipPlans } from "@/lib/catalog";
 
+const reasons = [
+  {
+    title: "Competency-Focused Learning",
+    description:
+      "We do not just teach for exams. Every lesson is designed to build real understanding, practical application, and confident mastery aligned to the CBC framework."
+  },
+  {
+    title: "Personalized Student Support",
+    description:
+      "Every learner is unique. We provide tailored guidance, regular feedback, and close mentorship so students can strengthen their abilities and overcome academic gaps."
+  },
+  {
+    title: "Proven Results and Holistic Growth",
+    description:
+      "Our approach blends theory, practical learning, revision strategy, and exam preparation while also nurturing discipline, critical thinking, and character."
+  }
+];
+
 export default async function HomePage() {
   return (
     <main>
@@ -11,97 +29,128 @@ export default async function HomePage() {
       <section className="page-shell hero">
         <div className="hero-grid">
           <div className="hero-card">
-            <span className="eyebrow">Built for Kenyan families and teachers</span>
-            <h1>{academyName} makes revision materials easy to sell and access.</h1>
+            <span className="eyebrow">Access all essential CBE learning materials in one convenient place</span>
+            <h1>Guiding students to competence and confidence.</h1>
             <p>
-              A fast membership website for CBC and secondary revision content, with Paystack
-              checkout, member login, saved payment records, and dedicated coverage for Grades 7,
-              8, 9, 10, Form 3, and Form 4.
+              {academyName} brings together structured revision materials, trusted teacher guidance,
+              and a focused learning environment for students, parents, and teachers across Grades
+              7, 8, 9, 10, Form 3, and Form 4.
             </p>
             <div className="hero-actions">
               <Link href="/subscribe" className="button">
-                Start with M-Pesa
+                Explore membership
               </Link>
-              <Link href="/signup" className="button-secondary">
-                Create account
+              <Link href="#about" className="button-secondary">
+                About Teacher Mwangi
               </Link>
             </div>
           </div>
 
           <div className="hero-side">
-            <div className="panel">
-              <h3>Why this setup works</h3>
+            <div className="panel founder-panel">
+              <div className="founder-badge">TM</div>
+              <span className="eyebrow">Founder spotlight</span>
+              <h3>James Mwangi</h3>
+              <p className="subtle">
+                Physics and Mathematics teacher passionate about shaping minds and redefining
+                learning through innovative teaching and accessible resources.
+              </p>
               <div className="stat-grid">
                 <div className="stat">
-                  <strong>6</strong>
-                  <span>Target levels covered from Grade 7 to Form 4</span>
+                  <strong>Physics</strong>
+                  <span>Clear explanations and practical understanding</span>
                 </div>
                 <div className="stat">
-                  <strong>Paystack</strong>
-                  <span>Saved payment records and verified checkout flow</span>
-                </div>
-                <div className="stat">
-                  <strong>Members</strong>
-                  <span>Signup, login, subscriptions, and dashboard access</span>
-                </div>
-                <div className="stat">
-                  <strong>Fast</strong>
-                  <span>Next.js app structure built for speed and SEO</span>
+                  <strong>Maths</strong>
+                  <span>Confidence-building support and strong revision habits</span>
                 </div>
               </div>
             </div>
 
             <div className="panel">
-              <h3>Commercial model</h3>
+              <h3>Built for homes and classrooms</h3>
               <p className="subtle">
-                Parents subscribe at KSh 300 per month. Teachers subscribe at KSh 150 per month and
-                can also buy one-time schemes of work at KSh {schemeOfWorkPrice} per subject.
+                Parents access guided learning support and revision materials in one place. Teachers
+                subscribe for broad curriculum support and can also buy schemes of work at KSh{" "}
+                {schemeOfWorkPrice} per subject.
               </p>
               <div className="tag-row">
-                <span className="tag">Subscription revenue</span>
-                <span className="tag">Teacher scheme sales</span>
-                <span className="tag">Protected downloads</span>
+                <span className="tag">Competency-focused</span>
+                <span className="tag">Student support</span>
+                <span className="tag">Teacher resources</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      <section className="page-shell section" id="about">
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">About me</span>
+            <h2>Teaching with clarity, care, and competence.</h2>
+          </div>
+          <p>
+            Home / About Me
+          </p>
+        </div>
+
+        <div className="about-grid">
+          <article className="feature-card about-card">
+            <span className="eyebrow">Guiding students to competence and confidence</span>
+            <h3>Teacher Mwangi supports students, parents, and teachers with practical academic direction.</h3>
+            <p className="subtle">
+              Tr Mwangi is a Physics and Mathematics teacher passionate about shaping minds and
+              redefining learning. Through innovative teaching and accessible resources, he supports
+              students, parents, and teachers in achieving academic excellence.
+            </p>
+            <p className="subtle">
+              This academy is built around understanding, confidence, and everyday progress. The aim
+              is not only to help learners pass, but to help them truly grow in skill, discipline,
+              and self-belief.
+            </p>
+          </article>
+
+          <aside className="about-aside">
+            <div className="quote-card">
+              <span className="eyebrow">Teaching philosophy</span>
+              <p>
+                “We do not just prepare learners for assessments. We prepare them to think clearly,
+                apply knowledge confidently, and grow with purpose.”
+              </p>
+            </div>
+            <div className="mini-profile">
+              <strong>Focus areas</strong>
+              <div className="tag-row">
+                <span className="tag">CBC alignment</span>
+                <span className="tag">Physics</span>
+                <span className="tag">Mathematics</span>
+                <span className="tag">Revision support</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
       <section className="page-shell section">
         <div className="section-head">
           <div>
-            <span className="eyebrow">Platform strengths</span>
-            <h2>Designed to sell trust, structure, and results.</h2>
+            <span className="eyebrow">Why Teacher Mwangi?</span>
+            <h2>Focused support for real growth, not just exam performance.</h2>
           </div>
           <p>
-            The first version leans into clear value for parents and teachers: easy discovery,
-            simple subscription choices, and a clean members-only experience for revision material
-            delivery.
+            The academy is built to help learners master concepts, improve steadily, and feel more
+            confident in every stage of their learning journey.
           </p>
         </div>
 
         <div className="feature-grid">
-          <article className="feature-card">
-            <h3>Curriculum-aligned catalog</h3>
-            <p className="subtle">
-              Organize revision packs by level, subject, and exam period so buyers immediately find
-              the right material.
-            </p>
-          </article>
-          <article className="feature-card">
-            <h3>Paystack payment records</h3>
-            <p className="subtle">
-              Every checkout saves the customer, payment, and order state before Paystack verifies
-              the transaction.
-            </p>
-          </article>
-          <article className="feature-card">
-            <h3>Members-only dashboard</h3>
-            <p className="subtle">
-              Deliver downloads, renewal status, and purchase history inside a dedicated account
-              area.
-            </p>
-          </article>
+          {reasons.map((reason) => (
+            <article key={reason.title} className="feature-card reason-card">
+              <h3>{reason.title}</h3>
+              <p className="subtle">{reason.description}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -109,11 +158,11 @@ export default async function HomePage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">Coverage</span>
-            <h2>From Junior Secondary to exam-year preparation.</h2>
+            <h2>Essential learning materials organised by grade and form.</h2>
           </div>
           <p>
-            These are the levels now built into the starter catalog so you can start populating
-            material immediately and expand subjects over time.
+            Learners and teachers can move directly into the right level and access the materials
+            designed for that stage.
           </p>
         </div>
 
@@ -141,10 +190,11 @@ export default async function HomePage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">Pricing</span>
-            <h2>Simple plans for homes and classrooms.</h2>
+            <h2>Simple access plans for families and teachers.</h2>
           </div>
           <p>
-            Start with simple monthly memberships and one-time teacher scheme purchases.
+            Choose a monthly subscription or add one-time professional teaching resources when
+            needed.
           </p>
         </div>
 
@@ -180,11 +230,10 @@ export default async function HomePage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">Featured library</span>
-            <h2>Show buyers what they unlock after subscribing.</h2>
+            <h2>A closer look at the learning resources inside.</h2>
           </div>
           <p>
-            Use visible preview cards to market the depth of your material while reserving the full
-            files for subscribers.
+            Preview the kinds of packs, guides, and revision support available inside the academy.
           </p>
         </div>
 
@@ -208,28 +257,56 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="page-shell section" id="team">
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">Our team</span>
+            <h2>Leadership grounded in subject mastery and learner support.</h2>
+          </div>
+          <p>
+            The academy is led by an educator committed to excellence in teaching, mentorship, and
+            meaningful student progress.
+          </p>
+        </div>
+
+        <div className="team-grid">
+          <article className="team-card">
+            <div className="team-avatar">JM</div>
+            <div>
+              <h3>James Mwangi</h3>
+              <p className="team-role">Founder & Leader</p>
+              <p className="subtle">
+                James Mwangi is a Physics and Mathematics teacher passionate about shaping minds and
+                redefining learning. Through innovative teaching and accessible resources, he
+                supports students, parents, and teachers in achieving academic excellence.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section className="page-shell cta">
         <div className="cta-box">
-          <span className="eyebrow">Ready to launch</span>
-          <h2>Accounts, subscriptions, and payment records are now part of the platform.</h2>
+          <span className="eyebrow">Ready to learn with confidence</span>
+          <h2>Access essential CBE learning materials in one trusted, guided academy.</h2>
           <p>
-            Sign up, log in, start Paystack checkout, and track saved subscriptions and payments from
-            the dashboard.
+            Join the academy, choose the right level, and start learning with materials designed to
+            build understanding, confidence, and measurable progress.
           </p>
           <div className="hero-actions">
             <Link href="/subscribe" className="button">
-              Open checkout flow
+              Start subscription
             </Link>
-            <Link href="/dashboard" className="button-secondary">
-              See the member area
+            <Link href="/levels/grade-7" className="button-secondary">
+              Browse materials
             </Link>
           </div>
         </div>
       </section>
 
       <footer className="page-shell footer">
-        {academyName} is built for selling Kenyan curriculum revision materials through membership
-        access and Paystack checkout.
+        {academyName} supports learners, parents, and teachers with focused CBC-aligned materials,
+        mentorship, and purposeful academic growth.
       </footer>
     </main>
   );

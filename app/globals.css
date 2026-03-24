@@ -209,6 +209,26 @@ main {
   gap: 18px;
 }
 
+.founder-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.founder-badge,
+.team-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--secondary), var(--gold));
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
 .panel {
   border-radius: var(--radius-xl);
   padding: 24px;
@@ -219,7 +239,9 @@ main {
 .class-grid,
 .resource-grid,
 .pricing-grid,
-.dashboard-grid {
+.dashboard-grid,
+.about-grid,
+.team-grid {
   display: grid;
   gap: 18px;
 }
@@ -269,6 +291,40 @@ main {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.about-grid {
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: stretch;
+}
+
+.about-card {
+  padding: 32px;
+}
+
+.about-aside {
+  display: grid;
+  gap: 18px;
+}
+
+.quote-card,
+.mini-profile,
+.team-card {
+  background: rgba(255, 252, 244, 0.84);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius-xl);
+}
+
+.quote-card,
+.mini-profile {
+  padding: 24px;
+}
+
+.quote-card p {
+  margin: 14px 0 0;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
 .feature-card,
 .class-card,
 .resource-card,
@@ -291,6 +347,10 @@ main {
 .card-link:hover .resource-card {
   transform: translateY(-3px);
   border-color: rgba(31, 111, 95, 0.28);
+}
+
+.card-link:hover .tag {
+  background: rgba(31, 111, 95, 0.16);
 }
 
 .feature-card h3,
@@ -324,6 +384,24 @@ main {
 .pricing-grid,
 .dashboard-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.team-grid {
+  grid-template-columns: 1fr;
+}
+
+.team-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: start;
+  padding: 28px;
+}
+
+.team-role {
+  margin: 6px 0 12px;
+  color: var(--secondary);
+  font-weight: 700;
 }
 
 .price {
@@ -493,7 +571,8 @@ main {
   .class-grid,
   .pricing-grid,
   .dashboard-grid,
-  .resource-grid {
+  .resource-grid,
+  .about-grid {
     grid-template-columns: 1fr;
   }
 
@@ -510,6 +589,10 @@ main {
 
   .hero-card {
     padding: 32px 24px;
+  }
+
+  .team-card {
+    grid-template-columns: 1fr;
   }
 
   .form-grid {
