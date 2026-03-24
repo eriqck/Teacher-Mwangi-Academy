@@ -1,4 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
+import { access } from "fs/promises";
+import path from "path";
 import { SiteHeader } from "@/components/site-header";
 import { academyName, schemeOfWorkPrice } from "@/lib/business";
 import { featuredResources, levels, membershipPlans } from "@/lib/catalog";
@@ -22,6 +25,13 @@ const reasons = [
 ];
 
 export default async function HomePage() {
+  const founderImagePath = "/teacher-mwangi-profile.png";
+  const founderImageAvailable = await access(
+    path.join(process.cwd(), "public", "teacher-mwangi-profile.png")
+  )
+    .then(() => true)
+    .catch(() => false);
+
   return (
     <main>
       <SiteHeader />
@@ -48,7 +58,18 @@ export default async function HomePage() {
 
           <div className="hero-side">
             <div className="panel founder-panel">
-              <div className="founder-badge">TM</div>
+              <div className="founder-portrait">
+                {founderImageAvailable ? (
+                  <Image
+                    src={founderImagePath}
+                    alt="Teacher Mwangi portrait"
+                    fill
+                    sizes="220px"
+                  />
+                ) : (
+                  <span className="portrait-fallback">TM</span>
+                )}
+              </div>
               <span className="eyebrow">Founder spotlight</span>
               <h3>James Mwangi</h3>
               <p className="subtle">
@@ -271,7 +292,18 @@ export default async function HomePage() {
 
         <div className="team-grid">
           <article className="team-card">
-            <div className="team-avatar">JM</div>
+            <div className="team-portrait">
+              {founderImageAvailable ? (
+                <Image
+                  src={founderImagePath}
+                  alt="James Mwangi portrait"
+                  fill
+                  sizes="120px"
+                />
+              ) : (
+                <span className="portrait-fallback">JM</span>
+              )}
+            </div>
             <div>
               <h3>James Mwangi</h3>
               <p className="team-role">Founder & Leader</p>

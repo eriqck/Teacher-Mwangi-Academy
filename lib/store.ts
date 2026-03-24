@@ -77,6 +77,8 @@ export type SchemePurchaseRecord = {
 };
 
 export type ResourceCategory = "revision-material" | "scheme-of-work";
+export type ResourceSection = "notes" | "assessment";
+export type AssessmentSet = "set-1" | "set-2" | "set-3";
 
 export type ResourceRecord = {
   id: string;
@@ -85,6 +87,8 @@ export type ResourceRecord = {
   level: string;
   subject: string;
   category: ResourceCategory;
+  section?: ResourceSection;
+  assessmentSet?: AssessmentSet | null;
   audience: "parent" | "teacher" | "both";
   price: number | null;
   fileName: string;

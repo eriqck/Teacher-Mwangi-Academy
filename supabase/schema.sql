@@ -75,6 +75,8 @@ create table if not exists resources (
   level text not null,
   subject text not null,
   category text not null check (category in ('revision-material', 'scheme-of-work')),
+  section text check (section in ('notes', 'assessment')),
+  assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3')),
   audience text not null check (audience in ('parent', 'teacher', 'both')),
   price integer,
   file_name text not null,

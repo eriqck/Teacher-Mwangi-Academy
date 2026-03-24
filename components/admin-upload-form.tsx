@@ -27,6 +27,8 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const isScheme = variant === "scheme-of-work";
+  const [section, setSection] = useState("notes");
+  const showAssessmentSet = !isScheme && section === "assessment";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,20 +92,62 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           </select>
         </div>
         <div className="field">
-          <label htmlFor={`${variant}-audience`}>Audience</label>
-          <select
-            id={`${variant}-audience`}
-            name="audience"
-            defaultValue={isScheme ? "teacher" : "both"}
-            disabled={isScheme}
-          >
-            <option value="both">Parents and teachers</option>
-            <option value="parent">Parents only</option>
-            <option value="teacher">Teachers only</option>
-          </select>
-          <small>{isScheme ? "Schemes are always teacher-only and sold at KSh 30." : "Use audience to control visibility."}</small>
+          <label htmlFor={`${variant}-section`}>{isScheme ? "Resource type" : "Content category"}</label>
+          {isScheme ? (
+            <>
+              <input value="Notes" readOnly />
+              <small>Schemes of work stay as separate teacher resources.</small>
+            </>
+          ) : (
+            <>
+              <select
+                id={`${variant}-section`}
+                name="section"
+                value={section}
+                onChange={(event) => setSection(event.target.value)}
+              >
+                <option value="notes">Notes</option>
+                <option value="assessment">Assessment</option>
+              </select>
+              <small>Each level will show Notes and Assessment separately.</small>
+            </>
+          )}
         </div>
       </div>
+
+      {!isScheme ? (
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor={`${variant}-assessment-set`}>Assessment set</label>
+            <select
+              id={`${variant}-assessment-set`}
+              name="assessmentSet"
+              defaultValue="set-1"
+              disabled={!showAssessmentSet}
+            >
+              <option value="set-1">Set 1</option>
+              <option value="set-2">Set 2</option>
+              <option value="set-3">Set 3</option>
+            </select>
+            <small>{showAssessmentSet ? "Choose where the assessment should appear." : "Used only when the content category is Assessment."}</small>
+          </div>
+          <div className="field">
+            <label htmlFor={`${variant}-audience`}>Audience</label>
+            <select id={`${variant}-audience`} name="audience" defaultValue="both">
+              <option value="both">Parents and teachers</option>
+              <option value="parent">Parents only</option>
+              <option value="teacher">Teachers only</option>
+            </select>
+            <small>Use audience to control visibility.</small>
+          </div>
+        </div>
+      ) : (
+        <div className="field">
+          <label htmlFor={`${variant}-audience`}>Audience</label>
+          <input id={`${variant}-audience`} value="Teachers only" readOnly />
+          <small>Schemes are always teacher-only and sold at KSh 30.</small>
+        </div>
+      )}
 
       <div className="field">
         <label htmlFor={`${variant}-description`}>Description</label>

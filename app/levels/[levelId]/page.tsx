@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { getLevelPageData } from "@/lib/resource-access";
 
+const assessmentSets = [
+  { id: "set-1", label: "Set 1" },
+  { id: "set-2", label: "Set 2" },
+  { id: "set-3", label: "Set 3" }
+] as const;
+
 export default async function LevelPage({
   params
 }: {
@@ -16,7 +22,12 @@ export default async function LevelPage({
   }
 
   const { level, resources, user, hasLevelAccess } = pageData;
-  const revisionMaterials = resources.filter((resource) => resource.category === "revision-material");
+  const notes = resources.filter(
+    (resource) => resource.category === "revision-material" && (resource.section ?? "notes") === "notes"
+  );
+  const assessments = resources.filter(
+    (resource) => resource.category === "revision-material" && resource.section === "assessment"
+  );
   const schemes = resources.filter((resource) => resource.category === "scheme-of-work");
 
   return (
@@ -80,20 +91,20 @@ export default async function LevelPage({
       <section className="page-shell section">
         <div className="section-head">
           <div>
-            <span className="eyebrow">Revision library</span>
-            <h2>{level.title} revision materials</h2>
+            <span className="eyebrow">Notes</span>
+            <h2>{level.title} notes</h2>
           </div>
-          <p>These files are filtered to this level only.</p>
+          <p>Topic notes, study support, and learning guides for this level.</p>
         </div>
 
         <div className="resource-grid">
-          {revisionMaterials.length > 0 ? (
-            revisionMaterials.map((resource) => (
+          {notes.length > 0 ? (
+            notes.map((resource) => (
               <article key={resource.id} className="resource-card">
                 <h3>{resource.title}</h3>
                 <div className="resource-meta">
                   <span>{resource.subject}</span>
-                  <span>{resource.audience}</span>
+                  <span>Notes</span>
                 </div>
                 <p className="subtle">{resource.description}</p>
                 <div className="hero-actions">
@@ -109,12 +120,71 @@ export default async function LevelPage({
             ))
           ) : (
             <article className="resource-card">
-              <h3>No uploaded materials yet</h3>
+              <h3>No notes uploaded yet</h3>
               <p className="subtle">
-                There are no uploaded revision materials for {level.title} yet.
+                There are no uploaded notes for {level.title} yet.
               </p>
             </article>
           )}
+        </div>
+      </section>
+
+      <section className="page-shell section">
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">Assessment</span>
+            <h2>{level.title} assessments</h2>
+          </div>
+          <p>Assessments are grouped into Set 1, Set 2, and Set 3 for easier navigation.</p>
+        </div>
+
+        <div className="assessment-stack">
+          {assessmentSets.map((assessmentSet) => {
+            const setResources = assessments.filter(
+              (resource) => resource.assessmentSet === assessmentSet.id
+            );
+
+            return (
+              <section key={assessmentSet.id} className="assessment-block">
+                <div className="assessment-head">
+                  <span className="eyebrow">{assessmentSet.label}</span>
+                  <h3>{assessmentSet.label} assessments</h3>
+                </div>
+
+                <div className="resource-grid">
+                  {setResources.length > 0 ? (
+                    setResources.map((resource) => (
+                      <article key={resource.id} className="resource-card">
+                        <h3>{resource.title}</h3>
+                        <div className="resource-meta">
+                          <span>{resource.subject}</span>
+                          <span>{assessmentSet.label}</span>
+                        </div>
+                        <p className="subtle">{resource.description}</p>
+                        <div className="hero-actions">
+                          {resource.canOpen ? (
+                            <Link href={resource.fileUrl} target="_blank" className="button">
+                              Open assessment
+                            </Link>
+                          ) : (
+                            <span className="pill">Login and active access required</span>
+                          )}
+                        </div>
+                      </article>
+                    ))
+                  ) : (
+                    <article className="resource-card">
+                      <h3>No {assessmentSet.label.toLowerCase()} uploaded yet</h3>
+                      <p className="subtle">
+                        There are no {assessmentSet.label.toLowerCase()} assessments uploaded for{" "}
+                        {level.title} yet.
+                      </p>
+                    </article>
+                  )}
+                </div>
+              </section>
+            );
+          })}
         </div>
       </section>
 

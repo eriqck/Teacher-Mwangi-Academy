@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { saveUploadedResource } from "@/lib/resources";
-import type { ResourceCategory } from "@/lib/store";
+import type { AssessmentSet, ResourceCategory, ResourceSection } from "@/lib/store";
 
 function isAudience(value: string): value is "parent" | "teacher" | "both" {
   return value === "parent" || value === "teacher" || value === "both";
@@ -9,6 +9,14 @@ function isAudience(value: string): value is "parent" | "teacher" | "both" {
 
 function isCategory(value: string): value is ResourceCategory {
   return value === "revision-material" || value === "scheme-of-work";
+}
+
+function isSection(value: string): value is ResourceSection {
+  return value === "notes" || value === "assessment";
+}
+
+function isAssessmentSet(value: string): value is AssessmentSet {
+  return value === "set-1" || value === "set-2" || value === "set-3";
 }
 
 export async function POST(request: NextRequest) {
@@ -29,6 +37,8 @@ export async function POST(request: NextRequest) {
     const level = `${formData.get("level") ?? ""}`.trim();
     const subject = `${formData.get("subject") ?? ""}`.trim();
     const category = `${formData.get("category") ?? ""}`.trim();
+    const section = `${formData.get("section") ?? "notes"}`.trim();
+    const assessmentSet = `${formData.get("assessmentSet") ?? ""}`.trim();
     const audience = `${formData.get("audience") ?? "both"}`.trim();
     const file = formData.get("file");
 
@@ -44,12 +54,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid audience selected." }, { status: 400 });
     }
 
+    if (category === "revision-material" && !isSection(section)) {
+      return NextResponse.json({ error: "Invalid material section selected." }, { status: 400 });
+    }
+
+    if (category === "revision-material" && section === "assessment" && !isAssessmentSet(assessmentSet)) {
+      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, or Set 3." }, { status: 400 });
+    }
+
+    const resolvedSection: ResourceSection =
+      category === "scheme-of-work" ? "notes" : (section as ResourceSection);
+    const resolvedAssessmentSet: AssessmentSet | null =
+      category === "scheme-of-work"
+        ? null
+        : resolvedSection === "assessment"
+          ? (assessmentSet as AssessmentSet)
+          : null;
+
     await saveUploadedResource({
       title,
       description,
       level,
       subject,
       category,
+      section: resolvedSection,
+      assessmentSet: resolvedAssessmentSet,
       audience,
       uploadedByUserId: user.id,
       file

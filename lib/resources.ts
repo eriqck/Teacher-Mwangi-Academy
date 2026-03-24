@@ -3,7 +3,7 @@ import path from "path";
 import { createId } from "@/lib/auth";
 import { schemeOfWorkPrice } from "@/lib/business";
 import { saveResourceRecord, uploadResourceFile } from "@/lib/repository";
-import type { ResourceCategory, ResourceRecord } from "@/lib/store";
+import type { AssessmentSet, ResourceCategory, ResourceRecord, ResourceSection } from "@/lib/store";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
 function slugify(input: string) {
@@ -26,6 +26,8 @@ export async function saveUploadedResource(input: {
   level: string;
   subject: string;
   category: ResourceCategory;
+  section: ResourceSection;
+  assessmentSet: AssessmentSet | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
   file: File;
@@ -61,6 +63,8 @@ export async function saveUploadedResource(input: {
     level: input.level,
     subject: input.subject.trim(),
     category: input.category,
+    section: input.category === "scheme-of-work" ? "notes" : input.section,
+    assessmentSet: input.category === "scheme-of-work" ? null : input.assessmentSet,
     audience: input.category === "scheme-of-work" ? "teacher" : input.audience,
     price: input.category === "scheme-of-work" ? schemeOfWorkPrice : null,
     fileName: input.file.name,
