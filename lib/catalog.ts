@@ -1,0 +1,119 @@
+export type Level = {
+  id: string;
+  title: string;
+  stage: "Junior Secondary" | "Senior Secondary";
+  description: string;
+  subjects: string[];
+  formats: string[];
+};
+
+export const levels: Level[] = [
+  {
+    id: "grade-7",
+    title: "Grade 7",
+    stage: "Junior Secondary",
+    description:
+      "Foundation revision packs, topical questions, and home-study guides aligned to CBC learning outcomes.",
+    subjects: ["Mathematics", "Integrated Science", "English", "Kiswahili", "Social Studies"],
+    formats: ["Topical PDFs", "Weekly revision plans", "Teacher marking schemes"]
+  },
+  {
+    id: "grade-8",
+    title: "Grade 8",
+    stage: "Junior Secondary",
+    description:
+      "Skill-building revision bundles with model answers, remedial practice, and exam-style assessments.",
+    subjects: ["Mathematics", "Pre-Technical Studies", "English", "Kiswahili", "Agriculture"],
+    formats: ["Revision booklets", "Printable tests", "Parent support guides"]
+  },
+  {
+    id: "grade-9",
+    title: "Grade 9",
+    stage: "Junior Secondary",
+    description:
+      "Transition-focused materials for stronger end-of-stage preparation and subject mastery.",
+    subjects: ["Mathematics", "Integrated Science", "Business Studies", "English", "CRE"],
+    formats: ["End-term exams", "Scheme-based worksheets", "Teacher progress trackers"]
+  },
+  {
+    id: "grade-10",
+    title: "Grade 10",
+    stage: "Senior Secondary",
+    description:
+      "New-stage revision resources designed for serious coverage, retention, and independent study habits.",
+    subjects: ["Mathematics", "English", "Kiswahili", "Biology", "History"],
+    formats: ["Topic mastery packs", "Holiday revision kits", "Assessment blueprints"]
+  },
+  {
+    id: "form-3",
+    title: "Form 3",
+    stage: "Senior Secondary",
+    description:
+      "KCSE-track revision materials with more intensive practice, answer guides, and performance analysis.",
+    subjects: ["Mathematics", "Physics", "Chemistry", "Biology", "Geography"],
+    formats: ["Exam papers", "Marking schemes", "Past-paper drills"]
+  },
+  {
+    id: "form-4",
+    title: "Form 4",
+    stage: "Senior Secondary",
+    description:
+      "Final-year exam preparation with mock bundles, targeted revision, and teacher-ready download packs.",
+    subjects: ["Mathematics", "English", "Business Studies", "Chemistry", "CRE"],
+    formats: ["Full mocks", "Prediction sets", "Revision crash packs"]
+  }
+];
+
+export const featuredResources = [
+  {
+    title: "Grade 8 End-Term Revision Bank",
+    level: "Grade 8",
+    type: "Downloadable Pack",
+    access: "Subscribers only"
+  },
+  {
+    title: "Form 4 Mathematics Prediction Series",
+    level: "Form 4",
+    type: "Mock Set",
+    access: "Premium tier"
+  },
+  {
+    title: "Grade 7 Parent Homework Support Sheets",
+    level: "Grade 7",
+    type: "Parent Guide",
+    access: "Subscribers only"
+  },
+  {
+    title: "Form 3 Science Weekly Drills",
+    level: "Form 3",
+    type: "Practice Bundle",
+    access: "Subscribers only"
+  }
+];
+
+export const membershipPlans = [
+  {
+    name: "Parent Subscription",
+    price: "KSh 300",
+    cadence: "/month",
+    audience: "For parents supporting one learner at a time",
+    highlights: [
+      "Access to one class level at a time",
+      "Weekly downloadable revision packs",
+      "Parent guidance notes and progress tips",
+      "M-Pesa recurring renewal support"
+    ]
+  },
+  {
+    name: "Teacher Subscription",
+    price: "KSh 150",
+    cadence: "/month",
+    audience: "For teachers, tutors, and subject support staff",
+    highlights: [
+      "Access across all revision levels",
+      "Editable classroom assessment bundles",
+      "Marking schemes and teaching notes",
+      "Optional one-time schemes of work purchases"
+    ]
+  }
+];

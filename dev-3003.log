@@ -1,0 +1,52 @@
+
+> cbe-revision-hub@0.1.0 dev
+> next dev --port 3003
+
+   ▲ Next.js 15.5.14
+   - Local:        http://localhost:3003
+   - Network:      http://192.168.150.212:3003
+
+ ✓ Starting...
+ ✓ Ready in 13.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 8.5s (615 modules)
+ GET / 200 in 9423ms
+ GET / 200 in 508ms
+ ○ Compiling /levels/[levelId] ...
+ ✓ Compiled /levels/[levelId] in 858ms (605 modules)
+ GET /levels/grade-7 200 in 2623ms
+ GET /levels/grade-7 200 in 182ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 824ms (619 modules)
+ GET /login 200 in 1316ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 667ms (639 modules)
+ POST /api/auth/login 200 in 1084ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 613ms (641 modules)
+ GET /dashboard 200 in 1017ms
+ GET /dashboard 200 in 160ms
+ GET /dashboard 200 in 105ms
+ GET / 200 in 162ms
+ GET / 200 in 126ms
+ GET /levels/grade-7 200 in 171ms
+ GET / 200 in 1406ms
+ GET /login 200 in 160ms
+ POST /api/auth/login 200 in 200ms
+ GET /dashboard 200 in 472ms
+ GET /dashboard 200 in 350ms
+ GET / 200 in 113ms
+ GET /levels/grade-7 200 in 146ms
+ GET /levels/grade-7 200 in 87ms
+ GET / 200 in 116ms
+ GET /levels/grade-8 200 in 100ms
+ ○ Compiling /subscribe ...
+ ✓ Compiled /subscribe in 1044ms (632 modules)
+ GET /subscribe 200 in 1561ms
+ GET /subscribe 200 in 61ms
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 707ms (640 modules)
+ GET /admin 200 in 1006ms
+ GET /admin 200 in 105ms
+   Reload env: .env.local
+[?25h

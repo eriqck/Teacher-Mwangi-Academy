@@ -1,0 +1,136 @@
+"use client";
+
+import { useState } from "react";
+import { levels } from "@/lib/catalog";
+
+type UploadVariant = "revision-material" | "scheme-of-work";
+
+const subjects = [
+  "Mathematics",
+  "English",
+  "Kiswahili",
+  "Integrated Science",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "Business Studies",
+  "History",
+  "Geography",
+  "CRE",
+  "Social Studies",
+  "Agriculture",
+  "Pre-Technical Studies"
+];
+
+export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const isScheme = variant === "scheme-of-work";
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setMessage("");
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+    formData.set("category", variant);
+
+    const response = await fetch("/api/admin/resources", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = (await response.json()) as { ok?: boolean; error?: string; message?: string };
+    setLoading(false);
+
+    if (!response.ok) {
+      setError(data.error ?? "Upload failed.");
+      return;
+    }
+
+    setMessage(data.message ?? "Upload complete.");
+    event.currentTarget.reset();
+  }
+
+  return (
+    <form className="panel-stack" onSubmit={handleSubmit}>
+      <div className="form-grid">
+        <div className="field">
+          <label htmlFor={`${variant}-title`}>Title</label>
+          <input
+            id={`${variant}-title`}
+            name="title"
+            defaultValue={isScheme ? "Scheme of Work" : ""}
+            required
+          />
+        </div>
+        <div className="field">
+          <label htmlFor={`${variant}-subject`}>Subject</label>
+          <select id={`${variant}-subject`} name="subject" defaultValue="Mathematics" required>
+            {subjects.map((subject) => (
+              <option key={subject} value={subject}>
+                {subject}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="form-grid">
+        <div className="field">
+          <label htmlFor={`${variant}-level`}>Level</label>
+          <select id={`${variant}-level`} name="level" defaultValue="Grade 7" required>
+            {levels.map((level) => (
+              <option key={level.id} value={level.title}>
+                {level.title}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor={`${variant}-audience`}>Audience</label>
+          <select
+            id={`${variant}-audience`}
+            name="audience"
+            defaultValue={isScheme ? "teacher" : "both"}
+            disabled={isScheme}
+          >
+            <option value="both">Parents and teachers</option>
+            <option value="parent">Parents only</option>
+            <option value="teacher">Teachers only</option>
+          </select>
+          <small>{isScheme ? "Schemes are always teacher-only and sold at KSh 30." : "Use audience to control visibility."}</small>
+        </div>
+      </div>
+
+      <div className="field">
+        <label htmlFor={`${variant}-description`}>Description</label>
+        <input
+          id={`${variant}-description`}
+          name="description"
+          placeholder={
+            isScheme
+              ? "Example: Term 2 weekly plan aligned to the subject sequence."
+              : "Example: End-term revision pack with answers and topical practice."
+          }
+          required
+        />
+      </div>
+
+      <div className="field">
+        <label htmlFor={`${variant}-file`}>Upload file</label>
+        <input id={`${variant}-file`} name="file" type="file" required />
+        <small>PDF, DOCX, XLSX, images, and other common teaching files are supported.</small>
+      </div>
+
+      {error ? <div className="message message-error">{error}</div> : null}
+      {message ? <div className="message message-success">{message}</div> : null}
+
+      <button className="button" type="submit" disabled={loading}>
+        {loading ? "Uploading..." : isScheme ? "Upload scheme of work" : "Upload revision material"}
+      </button>
+    </form>
+  );
+}

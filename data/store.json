@@ -1,0 +1,189 @@
+{
+  "users": [
+    {
+      "id": "user_6de16440-b426-4d3e-9135-cb420d75341e",
+      "fullName": "Eric Njoroge",
+      "email": "ericdavid348@gmail.com",
+      "phoneNumber": "0702578554",
+      "role": "admin",
+      "passwordHash": "170f4ca929dfcd38c4beab3373d48f9cec7768d8418c02f727048cfa752846a5c830a046b76bcb05e4dc00cbd9673a682ab5ed213ce6599b771b5d78224a1adc",
+      "passwordSalt": "1630680c0f550ecabaeb18b1f66d8091",
+      "createdAt": "2026-03-24T13:02:47.144Z"
+    },
+    {
+      "id": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "fullName": "Eric N",
+      "email": "mnjoroge468@gmail.com",
+      "phoneNumber": "0702578554",
+      "role": "teacher",
+      "passwordHash": "e4d85050573c582aa49987672575bac58850743b605f89dd5811be10403ff2e6bab8da94e022f1641b52e7f25fbcf6c5a664123a23bf59c06228be55c368a410",
+      "passwordSalt": "370abf67fbd8308deaa2cb769a749302",
+      "createdAt": "2026-03-24T13:24:16.860Z"
+    }
+  ],
+  "sessions": [
+    {
+      "token": "session_aa08cdf1-b3f4-453a-8488-303bf5409576",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "createdAt": "2026-03-24T15:55:00.130Z",
+      "expiresAt": "2026-04-23T15:55:00.130Z"
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": "sub_1f658c01-cb4b-4ee6-81d7-ac054fa51668",
+      "userId": "user_6de16440-b426-4d3e-9135-cb420d75341e",
+      "plan": "parent-monthly",
+      "status": "pending",
+      "amount": 300,
+      "levelAccess": [
+        "grade-7"
+      ],
+      "startDate": null,
+      "endDate": null,
+      "createdAt": "2026-03-24T13:04:19.767Z",
+      "updatedAt": "2026-03-24T13:04:19.767Z",
+      "paymentId": "pay_8600ebeb-e9ae-4d9e-b7ca-184d766a2bb3"
+    },
+    {
+      "id": "sub_4ad1bdee-64ee-46a0-874f-72b9b86405db",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "plan": "teacher-monthly",
+      "status": "pending",
+      "amount": 150,
+      "levelAccess": [],
+      "startDate": null,
+      "endDate": null,
+      "createdAt": "2026-03-24T15:39:09.704Z",
+      "updatedAt": "2026-03-24T15:39:09.704Z",
+      "paymentId": "pay_a0022c2a-72cb-481c-ac0e-a36c261bb8ce"
+    },
+    {
+      "id": "sub_da5c919e-f099-4995-8762-a9f6e521edfb",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "plan": "teacher-monthly",
+      "status": "pending",
+      "amount": 150,
+      "levelAccess": [],
+      "startDate": null,
+      "endDate": null,
+      "createdAt": "2026-03-24T15:55:28.614Z",
+      "updatedAt": "2026-03-24T15:55:28.614Z",
+      "paymentId": "pay_758829a3-0344-43de-9900-57667716d056"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay_8600ebeb-e9ae-4d9e-b7ca-184d766a2bb3",
+      "userId": "user_6de16440-b426-4d3e-9135-cb420d75341e",
+      "kind": "subscription",
+      "status": "pending",
+      "amount": 300,
+      "phoneNumber": "254798446573",
+      "accountReference": "Erick",
+      "plan": "parent-monthly",
+      "schemeSubject": null,
+      "schemeLevel": null,
+      "checkoutRequestId": null,
+      "merchantRequestId": null,
+      "mpesaReceiptNumber": null,
+      "resultCode": null,
+      "resultDesc": "Missing environment variable: MPESA_CONSUMER_KEY",
+      "createdAt": "2026-03-24T13:04:19.767Z",
+      "updatedAt": "2026-03-24T13:04:19.780Z"
+    },
+    {
+      "id": "pay_72c031d0-7453-4f35-8557-bafbc5cbdb24",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "kind": "scheme",
+      "status": "pending",
+      "amount": 30,
+      "phoneNumber": "254708374149",
+      "accountReference": "Erick",
+      "plan": null,
+      "schemeSubject": "Mathematics",
+      "schemeLevel": "Grade 7",
+      "checkoutRequestId": null,
+      "merchantRequestId": null,
+      "mpesaReceiptNumber": null,
+      "resultCode": null,
+      "resultDesc": "fetch failed",
+      "createdAt": "2026-03-24T15:38:13.355Z",
+      "updatedAt": "2026-03-24T15:38:24.133Z"
+    },
+    {
+      "id": "pay_a0022c2a-72cb-481c-ac0e-a36c261bb8ce",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "kind": "subscription",
+      "status": "pending",
+      "amount": 150,
+      "phoneNumber": "254708374149",
+      "accountReference": "Erick",
+      "plan": "teacher-monthly",
+      "schemeSubject": null,
+      "schemeLevel": null,
+      "checkoutRequestId": null,
+      "merchantRequestId": null,
+      "mpesaReceiptNumber": null,
+      "resultCode": null,
+      "resultDesc": "Failed to get M-Pesa token: 400",
+      "createdAt": "2026-03-24T15:39:09.704Z",
+      "updatedAt": "2026-03-24T15:39:10.603Z"
+    },
+    {
+      "id": "pay_758829a3-0344-43de-9900-57667716d056",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "kind": "subscription",
+      "status": "pending",
+      "provider": "paystack",
+      "currency": "KES",
+      "amount": 150,
+      "phoneNumber": "",
+      "accountReference": "Erick",
+      "plan": "teacher-monthly",
+      "schemeSubject": null,
+      "schemeLevel": null,
+      "paymentReference": "pay_758829a3-0344-43de-9900-57667716d056",
+      "authorizationUrl": "https://checkout.paystack.com/fzxq299israrel9",
+      "checkoutRequestId": null,
+      "merchantRequestId": null,
+      "mpesaReceiptNumber": null,
+      "resultCode": null,
+      "resultDesc": null,
+      "createdAt": "2026-03-24T15:55:28.614Z",
+      "updatedAt": "2026-03-24T15:55:29.904Z"
+    }
+  ],
+  "schemePurchases": [
+    {
+      "id": "scheme_dfc6ddc6-a90f-48d3-a1c9-812f43fca18e",
+      "userId": "user_fc99404c-4ae9-4b1b-a002-b2c5c2feba0d",
+      "subject": "Mathematics",
+      "level": "Grade 7",
+      "amount": 30,
+      "status": "pending",
+      "paymentId": "pay_72c031d0-7453-4f35-8557-bafbc5cbdb24",
+      "createdAt": "2026-03-24T15:38:13.355Z",
+      "updatedAt": "2026-03-24T15:38:13.355Z"
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource_48bd5a27-1bbf-4d3b-ae6b-b58eb5e89dbd",
+      "title": "pdf text book",
+      "description": "Term 1, 2, 3 text book",
+      "level": "Grade 7",
+      "subject": "Mathematics",
+      "category": "revision-material",
+      "audience": "both",
+      "price": null,
+      "fileName": "GRADE 7 MATHEMATICS BOOK.pdf",
+      "filePath": "public/uploads/materials/1774360369137-grade-7-mathematics-book.pdf",
+      "fileUrl": "/uploads/materials/1774360369137-grade-7-mathematics-book.pdf",
+      "mimeType": "application/pdf",
+      "uploadedByUserId": "user_6de16440-b426-4d3e-9135-cb420d75341e",
+      "createdAt": "2026-03-24T13:52:49.149Z",
+      "updatedAt": "2026-03-24T13:52:49.149Z"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AuthForm } from "@/components/auth-form";
+import { SiteHeader } from "@/components/site-header";
+import { getCurrentUser } from "@/lib/auth";
+
+export default async function LoginPage() {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
+  return (
+    <main>
+      <SiteHeader />
+      <section className="page-shell section">
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">Sign in</span>
+            <h2>Access your Teacher Mwangi Academy account.</h2>
+          </div>
+          <p>
+            Parents and teachers can sign in here to manage subscriptions, check payments, and open
+            their member dashboard.
+          </p>
+        </div>
+
+        <div className="dashboard-grid">
+          <article className="dashboard-card">
+            <h3>Member login</h3>
+            <AuthForm mode="login" />
+          </article>
+
+          <article className="dashboard-card">
+            <h3>New here?</h3>
+            <ul className="list">
+              <li>Parents can subscribe for KSh 300 per month.</li>
+              <li>Teachers can subscribe for KSh 150 per month.</li>
+              <li>Teachers can also buy schemes of work at KSh 30 per subject.</li>
+            </ul>
+            <div className="hero-actions">
+              <Link href="/signup" className="button">
+                Create account
+              </Link>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  );
+}
