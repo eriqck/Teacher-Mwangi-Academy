@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { AdminUploadForm } from "@/components/admin-upload-form";
+import { AdminResourceManager } from "@/components/admin-resource-manager";
 import { SiteHeader } from "@/components/site-header";
 import { schemeOfWorkPrice } from "@/lib/business";
 import { requireAdmin } from "@/lib/auth";
@@ -56,43 +56,11 @@ export default async function AdminPage() {
             <h2>Your latest uploaded files.</h2>
           </div>
           <p>
-            Open the saved file directly or use the metadata here as the basis for future catalog
-            and download controls.
+            Open, edit, or remove uploaded materials here whenever you need to refine the catalog.
           </p>
         </div>
 
-        <article className="dashboard-card">
-          {uploads.length > 0 ? (
-            <table className="mini-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Level</th>
-                  <th>Subject</th>
-                  <th>File</th>
-                </tr>
-              </thead>
-              <tbody>
-                {uploads.map((resource) => (
-                  <tr key={resource.id}>
-                    <td>{resource.title}</td>
-                    <td>{resource.category}</td>
-                    <td>{resource.level}</td>
-                    <td>{resource.subject}</td>
-                    <td>
-                      <Link href={resource.fileUrl} target="_blank" className="nav-link">
-                        Open file
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="subtle">No uploads yet. Add your first material above.</p>
-          )}
-        </article>
+        <AdminResourceManager initialResources={uploads} />
       </section>
     </main>
   );

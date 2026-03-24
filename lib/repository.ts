@@ -1,3 +1,5 @@
+import { promises as fs } from "fs";
+import path from "path";
 import type {
   DataStore,
   PaymentRecord,
@@ -379,6 +381,74 @@ export async function saveResourceRecord(resource: ResourceRecord) {
   return resource;
 }
 
+export async function updateResourceRecord(resourceId: string, changes: Partial<ResourceRecord>) {
+  if (!isSupabaseConfigured()) {
+    let updatedResource: ResourceRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      resources: current.resources.map((resource) => {
+        if (resource.id !== resourceId) return resource;
+        updatedResource = {
+          ...resource,
+          ...changes,
+          id: resource.id
+        };
+        return updatedResource;
+      })
+    }));
+    return updatedResource;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("resources")
+    .update({
+      ...(changes.title !== undefined ? { title: changes.title } : {}),
+      ...(changes.description !== undefined ? { description: changes.description } : {}),
+      ...(changes.level !== undefined ? { level: changes.level } : {}),
+      ...(changes.subject !== undefined ? { subject: changes.subject } : {}),
+      ...(changes.category !== undefined ? { category: changes.category } : {}),
+      ...(changes.section !== undefined ? { section: changes.section } : {}),
+      ...(changes.assessmentSet !== undefined ? { assessment_set: changes.assessmentSet } : {}),
+      ...(changes.audience !== undefined ? { audience: changes.audience } : {}),
+      ...(changes.price !== undefined ? { price: changes.price } : {}),
+      ...(changes.fileName !== undefined ? { file_name: changes.fileName } : {}),
+      ...(changes.filePath !== undefined ? { file_path: changes.filePath } : {}),
+      ...(changes.fileUrl !== undefined ? { file_url: changes.fileUrl } : {}),
+      ...(changes.mimeType !== undefined ? { mime_type: changes.mimeType } : {}),
+      ...(changes.uploadedByUserId !== undefined ? { uploaded_by_user_id: changes.uploadedByUserId } : {}),
+      ...(changes.updatedAt !== undefined ? { updated_at: changes.updatedAt } : {})
+    })
+    .eq("id", resourceId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapResource(data) : null;
+}
+
+export async function deleteResourceRecord(resourceId: string) {
+  if (!isSupabaseConfigured()) {
+    let deletedResource: ResourceRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      resources: current.resources.filter((resource) => {
+        if (resource.id === resourceId) {
+          deletedResource = resource;
+          return false;
+        }
+        return true;
+      })
+    }));
+    return deletedResource;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("resources").delete().eq("id", resourceId).select("*").maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? mapResource(data) : null;
+}
+
 export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, mimeType: string) {
   const supabase = getSupabaseAdmin();
   const bucket = getSupabaseBucket();
@@ -389,6 +459,29 @@ export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, m
   if (error) throw new Error(error.message);
   const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
   return data.publicUrl;
+}
+
+export async function deleteResourceFile(filePath: string) {
+  if (!filePath) return;
+
+  if (!isSupabaseConfigured()) {
+    const absolutePath = path.join(process.cwd(), filePath);
+    try {
+      await fs.unlink(absolutePath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
+    }
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const bucket = getSupabaseBucket();
+  const { error } = await supabase.storage.from(bucket).remove([filePath]);
+  if (error && !error.message.toLowerCase().includes("not found")) {
+    throw new Error(error.message);
+  }
 }
 
 function toPaymentRow(payment: Partial<PaymentRecord>) {
