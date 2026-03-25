@@ -1,7 +1,7 @@
 export type Level = {
   id: string;
   title: string;
-  stage: "Junior Secondary" | "Senior Secondary";
+  stage: "Junior School" | "Senior School";
   description: string;
   subjects: string[];
   formats: string[];
@@ -11,7 +11,7 @@ export const levels: Level[] = [
   {
     id: "grade-7",
     title: "Grade 7",
-    stage: "Junior Secondary",
+    stage: "Junior School",
     description:
       "Foundation revision packs, topical questions, and home-study guides aligned to CBC learning outcomes.",
     subjects: ["Mathematics", "Integrated Science", "English", "Kiswahili", "Social Studies"],
@@ -20,7 +20,7 @@ export const levels: Level[] = [
   {
     id: "grade-8",
     title: "Grade 8",
-    stage: "Junior Secondary",
+    stage: "Junior School",
     description:
       "Skill-building revision bundles with model answers, remedial practice, and exam-style assessments.",
     subjects: ["Mathematics", "Pre-Technical Studies", "English", "Kiswahili", "Agriculture"],
@@ -29,7 +29,7 @@ export const levels: Level[] = [
   {
     id: "grade-9",
     title: "Grade 9",
-    stage: "Junior Secondary",
+    stage: "Junior School",
     description:
       "Transition-focused materials for stronger end-of-stage preparation and subject mastery.",
     subjects: ["Mathematics", "Integrated Science", "Business Studies", "English", "CRE"],
@@ -38,7 +38,7 @@ export const levels: Level[] = [
   {
     id: "grade-10",
     title: "Grade 10",
-    stage: "Senior Secondary",
+    stage: "Senior School",
     description:
       "New-stage revision resources designed for serious coverage, retention, and independent study habits.",
     subjects: ["Mathematics", "English", "Kiswahili", "Biology", "History"],
@@ -47,7 +47,7 @@ export const levels: Level[] = [
   {
     id: "form-3",
     title: "Form 3",
-    stage: "Senior Secondary",
+    stage: "Senior School",
     description:
       "KCSE-track revision materials with more intensive practice, answer guides, and performance analysis.",
     subjects: ["Mathematics", "Physics", "Chemistry", "Biology", "Geography"],
@@ -56,7 +56,7 @@ export const levels: Level[] = [
   {
     id: "form-4",
     title: "Form 4",
-    stage: "Senior Secondary",
+    stage: "Senior School",
     description:
       "Final-year exam preparation with mock bundles, targeted revision, and teacher-ready download packs.",
     subjects: ["Mathematics", "English", "Business Studies", "Chemistry", "CRE"],
