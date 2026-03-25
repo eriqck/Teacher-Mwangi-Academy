@@ -461,6 +461,21 @@ export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, m
   return data.publicUrl;
 }
 
+export async function createSignedResourceUpload(filePath: string) {
+  const supabase = getSupabaseAdmin();
+  const bucket = getSupabaseBucket();
+  const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(filePath);
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export function getResourceFilePublicUrl(filePath: string) {
+  const supabase = getSupabaseAdmin();
+  const bucket = getSupabaseBucket();
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
 export async function deleteResourceFile(filePath: string) {
   if (!filePath) return;
 

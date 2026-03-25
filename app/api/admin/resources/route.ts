@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { saveUploadedResource } from "@/lib/resources";
+import { deleteResourceFile, getResourceFilePublicUrl } from "@/lib/repository";
+import { saveUploadedResource, saveUploadedResourceMetadata } from "@/lib/resources";
 import type { AssessmentSet, ResourceCategory, ResourceSection } from "@/lib/store";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 function isAudience(value: string): value is "parent" | "teacher" | "both" {
   return value === "parent" || value === "teacher" || value === "both";
@@ -40,14 +42,25 @@ export async function POST(request: NextRequest) {
     const section = `${formData.get("section") ?? "notes"}`.trim();
     const assessmentSet = `${formData.get("assessmentSet") ?? ""}`.trim();
     const audience = `${formData.get("audience") ?? "both"}`.trim();
+    const storagePath = `${formData.get("storagePath") ?? ""}`.trim();
+    const fileName = `${formData.get("fileName") ?? ""}`.trim();
+    const mimeType = `${formData.get("mimeType") ?? ""}`.trim();
     const file = formData.get("file");
 
     if (!title || !description || !level || !subject || !isCategory(category)) {
       return NextResponse.json({ error: "All upload fields are required." }, { status: 400 });
     }
 
-    if (!(file instanceof File) || file.size === 0) {
+    const isDirectSupabaseUpload = Boolean(storagePath);
+
+    if (!isDirectSupabaseUpload && (!(file instanceof File) || file.size === 0)) {
       return NextResponse.json({ error: "Please choose a file to upload." }, { status: 400 });
+    }
+
+    const uploadedFile = file instanceof File ? file : null;
+
+    if (isDirectSupabaseUpload && (!fileName || !mimeType || !isSupabaseConfigured())) {
+      return NextResponse.json({ error: "Direct upload metadata is incomplete." }, { status: 400 });
     }
 
     if (!isAudience(audience)) {
@@ -71,18 +84,43 @@ export async function POST(request: NextRequest) {
           ? (assessmentSet as AssessmentSet)
           : null;
 
-    await saveUploadedResource({
-      title,
-      description,
-      level,
-      subject,
-      category,
-      section: resolvedSection,
-      assessmentSet: resolvedAssessmentSet,
-      audience,
-      uploadedByUserId: user.id,
-      file
-    });
+    try {
+      if (isDirectSupabaseUpload) {
+        await saveUploadedResourceMetadata({
+          title,
+          description,
+          level,
+          subject,
+          category,
+          section: resolvedSection,
+          assessmentSet: resolvedAssessmentSet,
+          audience,
+          uploadedByUserId: user.id,
+          fileName,
+          filePath: storagePath,
+          fileUrl: getResourceFilePublicUrl(storagePath),
+          mimeType
+        });
+      } else {
+        await saveUploadedResource({
+          title,
+          description,
+          level,
+          subject,
+          category,
+          section: resolvedSection,
+          assessmentSet: resolvedAssessmentSet,
+          audience,
+          uploadedByUserId: user.id,
+          file: uploadedFile as File
+        });
+      }
+    } catch (error) {
+      if (isDirectSupabaseUpload) {
+        await deleteResourceFile(storagePath).catch(() => undefined);
+      }
+      throw error;
+    }
 
     return NextResponse.json({
       ok: true,

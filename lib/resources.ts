@@ -20,6 +20,65 @@ function sanitizeFileName(fileName: string) {
   return `${safeBase}${ext}`;
 }
 
+function buildResourceRecord(input: {
+  title: string;
+  description: string;
+  level: string;
+  subject: string;
+  category: ResourceCategory;
+  section: ResourceSection;
+  assessmentSet: AssessmentSet | null;
+  audience: "parent" | "teacher" | "both";
+  uploadedByUserId: string;
+  fileName: string;
+  filePath: string;
+  fileUrl: string;
+  mimeType: string;
+}) {
+  const now = new Date().toISOString();
+  const record: ResourceRecord = {
+    id: createId("resource"),
+    title: input.title.trim(),
+    description: input.description.trim(),
+    level: input.level,
+    subject: input.subject.trim(),
+    category: input.category,
+    section: input.category === "scheme-of-work" ? "notes" : input.section,
+    assessmentSet: input.category === "scheme-of-work" ? null : input.assessmentSet,
+    audience: input.category === "scheme-of-work" ? "teacher" : input.audience,
+    price: input.category === "scheme-of-work" ? schemeOfWorkPrice : null,
+    fileName: input.fileName,
+    filePath: input.filePath,
+    fileUrl: input.fileUrl,
+    mimeType: input.mimeType || "application/octet-stream",
+    uploadedByUserId: input.uploadedByUserId,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  return record;
+}
+
+export async function saveUploadedResourceMetadata(input: {
+  title: string;
+  description: string;
+  level: string;
+  subject: string;
+  category: ResourceCategory;
+  section: ResourceSection;
+  assessmentSet: AssessmentSet | null;
+  audience: "parent" | "teacher" | "both";
+  uploadedByUserId: string;
+  fileName: string;
+  filePath: string;
+  fileUrl: string;
+  mimeType: string;
+}) {
+  const record = buildResourceRecord(input);
+  await saveResourceRecord(record);
+  return record;
+}
+
 export async function saveUploadedResource(input: {
   title: string;
   description: string;
@@ -55,28 +114,26 @@ export async function saveUploadedResource(input: {
     fileUrl = `/${relativePath.replace(/^public[\\/]/, "").replace(/\\/g, "/")}`;
   }
 
-  const now = new Date().toISOString();
-  const record: ResourceRecord = {
-    id: createId("resource"),
-    title: input.title.trim(),
-    description: input.description.trim(),
+  return saveUploadedResourceMetadata({
+    title: input.title,
+    description: input.description,
     level: input.level,
-    subject: input.subject.trim(),
+    subject: input.subject,
     category: input.category,
-    section: input.category === "scheme-of-work" ? "notes" : input.section,
-    assessmentSet: input.category === "scheme-of-work" ? null : input.assessmentSet,
-    audience: input.category === "scheme-of-work" ? "teacher" : input.audience,
-    price: input.category === "scheme-of-work" ? schemeOfWorkPrice : null,
+    section: input.section,
+    assessmentSet: input.assessmentSet,
+    audience: input.audience,
+    uploadedByUserId: input.uploadedByUserId,
     fileName: input.file.name,
     filePath,
     fileUrl,
-    mimeType: input.file.type || "application/octet-stream",
-    uploadedByUserId: input.uploadedByUserId,
-    createdAt: now,
-    updatedAt: now
-  };
+    mimeType: input.file.type || "application/octet-stream"
+  });
+}
 
-  await saveResourceRecord(record);
-
-  return record;
+export function buildStoragePath(category: ResourceCategory, fileName: string) {
+  const timestamp = Date.now();
+  const safeFileName = sanitizeFileName(fileName);
+  const folderName = category === "scheme-of-work" ? "schemes" : "materials";
+  return `${folderName}/${timestamp}-${safeFileName}`;
 }

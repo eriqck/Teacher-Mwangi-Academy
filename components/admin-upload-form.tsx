@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { levels } from "@/lib/catalog";
 
 type UploadVariant = "revision-material" | "scheme-of-work";
@@ -23,6 +24,7 @@ const subjects = [
 ];
 
 export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,24 +38,96 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
     setMessage("");
     setError("");
 
-    const formData = new FormData(event.currentTarget);
-    formData.set("category", variant);
+    try {
+      const formData = new FormData(event.currentTarget);
+      formData.set("category", variant);
 
-    const response = await fetch("/api/admin/resources", {
-      method: "POST",
-      body: formData
-    });
+      const file = formData.get("file");
 
-    const data = (await response.json()) as { ok?: boolean; error?: string; message?: string };
-    setLoading(false);
+      if (!(file instanceof File) || file.size === 0) {
+        setError("Please choose a file to upload.");
+        return;
+      }
 
-    if (!response.ok) {
-      setError(data.error ?? "Upload failed.");
-      return;
+      let response: Response;
+
+      const prepareResponse = await fetch("/api/admin/resources/upload-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          category: variant,
+          fileName: file.name
+        })
+      });
+
+      const prepareData = (await prepareResponse.json().catch(() => null)) as
+        | {
+            ok?: boolean;
+            error?: string;
+            signedUrl?: string;
+            storagePath?: string;
+            fileUrl?: string;
+          }
+        | null;
+
+      const canUseDirectUpload = Boolean(prepareResponse.ok && prepareData?.signedUrl && prepareData?.storagePath);
+
+      if (canUseDirectUpload && prepareData?.signedUrl && prepareData.storagePath) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("cacheControl", "3600");
+        uploadFormData.append("", file);
+
+        const storageResponse = await fetch(prepareData.signedUrl, {
+          method: "PUT",
+          body: uploadFormData
+        });
+
+        const storagePayload = (await storageResponse.json().catch(() => null)) as
+          | { error?: string; message?: string }
+          | null;
+
+        if (!storageResponse.ok) {
+          setError(storagePayload?.error ?? storagePayload?.message ?? "File upload to storage failed.");
+          return;
+        }
+
+        formData.delete("file");
+        formData.set("storagePath", prepareData.storagePath);
+        formData.set("fileName", file.name);
+        formData.set("mimeType", file.type || "application/octet-stream");
+      } else if (file.size > 4_000_000) {
+        setError(
+          prepareData?.error ??
+            "Large-file upload could not be prepared. Confirm Supabase storage is configured."
+        );
+        return;
+      }
+
+      response = await fetch("/api/admin/resources", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string; message?: string }
+        | null;
+
+      if (!response.ok) {
+        setError(data?.error ?? "Upload failed.");
+        return;
+      }
+
+      setMessage(data?.message ?? "Upload complete.");
+      event.currentTarget.reset();
+      setSection("notes");
+      router.refresh();
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
+    } finally {
+      setLoading(false);
     }
-
-    setMessage(data.message ?? "Upload complete.");
-    event.currentTarget.reset();
   }
 
   return (
