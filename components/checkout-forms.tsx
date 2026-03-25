@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { levels } from "@/lib/catalog";
+import { schemeTerms } from "@/lib/scheme-terms";
 
 type ApiResponse = {
   ok?: boolean;
@@ -144,6 +145,7 @@ export function SchemeCheckoutForm() {
         accountReference: formData.get("accountReference"),
         subject: formData.get("subject"),
         level: formData.get("level"),
+        term: formData.get("term"),
         amount: 30
       })
     });
@@ -179,10 +181,20 @@ export function SchemeCheckoutForm() {
         </div>
         <div className="field">
           <label htmlFor="level">Level</label>
-          <select id="level" name="level" defaultValue="grade-7" required>
+          <select id="level" name="level" defaultValue="Grade 7" required>
             {levels.map((level) => (
               <option key={level.id} value={level.title}>
                 {level.title}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="term">Term</label>
+          <select id="term" name="term" defaultValue="term-1" required>
+            {schemeTerms.map((term) => (
+              <option key={term.id} value={term.id}>
+                {term.label}
               </option>
             ))}
           </select>

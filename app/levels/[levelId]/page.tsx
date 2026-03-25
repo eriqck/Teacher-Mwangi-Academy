@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { getLevelPageData } from "@/lib/resource-access";
+import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 
 const assessmentSets = [
   { id: "set-1", label: "Set 1" },
@@ -29,6 +30,7 @@ export default async function LevelPage({
     (resource) => resource.category === "revision-material" && resource.section === "assessment"
   );
   const schemes = resources.filter((resource) => resource.category === "scheme-of-work");
+  const unassignedSchemes = schemes.filter((resource) => !resource.term);
 
   return (
     <main>
@@ -194,39 +196,98 @@ export default async function LevelPage({
             <span className="eyebrow">Teacher resources</span>
             <h2>{level.title} schemes of work</h2>
           </div>
-          <p>Teacher schemes for this level appear here when they have been uploaded.</p>
+          <p>Teacher schemes for this level are organised by term for easier planning by subject.</p>
         </div>
 
-        <div className="resource-grid">
-          {schemes.length > 0 ? (
-            schemes.map((resource) => (
-              <article key={resource.id} className="resource-card">
-                <h3>{resource.title}</h3>
-                <div className="resource-meta">
-                  <span>{resource.subject}</span>
-                  <span>KSh 30 one-time</span>
+        {schemes.length > 0 ? (
+          <div className="assessment-stack">
+            {schemeTerms.map((term) => {
+              const termSchemes = schemes.filter((resource) => resource.term === term.id);
+
+              return (
+                <section key={term.id} className="assessment-block">
+                  <div className="assessment-head">
+                    <span className="eyebrow">{term.label}</span>
+                    <h3>{term.label} schemes of work</h3>
+                  </div>
+
+                  <div className="resource-grid">
+                    {termSchemes.length > 0 ? (
+                      termSchemes.map((resource) => (
+                        <article key={resource.id} className="resource-card">
+                          <h3>{resource.title}</h3>
+                          <div className="resource-meta">
+                            <span>{resource.subject}</span>
+                            <span>KSh 30 one-time</span>
+                          </div>
+                          <p className="subtle">{resource.description}</p>
+                          <div className="hero-actions">
+                            {resource.canOpen ? (
+                              <Link href={resource.fileUrl} target="_blank" className="button">
+                                Open scheme
+                              </Link>
+                            ) : (
+                              <Link href="/subscribe" className="button-secondary">
+                                Buy or manage access
+                              </Link>
+                            )}
+                          </div>
+                        </article>
+                      ))
+                    ) : (
+                      <article className="resource-card">
+                        <h3>No {term.label.toLowerCase()} schemes uploaded yet</h3>
+                        <p className="subtle">
+                          There are no {term.label.toLowerCase()} schemes uploaded for {level.title} yet.
+                        </p>
+                      </article>
+                    )}
+                  </div>
+                </section>
+              );
+            })}
+
+            {unassignedSchemes.length > 0 ? (
+              <section className="assessment-block">
+                <div className="assessment-head">
+                  <span className="eyebrow">Older uploads</span>
+                  <h3>Schemes still missing a term</h3>
                 </div>
-                <p className="subtle">{resource.description}</p>
-                <div className="hero-actions">
-                  {resource.canOpen ? (
-                    <Link href={resource.fileUrl} target="_blank" className="button">
-                      Open scheme
-                    </Link>
-                  ) : (
-                    <Link href="/subscribe" className="button-secondary">
-                      Buy or manage access
-                    </Link>
-                  )}
+
+                <div className="resource-grid">
+                  {unassignedSchemes.map((resource) => (
+                    <article key={resource.id} className="resource-card">
+                      <h3>{resource.title}</h3>
+                      <div className="resource-meta">
+                        <span>{resource.subject}</span>
+                        <span>{getSchemeTermLabel(resource.term)}</span>
+                      </div>
+                      <p className="subtle">{resource.description}</p>
+                      <div className="hero-actions">
+                        {resource.canOpen ? (
+                          <Link href={resource.fileUrl} target="_blank" className="button">
+                            Open scheme
+                          </Link>
+                        ) : (
+                          <Link href="/subscribe" className="button-secondary">
+                            Buy or manage access
+                          </Link>
+                        )}
+                      </div>
+                    </article>
+                  ))}
                 </div>
-              </article>
-            ))
-          ) : (
+              </section>
+            ) : null}
+          </div>
+        ) : (
+          <div className="resource-grid">
             <article className="resource-card">
               <h3>No schemes uploaded yet</h3>
               <p className="subtle">There are no teacher schemes uploaded for {level.title} yet.</p>
             </article>
-          )}
-        </div>
+          </div>
+        )}
       </section>
     </main>
   );

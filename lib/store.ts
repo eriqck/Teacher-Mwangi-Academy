@@ -39,6 +39,7 @@ export type SubscriptionRecord = {
 };
 
 export type PaymentKind = "subscription" | "scheme";
+export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {
   id: string;
@@ -53,6 +54,7 @@ export type PaymentRecord = {
   plan: SubscriptionPlan | null;
   schemeSubject: string | null;
   schemeLevel: string | null;
+  schemeTerm: SchemeTerm | null;
   paymentReference?: string | null;
   authorizationUrl?: string | null;
   checkoutRequestId: string | null;
@@ -69,6 +71,7 @@ export type SchemePurchaseRecord = {
   userId: string;
   subject: string;
   level: string;
+  term: SchemeTerm | null;
   amount: number;
   status: "pending" | "paid" | "failed";
   paymentId: string;
@@ -89,6 +92,7 @@ export type ResourceRecord = {
   category: ResourceCategory;
   section?: ResourceSection;
   assessmentSet?: AssessmentSet | null;
+  term?: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   price: number | null;
   fileName: string;

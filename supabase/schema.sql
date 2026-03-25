@@ -31,6 +31,7 @@ create table if not exists payments (
   plan text,
   scheme_subject text,
   scheme_level text,
+  scheme_term text check (scheme_term in ('term-1', 'term-2', 'term-3')),
   payment_reference text,
   authorization_url text,
   checkout_request_id text,
@@ -61,6 +62,7 @@ create table if not exists scheme_purchases (
   user_id text not null references users(id) on delete cascade,
   subject text not null,
   level text not null,
+  term text check (term in ('term-1', 'term-2', 'term-3')),
   amount integer not null,
   status text not null check (status in ('pending', 'paid', 'failed')),
   payment_id text not null references payments(id) on delete cascade,
@@ -77,6 +79,7 @@ create table if not exists resources (
   category text not null check (category in ('revision-material', 'scheme-of-work')),
   section text check (section in ('notes', 'assessment')),
   assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3')),
+  term text check (term in ('term-1', 'term-2', 'term-3')),
   audience text not null check (audience in ('parent', 'teacher', 'both')),
   price integer,
   file_name text not null,
@@ -90,7 +93,14 @@ create table if not exists resources (
 
 alter table resources
   add column if not exists section text,
-  add column if not exists assessment_set text;
+  add column if not exists assessment_set text,
+  add column if not exists term text;
+
+alter table payments
+  add column if not exists scheme_term text;
+
+alter table scheme_purchases
+  add column if not exists term text;
 
 alter table resources
   drop constraint if exists resources_section_check;
@@ -105,6 +115,27 @@ alter table resources
 alter table resources
   add constraint resources_assessment_set_check
   check (assessment_set in ('set-1', 'set-2', 'set-3') or assessment_set is null);
+
+alter table resources
+  drop constraint if exists resources_term_check;
+
+alter table resources
+  add constraint resources_term_check
+  check (term in ('term-1', 'term-2', 'term-3') or term is null);
+
+alter table payments
+  drop constraint if exists payments_scheme_term_check;
+
+alter table payments
+  add constraint payments_scheme_term_check
+  check (scheme_term in ('term-1', 'term-2', 'term-3') or scheme_term is null);
+
+alter table scheme_purchases
+  drop constraint if exists scheme_purchases_term_check;
+
+alter table scheme_purchases
+  add constraint scheme_purchases_term_check
+  check (term in ('term-1', 'term-2', 'term-3') or term is null);
 
 update resources
 set section = 'notes'

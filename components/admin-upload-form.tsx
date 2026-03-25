@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { levels } from "@/lib/catalog";
+import { schemeTerms } from "@/lib/scheme-terms";
 
 type UploadVariant = "revision-material" | "scheme-of-work";
 
@@ -30,6 +31,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
   const [loading, setLoading] = useState(false);
   const isScheme = variant === "scheme-of-work";
   const [section, setSection] = useState("notes");
+  const [term, setTerm] = useState("term-1");
   const showAssessmentSet = !isScheme && section === "assessment";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -143,6 +145,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       setMessage(data?.message ?? "Upload complete.");
       form.reset();
       setSection("notes");
+      setTerm("term-1");
       router.refresh();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
@@ -237,10 +240,29 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           </div>
         </div>
       ) : (
-        <div className="field">
-          <label htmlFor={`${variant}-audience`}>Audience</label>
-          <input id={`${variant}-audience`} value="Teachers only" readOnly />
-          <small>Schemes are always teacher-only and sold at KSh 30.</small>
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor={`${variant}-term`}>School term</label>
+            <select
+              id={`${variant}-term`}
+              name="term"
+              value={term}
+              onChange={(event) => setTerm(event.target.value)}
+            >
+              {schemeTerms.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <small>Each scheme is saved under Term 1, Term 2, or Term 3.</small>
+          </div>
+
+          <div className="field">
+            <label htmlFor={`${variant}-audience`}>Audience</label>
+            <input id={`${variant}-audience`} value="Teachers only" readOnly />
+            <small>Schemes are always teacher-only and sold at KSh 30.</small>
+          </div>
         </div>
       )}
 

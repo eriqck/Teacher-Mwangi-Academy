@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { levels } from "@/lib/catalog";
-import type { AssessmentSet, ResourceRecord, ResourceSection } from "@/lib/store";
+import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
+import type { AssessmentSet, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
 
 const subjects = [
   "Mathematics",
@@ -33,6 +34,7 @@ type ResourceFormState = {
   audience: "parent" | "teacher" | "both";
   section: ResourceSection;
   assessmentSet: AssessmentSet | "";
+  term: SchemeTerm | "";
 };
 
 function buildFormState(resource: ResourceRecord): ResourceFormState {
@@ -43,8 +45,17 @@ function buildFormState(resource: ResourceRecord): ResourceFormState {
     subject: resource.subject,
     audience: resource.audience,
     section: resource.section ?? "notes",
-    assessmentSet: resource.assessmentSet ?? ""
+    assessmentSet: resource.assessmentSet ?? "",
+    term: resource.term ?? "term-1"
   };
+}
+
+function getResourceTypeLabel(resource: ResourceRecord) {
+  if (resource.category === "scheme-of-work") {
+    return `${getSchemeTermLabel(resource.term)} scheme of work`;
+  }
+
+  return resource.section === "assessment" ? "Assessment" : "Notes";
 }
 
 export function AdminResourceManager({ initialResources }: ResourceManagerProps) {
@@ -97,7 +108,8 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
             ? null
             : formState.section === "assessment"
               ? formState.assessmentSet
-              : null
+              : null,
+        term: resource.category === "scheme-of-work" ? formState.term : null
       })
     });
 
@@ -160,7 +172,8 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
         <div className="resource-admin-list">
           {sortedResources.map((resource) => {
             const isEditing = editingId === resource.id && formState;
-            const showAssessmentFields = resource.category === "revision-material" && formState?.section === "assessment";
+            const showAssessmentFields =
+              resource.category === "revision-material" && formState?.section === "assessment";
 
             return (
               <section key={resource.id} className="resource-admin-card">
@@ -168,7 +181,7 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                   <div>
                     <h3>{resource.title}</h3>
                     <p className="subtle">
-                      {resource.level} · {resource.subject} · {resource.category === "scheme-of-work" ? "Scheme of work" : resource.section === "assessment" ? "Assessment" : "Notes"}
+                      {resource.level} · {resource.subject} · {getResourceTypeLabel(resource)}
                     </p>
                   </div>
                   <div className="resource-admin-actions">
@@ -208,7 +221,9 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                           id={`edit-title-${resource.id}`}
                           value={formState.title}
                           onChange={(event) =>
-                            setFormState((current) => (current ? { ...current, title: event.target.value } : current))
+                            setFormState((current) =>
+                              current ? { ...current, title: event.target.value } : current
+                            )
                           }
                           required
                         />
@@ -219,7 +234,9 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                           id={`edit-subject-${resource.id}`}
                           value={formState.subject}
                           onChange={(event) =>
-                            setFormState((current) => (current ? { ...current, subject: event.target.value } : current))
+                            setFormState((current) =>
+                              current ? { ...current, subject: event.target.value } : current
+                            )
                           }
                         >
                           {subjects.map((subject) => (
@@ -238,7 +255,9 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                           id={`edit-level-${resource.id}`}
                           value={formState.level}
                           onChange={(event) =>
-                            setFormState((current) => (current ? { ...current, level: event.target.value } : current))
+                            setFormState((current) =>
+                              current ? { ...current, level: event.target.value } : current
+                            )
                           }
                         >
                           {levels.map((level) => (
@@ -250,11 +269,32 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                       </div>
 
                       <div className="field">
-                        <label htmlFor={`edit-audience-${resource.id}`}>Audience</label>
+                        <label htmlFor={resource.category === "scheme-of-work" ? `edit-term-${resource.id}` : `edit-audience-${resource.id}`}>
+                          {resource.category === "scheme-of-work" ? "School term" : "Audience"}
+                        </label>
                         {resource.category === "scheme-of-work" ? (
                           <>
-                            <input id={`edit-audience-${resource.id}`} value="Teachers only" readOnly />
-                            <small>Schemes stay as teacher-only paid resources.</small>
+                            <select
+                              id={`edit-term-${resource.id}`}
+                              value={formState.term || "term-1"}
+                              onChange={(event) =>
+                                setFormState((current) =>
+                                  current
+                                    ? {
+                                        ...current,
+                                        term: event.target.value as SchemeTerm
+                                      }
+                                    : current
+                                )
+                              }
+                            >
+                              {schemeTerms.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                  {item.label}
+                                </option>
+                              ))}
+                            </select>
+                            <small>Each scheme stays attached to one school term.</small>
                           </>
                         ) : (
                           <select

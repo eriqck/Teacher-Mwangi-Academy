@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteResourceFile, getResourceFilePublicUrl } from "@/lib/repository";
 import { saveUploadedResource, saveUploadedResourceMetadata } from "@/lib/resources";
-import type { AssessmentSet, ResourceCategory, ResourceSection } from "@/lib/store";
+import { isSchemeTerm } from "@/lib/scheme-terms";
+import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
 function isAudience(value: string): value is "parent" | "teacher" | "both" {
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
     const category = `${formData.get("category") ?? ""}`.trim();
     const section = `${formData.get("section") ?? "notes"}`.trim();
     const assessmentSet = `${formData.get("assessmentSet") ?? ""}`.trim();
+    const term = `${formData.get("term") ?? ""}`.trim();
     const audience = `${formData.get("audience") ?? "both"}`.trim();
     const storagePath = `${formData.get("storagePath") ?? ""}`.trim();
     const fileName = `${formData.get("fileName") ?? ""}`.trim();
@@ -75,6 +77,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, or Set 3." }, { status: 400 });
     }
 
+    if (category === "scheme-of-work" && !isSchemeTerm(term)) {
+      return NextResponse.json({ error: "Schemes of work must include Term 1, Term 2, or Term 3." }, { status: 400 });
+    }
+
     const resolvedSection: ResourceSection =
       category === "scheme-of-work" ? "notes" : (section as ResourceSection);
     const resolvedAssessmentSet: AssessmentSet | null =
@@ -83,6 +89,7 @@ export async function POST(request: NextRequest) {
         : resolvedSection === "assessment"
           ? (assessmentSet as AssessmentSet)
           : null;
+    const resolvedTerm: SchemeTerm | null = category === "scheme-of-work" ? (term as SchemeTerm) : null;
 
     try {
       if (isDirectSupabaseUpload) {
@@ -94,6 +101,7 @@ export async function POST(request: NextRequest) {
           category,
           section: resolvedSection,
           assessmentSet: resolvedAssessmentSet,
+          term: resolvedTerm,
           audience,
           uploadedByUserId: user.id,
           fileName,
@@ -110,6 +118,7 @@ export async function POST(request: NextRequest) {
           category,
           section: resolvedSection,
           assessmentSet: resolvedAssessmentSet,
+          term: resolvedTerm,
           audience,
           uploadedByUserId: user.id,
           file: uploadedFile as File

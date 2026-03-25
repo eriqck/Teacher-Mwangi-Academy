@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteResourceFile, deleteResourceRecord, readAppData, updateResourceRecord } from "@/lib/repository";
-import type { AssessmentSet, ResourceCategory, ResourceSection } from "@/lib/store";
+import { isSchemeTerm } from "@/lib/scheme-terms";
+import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
 
 function isAudience(value: string): value is "parent" | "teacher" | "both" {
   return value === "parent" || value === "teacher" || value === "both";
@@ -59,6 +60,7 @@ export async function PATCH(
     const audience = `${body.audience ?? ""}`.trim();
     const section = `${body.section ?? ""}`.trim();
     const assessmentSet = body.assessmentSet === null ? null : `${body.assessmentSet ?? ""}`.trim();
+    const term = body.term === null ? null : `${body.term ?? ""}`.trim();
 
     const store = await readAppData();
     const resource = store.resources.find((entry) => entry.id === resourceId);
@@ -76,6 +78,10 @@ export async function PATCH(
     }
 
     if (resource.category === "scheme-of-work") {
+      if (!term || !isSchemeTerm(term)) {
+        return NextResponse.json({ error: "Schemes of work must include Term 1, Term 2, or Term 3." }, { status: 400 });
+      }
+
       const updated = await updateResourceRecord(resourceId, {
         title,
         description,
@@ -84,6 +90,7 @@ export async function PATCH(
         audience: "teacher",
         section: "notes",
         assessmentSet: null,
+        term: term as SchemeTerm,
         updatedAt: new Date().toISOString()
       });
 
@@ -116,6 +123,7 @@ export async function PATCH(
       audience,
       section,
       assessmentSet: resolvedAssessmentSet,
+      term: null,
       updatedAt: new Date().toISOString()
     });
 

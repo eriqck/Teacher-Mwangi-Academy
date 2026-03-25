@@ -3,7 +3,7 @@ import path from "path";
 import { createId } from "@/lib/auth";
 import { schemeOfWorkPrice } from "@/lib/business";
 import { saveResourceRecord, uploadResourceFile } from "@/lib/repository";
-import type { AssessmentSet, ResourceCategory, ResourceRecord, ResourceSection } from "@/lib/store";
+import type { AssessmentSet, ResourceCategory, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
 function slugify(input: string) {
@@ -28,6 +28,7 @@ function buildResourceRecord(input: {
   category: ResourceCategory;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
+  term: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
   fileName: string;
@@ -45,6 +46,7 @@ function buildResourceRecord(input: {
     category: input.category,
     section: input.category === "scheme-of-work" ? "notes" : input.section,
     assessmentSet: input.category === "scheme-of-work" ? null : input.assessmentSet,
+    term: input.category === "scheme-of-work" ? input.term : null,
     audience: input.category === "scheme-of-work" ? "teacher" : input.audience,
     price: input.category === "scheme-of-work" ? schemeOfWorkPrice : null,
     fileName: input.fileName,
@@ -67,6 +69,7 @@ export async function saveUploadedResourceMetadata(input: {
   category: ResourceCategory;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
+  term: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
   fileName: string;
@@ -87,6 +90,7 @@ export async function saveUploadedResource(input: {
   category: ResourceCategory;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
+  term: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
   file: File;
@@ -122,6 +126,7 @@ export async function saveUploadedResource(input: {
     category: input.category,
     section: input.section,
     assessmentSet: input.assessmentSet,
+    term: input.term,
     audience: input.audience,
     uploadedByUserId: input.uploadedByUserId,
     fileName: input.file.name,

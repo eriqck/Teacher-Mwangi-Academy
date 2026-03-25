@@ -1,7 +1,7 @@
 import { createId } from "@/lib/auth";
 import { getPaystackCallbackUrl, initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
 import { subscriptionPlans } from "@/lib/business";
-import type { PaymentRecord, SchemePurchaseRecord, SubscriptionPlan, SubscriptionRecord } from "@/lib/store";
+import type { PaymentRecord, SchemePurchaseRecord, SchemeTerm, SubscriptionPlan, SubscriptionRecord } from "@/lib/store";
 import {
   createSchemePaymentBundle,
   createSubscriptionPaymentBundle,
@@ -42,6 +42,7 @@ export async function createPendingSubscriptionPayment(input: {
     plan: input.plan,
     schemeSubject: null,
     schemeLevel: null,
+    schemeTerm: null,
     paymentReference: paymentId,
     authorizationUrl: null,
     checkoutRequestId: null,
@@ -127,6 +128,7 @@ export async function createPendingSchemePayment(input: {
   accountReference: string;
   subject: string;
   level: string;
+  term: SchemeTerm;
   amount: number;
 }) {
   const paymentId = createId("pay");
@@ -146,6 +148,7 @@ export async function createPendingSchemePayment(input: {
     plan: null,
     schemeSubject: input.subject,
     schemeLevel: input.level,
+    schemeTerm: input.term,
     paymentReference: paymentId,
     authorizationUrl: null,
     checkoutRequestId: null,
@@ -161,6 +164,7 @@ export async function createPendingSchemePayment(input: {
     userId: input.userId,
     subject: input.subject,
     level: input.level,
+    term: input.term,
     amount: input.amount,
     status: "pending",
     paymentId,
@@ -181,6 +185,7 @@ export async function createPendingSchemePayment(input: {
         kind: "scheme",
         subject: input.subject,
         level: input.level,
+        term: input.term,
         accountReference: input.accountReference
       }
     });

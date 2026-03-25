@@ -35,7 +35,8 @@ export async function getLevelPageData(levelId: string) {
             purchase.userId === user.id &&
             purchase.status === "paid" &&
             purchase.level === resource.level &&
-            purchase.subject === resource.subject
+            purchase.subject === resource.subject &&
+            (purchase.term ?? null) === (resource.term ?? null)
         )
     })
   }));

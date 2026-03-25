@@ -94,7 +94,7 @@ export default async function HomePage() {
               <p className="subtle">
                 Parents access guided learning support and revision materials in one place. Teachers
                 subscribe for broad curriculum support and can also buy schemes of work at KSh{" "}
-                {schemeOfWorkPrice} per subject.
+                {schemeOfWorkPrice} per subject, per term.
               </p>
               <div className="tag-row">
                 <span className="tag">Competency-focused</span>
@@ -247,7 +247,7 @@ export default async function HomePage() {
         <article className="dashboard-card" style={{ marginTop: 18 }}>
           <h3>Teacher one-time purchase</h3>
           <p className="subtle">
-            Schemes of work are sold separately at KSh {schemeOfWorkPrice} per scheme per subject.
+            Schemes of work are sold separately at KSh {schemeOfWorkPrice} per scheme, per subject, per term.
           </p>
         </article>
       </section>

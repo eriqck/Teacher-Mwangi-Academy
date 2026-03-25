@@ -4,6 +4,7 @@ import { featuredResources, levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
 import { readAppData } from "@/lib/repository";
+import { getSchemeTermLabel } from "@/lib/scheme-terms";
 
 function formatMoney(amount: number) {
   return `KSh ${amount}`;
@@ -142,6 +143,7 @@ export default async function DashboardPage() {
                   <tr>
                     <th>Subject</th>
                     <th>Level</th>
+                    <th>Term</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -150,6 +152,7 @@ export default async function DashboardPage() {
                     <tr key={purchase.id}>
                       <td>{purchase.subject}</td>
                       <td>{purchase.level}</td>
+                      <td>{getSchemeTermLabel(purchase.term)}</td>
                       <td>{purchase.status}</td>
                     </tr>
                   ))}

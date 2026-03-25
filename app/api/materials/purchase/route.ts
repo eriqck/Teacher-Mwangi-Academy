@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { createPendingSchemePayment } from "@/lib/payments";
+import { isSchemeTerm } from "@/lib/scheme-terms";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,11 +22,16 @@ export async function POST(request: NextRequest) {
       accountReference?: string;
       subject?: string;
       level?: string;
+      term?: string;
       amount?: number;
     };
 
-    if (!body.accountReference || !body.subject || !body.level || !body.amount) {
+    if (!body.accountReference || !body.subject || !body.level || !body.term || !body.amount) {
       return NextResponse.json({ error: "All purchase fields are required." }, { status: 400 });
+    }
+
+    if (!isSchemeTerm(body.term)) {
+      return NextResponse.json({ error: "Choose Term 1, Term 2, or Term 3 for the scheme purchase." }, { status: 400 });
     }
 
     const result = await createPendingSchemePayment({
@@ -34,6 +40,7 @@ export async function POST(request: NextRequest) {
       accountReference: body.accountReference,
       subject: body.subject,
       level: body.level,
+      term: body.term,
       amount: body.amount
     });
 

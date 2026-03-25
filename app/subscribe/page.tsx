@@ -59,7 +59,7 @@ export default async function SubscribePage() {
           <article className="dashboard-card">
             <h3>Teacher scheme purchase</h3>
             <p className="subtle">
-              Teachers can buy one-time schemes of work at KSh {schemeOfWorkPrice} per subject.
+              Teachers can buy one-time schemes of work at KSh {schemeOfWorkPrice} per subject, per term.
             </p>
             {user.role === "teacher" ? (
               <SchemeCheckoutForm />
