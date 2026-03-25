@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { levels } from "@/lib/catalog";
+import { schemeOfWorkPrice } from "@/lib/business";
 import { schemeTerms } from "@/lib/scheme-terms";
 
 type ApiResponse = {
@@ -146,7 +147,7 @@ export function SchemeCheckoutForm() {
         subject: formData.get("subject"),
         level: formData.get("level"),
         term: formData.get("term"),
-        amount: 30
+        amount: schemeOfWorkPrice
       })
     });
 

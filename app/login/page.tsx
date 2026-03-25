@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
 import { SiteHeader } from "@/components/site-header";
 import { getCurrentUser } from "@/lib/auth";
+import { schemeOfWorkPrice } from "@/lib/business";
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
@@ -37,7 +38,7 @@ export default async function LoginPage() {
             <ul className="list">
               <li>Parents can subscribe for KSh 300 per month.</li>
               <li>Teachers can subscribe for KSh 150 per month.</li>
-              <li>Teachers can also buy schemes of work at KSh 30 per subject, per term.</li>
+              <li>Teachers can also buy schemes of work at KSh {schemeOfWorkPrice} per subject, per term.</li>
             </ul>
             <div className="hero-actions">
               <Link href="/signup" className="button">

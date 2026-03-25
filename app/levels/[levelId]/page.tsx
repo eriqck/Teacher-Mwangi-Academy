@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
+import { schemeOfWorkPrice } from "@/lib/business";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 
@@ -218,7 +219,7 @@ export default async function LevelPage({
                           <h3>{resource.title}</h3>
                           <div className="resource-meta">
                             <span>{resource.subject}</span>
-                            <span>KSh 30 one-time</span>
+                            <span>KSh {schemeOfWorkPrice} one-time</span>
                           </div>
                           <p className="subtle">{resource.description}</p>
                           <div className="hero-actions">

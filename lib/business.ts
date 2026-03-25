@@ -44,4 +44,4 @@ export const subscriptionPlans: Record<
   }
 };
 
-export const schemeOfWorkPrice = 30;
+export const schemeOfWorkPrice = 20;

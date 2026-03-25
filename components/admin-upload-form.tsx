@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { schemeOfWorkPrice } from "@/lib/business";
 import { levels } from "@/lib/catalog";
 import { schemeTerms } from "@/lib/scheme-terms";
 
@@ -321,7 +322,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           <div className="field">
             <label htmlFor={`${variant}-audience`}>Audience</label>
             <input id={`${variant}-audience`} value="Teachers only" readOnly />
-            <small>Schemes are always teacher-only and sold at KSh 30.</small>
+            <small>Schemes are always teacher-only and sold at KSh {schemeOfWorkPrice}.</small>
           </div>
         </div>
       )}
