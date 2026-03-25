@@ -34,12 +34,13 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
-      const formData = new FormData(event.currentTarget);
+      const formData = new FormData(form);
       formData.set("category", variant);
 
       const file = formData.get("file");
@@ -120,7 +121,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       }
 
       setMessage(data?.message ?? "Upload complete.");
-      event.currentTarget.reset();
+      form.reset();
       setSection("notes");
       router.refresh();
     } catch (uploadError) {
