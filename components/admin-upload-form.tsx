@@ -80,24 +80,44 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
         uploadFormData.append("cacheControl", "3600");
         uploadFormData.append("", file);
 
-        const storageResponse = await fetch(prepareData.signedUrl, {
-          method: "PUT",
-          body: uploadFormData
-        });
+        try {
+          const storageResponse = await fetch(prepareData.signedUrl, {
+            method: "PUT",
+            headers: {
+              "x-upsert": "false"
+            },
+            body: uploadFormData
+          });
 
-        const storagePayload = (await storageResponse.json().catch(() => null)) as
-          | { error?: string; message?: string }
-          | null;
+          const storagePayload = (await storageResponse.json().catch(() => null)) as
+            | { error?: string; message?: string }
+            | null;
 
-        if (!storageResponse.ok) {
-          setError(storagePayload?.error ?? storagePayload?.message ?? "File upload to storage failed.");
-          return;
+          if (!storageResponse.ok) {
+            if (file.size > 4_000_000) {
+              setError(
+                storagePayload?.error ??
+                  storagePayload?.message ??
+                  "Direct upload to storage failed for this file."
+              );
+              return;
+            }
+          } else {
+            formData.delete("file");
+            formData.set("storagePath", prepareData.storagePath);
+            formData.set("fileName", file.name);
+            formData.set("mimeType", file.type || "application/octet-stream");
+          }
+        } catch (storageError) {
+          if (file.size > 4_000_000) {
+            setError(
+              storageError instanceof Error
+                ? `${storageError.message}. Check the Supabase bucket and try again.`
+                : "Direct upload failed."
+            );
+            return;
+          }
         }
-
-        formData.delete("file");
-        formData.set("storagePath", prepareData.storagePath);
-        formData.set("fileName", file.name);
-        formData.set("mimeType", file.type || "application/octet-stream");
       } else if (file.size > 4_000_000) {
         setError(
           prepareData?.error ??
