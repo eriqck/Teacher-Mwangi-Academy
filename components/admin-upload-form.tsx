@@ -24,6 +24,50 @@ const subjects = [
   "Pre-Technical Studies"
 ];
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  options?: {
+    retries?: number;
+    retryOnResponse?: boolean;
+  }
+) {
+  const retries = options?.retries ?? 2;
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      const response = await fetch(input, init);
+
+      if (
+        options?.retryOnResponse &&
+        !response.ok &&
+        attempt < retries &&
+        response.status >= 500
+      ) {
+        await wait(350 * (attempt + 1));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === retries) {
+        throw error;
+      }
+
+      await wait(350 * (attempt + 1));
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Request failed.");
+}
+
 export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -54,7 +98,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
 
       let response: Response;
 
-      const prepareResponse = await fetch("/api/admin/resources/upload-url", {
+      const prepareResponse = await fetchWithRetry("/api/admin/resources/upload-url", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -63,6 +107,9 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           category: variant,
           fileName: file.name
         })
+      }, {
+        retries: 2,
+        retryOnResponse: true
       });
 
       const prepareData = (await prepareResponse.json().catch(() => null)) as
@@ -83,12 +130,15 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
         uploadFormData.append("", file);
 
         try {
-          const storageResponse = await fetch(prepareData.signedUrl, {
+          const storageResponse = await fetchWithRetry(prepareData.signedUrl, {
             method: "PUT",
             headers: {
               "x-upsert": "false"
             },
             body: uploadFormData
+          }, {
+            retries: 2,
+            retryOnResponse: true
           });
 
           const storagePayload = (await storageResponse.json().catch(() => null)) as
@@ -128,9 +178,12 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
         return;
       }
 
-      response = await fetch("/api/admin/resources", {
+      response = await fetchWithRetry("/api/admin/resources", {
         method: "POST",
         body: formData
+      }, {
+        retries: 2,
+        retryOnResponse: true
       });
 
       const data = (await response.json().catch(() => null)) as
@@ -168,13 +221,20 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
         </div>
         <div className="field">
           <label htmlFor={`${variant}-subject`}>Subject</label>
-          <select id={`${variant}-subject`} name="subject" defaultValue="Mathematics" required>
+          <input
+            id={`${variant}-subject`}
+            name="subject"
+            defaultValue="Mathematics"
+            list={`${variant}-subject-options`}
+            placeholder="Type or choose a subject"
+            required
+          />
+          <datalist id={`${variant}-subject-options`}>
             {subjects.map((subject) => (
-              <option key={subject} value={subject}>
-                {subject}
-              </option>
+              <option key={subject} value={subject} />
             ))}
-          </select>
+          </datalist>
+          <small>Type any missing subject or choose from the suggestions.</small>
         </div>
       </div>
 

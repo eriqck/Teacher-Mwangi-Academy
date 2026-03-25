@@ -230,21 +230,24 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                       </div>
                       <div className="field">
                         <label htmlFor={`edit-subject-${resource.id}`}>Subject</label>
-                        <select
+                        <input
                           id={`edit-subject-${resource.id}`}
                           value={formState.subject}
+                          list={`edit-subject-options-${resource.id}`}
+                          placeholder="Type or choose a subject"
                           onChange={(event) =>
                             setFormState((current) =>
                               current ? { ...current, subject: event.target.value } : current
                             )
                           }
-                        >
+                          required
+                        />
+                        <datalist id={`edit-subject-options-${resource.id}`}>
                           {subjects.map((subject) => (
-                            <option key={subject} value={subject}>
-                              {subject}
-                            </option>
+                            <option key={subject} value={subject} />
                           ))}
-                        </select>
+                        </datalist>
+                        <small>Type any missing subject or choose from the suggestions.</small>
                       </div>
                     </div>
 
