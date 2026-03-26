@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
-import { schemeOfWorkPrice } from "@/lib/business";
+import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 
@@ -70,6 +70,11 @@ export default async function LevelPage({
               <p className="subtle">Admin account: full access to all uploaded files.</p>
             ) : hasLevelAccess ? (
               <p className="subtle">Your account currently has access to this level's revision materials.</p>
+            ) : user.role === "teacher" ? (
+              <p className="subtle">
+                Teachers can unlock all revision materials with a monthly subscription or buy
+                specific notes and assessments one time.
+              </p>
             ) : (
               <p className="subtle">
                 Your current account does not yet have access to this level. Start or update a
@@ -107,13 +112,21 @@ export default async function LevelPage({
                 <h3>{resource.title}</h3>
                 <div className="resource-meta">
                   <span>{resource.subject}</span>
-                  <span>Notes</span>
+                  <span>
+                    {user?.role === "teacher" && !resource.canOpen && resource.canPurchase
+                      ? `KSh ${teacherMaterialPrice} one-time`
+                      : "Notes"}
+                  </span>
                 </div>
                 <p className="subtle">{resource.description}</p>
                 <div className="hero-actions">
                   {resource.canOpen ? (
                     <Link href={resource.fileUrl} target="_blank" className="button">
                       Open material
+                    </Link>
+                  ) : user?.role === "teacher" && resource.canPurchase ? (
+                    <Link href={`/subscribe?resourceId=${resource.id}`} className="button-secondary">
+                      Buy for KSh {teacherMaterialPrice}
                     </Link>
                   ) : (
                     <span className="pill">Login and active access required</span>
@@ -161,13 +174,21 @@ export default async function LevelPage({
                         <h3>{resource.title}</h3>
                         <div className="resource-meta">
                           <span>{resource.subject}</span>
-                          <span>{assessmentSet.label}</span>
+                          <span>
+                            {user?.role === "teacher" && !resource.canOpen && resource.canPurchase
+                              ? `KSh ${teacherMaterialPrice} one-time`
+                              : assessmentSet.label}
+                          </span>
                         </div>
                         <p className="subtle">{resource.description}</p>
                         <div className="hero-actions">
                           {resource.canOpen ? (
                             <Link href={resource.fileUrl} target="_blank" className="button">
                               Open assessment
+                            </Link>
+                          ) : user?.role === "teacher" && resource.canPurchase ? (
+                            <Link href={`/subscribe?resourceId=${resource.id}`} className="button-secondary">
+                              Buy for KSh {teacherMaterialPrice}
                             </Link>
                           ) : (
                             <span className="pill">Login and active access required</span>

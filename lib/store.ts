@@ -38,7 +38,7 @@ export type SubscriptionRecord = {
   paymentId: string;
 };
 
-export type PaymentKind = "subscription" | "scheme";
+export type PaymentKind = "subscription" | "scheme" | "resource";
 export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {
@@ -55,6 +55,7 @@ export type PaymentRecord = {
   schemeSubject: string | null;
   schemeLevel: string | null;
   schemeTerm: SchemeTerm | null;
+  resourceId: string | null;
   paymentReference?: string | null;
   authorizationUrl?: string | null;
   checkoutRequestId: string | null;
@@ -72,6 +73,22 @@ export type SchemePurchaseRecord = {
   subject: string;
   level: string;
   term: SchemeTerm | null;
+  amount: number;
+  status: "pending" | "paid" | "failed";
+  paymentId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ResourcePurchaseRecord = {
+  id: string;
+  userId: string;
+  resourceId: string;
+  title: string;
+  level: string;
+  subject: string;
+  section: ResourceSection;
+  assessmentSet: AssessmentSet | null;
   amount: number;
   status: "pending" | "paid" | "failed";
   paymentId: string;
@@ -110,6 +127,7 @@ export type DataStore = {
   subscriptions: SubscriptionRecord[];
   payments: PaymentRecord[];
   schemePurchases: SchemePurchaseRecord[];
+  resourcePurchases: ResourcePurchaseRecord[];
   resources: ResourceRecord[];
 };
 
@@ -131,6 +149,7 @@ async function ensureStoreFile() {
           subscriptions: [],
           payments: [],
           schemePurchases: [],
+          resourcePurchases: [],
           resources: []
         } satisfies DataStore,
         null,
@@ -151,6 +170,7 @@ export async function readStore(): Promise<DataStore> {
     subscriptions: parsed.subscriptions ?? [],
     payments: parsed.payments ?? [],
     schemePurchases: parsed.schemePurchases ?? [],
+    resourcePurchases: parsed.resourcePurchases ?? [],
     resources: parsed.resources ?? []
   };
 }

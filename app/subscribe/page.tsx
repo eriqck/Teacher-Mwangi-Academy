@@ -1,12 +1,18 @@
 import { redirect } from "next/navigation";
-import { SchemeCheckoutForm, SubscriptionCheckoutForm } from "@/components/checkout-forms";
+import { ResourceCheckoutForm, SchemeCheckoutForm, SubscriptionCheckoutForm } from "@/components/checkout-forms";
 import { SiteHeader } from "@/components/site-header";
-import { academyName, schemeOfWorkPrice } from "@/lib/business";
+import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getCurrentUser } from "@/lib/auth";
 import { membershipPlans } from "@/lib/catalog";
+import { readAppData } from "@/lib/repository";
 
-export default async function SubscribePage() {
+export default async function SubscribePage({
+  searchParams
+}: {
+  searchParams: Promise<{ resourceId?: string }>;
+}) {
   const user = await getCurrentUser();
+  const { resourceId } = await searchParams;
 
   if (!user) {
     redirect("/signup");
@@ -15,6 +21,29 @@ export default async function SubscribePage() {
   if (user.role === "admin") {
     redirect("/admin");
   }
+
+  const store = resourceId ? await readAppData() : null;
+  const selectedResource = resourceId
+    ? (() => {
+        const resource = store?.resources.find(
+        (resource) =>
+          resource.id === resourceId &&
+          resource.category === "revision-material" &&
+          resource.audience !== "parent"
+      );
+
+        return resource
+          ? {
+              id: resource.id,
+              title: resource.title,
+              level: resource.level,
+              subject: resource.subject,
+              section: resource.section ?? "notes",
+              assessmentSet: resource.assessmentSet ?? null
+            }
+          : null;
+      })()
+    : null;
 
   return (
     <main>
@@ -66,6 +95,22 @@ export default async function SubscribePage() {
             ) : (
               <p className="subtle">
                 Create or use a teacher account to buy one-time schemes of work.
+              </p>
+            )}
+          </article>
+        </div>
+
+        <div className="dashboard-grid" style={{ marginTop: 18 }}>
+          <article className="dashboard-card">
+            <h3>Teacher single material purchase</h3>
+            <p className="subtle">
+              Teachers can also buy one-time notes or assessments at KSh {teacherMaterialPrice} per material.
+            </p>
+            {user.role === "teacher" ? (
+              <ResourceCheckoutForm resource={selectedResource} />
+            ) : (
+              <p className="subtle">
+                Create or use a teacher account to buy one-time notes and assessments.
               </p>
             )}
           </article>

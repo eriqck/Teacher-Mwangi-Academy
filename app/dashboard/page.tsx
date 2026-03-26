@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { featuredResources, levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
-import { subscriptionPlans } from "@/lib/business";
+import { subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
 import { readAppData } from "@/lib/repository";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 
@@ -19,6 +19,7 @@ export default async function DashboardPage() {
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
     .slice(0, 6);
   const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
+  const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
   const activeSubscription = subscriptions.find((item) => item.status === "active") ?? subscriptions[0];
   const accessibleLevels =
     user.role === "teacher"
@@ -163,6 +164,40 @@ export default async function DashboardPage() {
                 {user.role === "teacher"
                   ? "No scheme purchases yet."
                   : "Scheme purchases are available to teacher accounts only."}
+              </p>
+            )}
+          </article>
+        </div>
+
+        <div className="dashboard-grid" style={{ marginTop: 18 }}>
+          <article className="dashboard-card">
+            <h3>Teacher material purchases</h3>
+            {user.role === "teacher" && resourcePurchases.length > 0 ? (
+              <table className="mini-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resourcePurchases.slice(0, 5).map((purchase) => (
+                    <tr key={purchase.id}>
+                      <td>{purchase.title}</td>
+                      <td>{purchase.section === "assessment" ? "Assessment" : "Notes"}</td>
+                      <td>{formatMoney(purchase.amount || teacherMaterialPrice)}</td>
+                      <td>{purchase.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="subtle">
+                {user.role === "teacher"
+                  ? "No one-time note or assessment purchases yet."
+                  : "One-time teacher material purchases are available to teacher accounts only."}
               </p>
             )}
           </article>

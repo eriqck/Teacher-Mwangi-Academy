@@ -38,10 +38,11 @@ export const subscriptionPlans: Record<
       "Access across all revision levels",
       "Classroom-ready practice and assessment files",
       "Teacher support notes and download access",
-      "Optional one-time schemes of work purchases"
+      "Optional one-time schemes and single-material purchases"
     ],
     levelAccessMode: "all"
   }
 };
 
 export const schemeOfWorkPrice = 20;
+export const teacherMaterialPrice = 30;

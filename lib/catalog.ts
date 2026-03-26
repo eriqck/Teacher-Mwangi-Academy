@@ -113,7 +113,7 @@ export const membershipPlans = [
       "Access across all revision levels",
       "Editable classroom assessment bundles",
       "Marking schemes and teaching notes",
-      "Optional one-time schemes of work purchases"
+      "Optional one-time schemes, notes, and assessments"
     ]
   }
 ];

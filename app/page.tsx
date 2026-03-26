@@ -3,7 +3,7 @@ import Image from "next/image";
 import { access } from "fs/promises";
 import path from "path";
 import { SiteHeader } from "@/components/site-header";
-import { academyName, schemeOfWorkPrice } from "@/lib/business";
+import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { featuredResources, levels, membershipPlans } from "@/lib/catalog";
 
 const reasons = [
@@ -94,7 +94,8 @@ export default async function HomePage() {
               <p className="subtle">
                 Parents access guided learning support and revision materials in one place. Teachers
                 subscribe for broad curriculum support and can also buy schemes of work at KSh{" "}
-                {schemeOfWorkPrice} per subject, per term.
+                {schemeOfWorkPrice} per subject, per term, plus single notes and assessments at KSh{" "}
+                {teacherMaterialPrice} per material.
               </p>
               <div className="tag-row">
                 <span className="tag">Competency-focused</span>
@@ -247,7 +248,9 @@ export default async function HomePage() {
         <article className="dashboard-card" style={{ marginTop: 18 }}>
           <h3>Teacher one-time purchase</h3>
           <p className="subtle">
-            Schemes of work are sold separately at KSh {schemeOfWorkPrice} per scheme, per subject, per term.
+            Schemes of work are sold separately at KSh {schemeOfWorkPrice} per scheme, per subject,
+            per term. Notes and assessments can also be bought one time at KSh{" "}
+            {teacherMaterialPrice} per material.
           </p>
         </article>
       </section>

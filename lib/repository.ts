@@ -4,6 +4,7 @@ import type {
   DataStore,
   PaymentRecord,
   ResourceRecord,
+  ResourcePurchaseRecord,
   SchemePurchaseRecord,
   SessionRecord,
   SubscriptionRecord,
@@ -50,6 +51,7 @@ function mapPayment(row: Record<string, unknown>): PaymentRecord {
     schemeSubject: (row.scheme_subject as string | null) ?? null,
     schemeLevel: (row.scheme_level as string | null) ?? null,
     schemeTerm: (row.scheme_term as PaymentRecord["schemeTerm"] | null) ?? null,
+    resourceId: (row.resource_id as string | null) ?? null,
     paymentReference: (row.payment_reference as string | null) ?? null,
     authorizationUrl: (row.authorization_url as string | null) ?? null,
     checkoutRequestId: (row.checkout_request_id as string | null) ?? null,
@@ -93,6 +95,24 @@ function mapSchemePurchase(row: Record<string, unknown>): SchemePurchaseRecord {
   };
 }
 
+function mapResourcePurchase(row: Record<string, unknown>): ResourcePurchaseRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    resourceId: `${row.resource_id}`,
+    title: `${row.title}`,
+    level: `${row.level}`,
+    subject: `${row.subject}`,
+    section: row.section as ResourcePurchaseRecord["section"],
+    assessmentSet: (row.assessment_set as ResourcePurchaseRecord["assessmentSet"] | null) ?? null,
+    amount: Number(row.amount),
+    status: row.status as ResourcePurchaseRecord["status"],
+    paymentId: `${row.payment_id}`,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
 function mapResource(row: Record<string, unknown>): ResourceRecord {
   return {
     id: `${row.id}`,
@@ -122,22 +142,24 @@ export async function readAppData(): Promise<DataStore> {
   }
 
   const supabase = getSupabaseAdmin();
-  const [users, sessions, subscriptions, payments, schemePurchases, resources] = await Promise.all([
+  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources] = await Promise.all([
     supabase.from("users").select("*"),
     supabase.from("sessions").select("*"),
     supabase.from("subscriptions").select("*"),
     supabase.from("payments").select("*"),
     supabase.from("scheme_purchases").select("*"),
+    supabase.from("resource_purchases").select("*"),
     supabase.from("resources").select("*")
   ]);
 
-  if (users.error || sessions.error || subscriptions.error || payments.error || schemePurchases.error || resources.error) {
+  if (users.error || sessions.error || subscriptions.error || payments.error || schemePurchases.error || resourcePurchases.error || resources.error) {
     throw new Error(
       users.error?.message ||
         sessions.error?.message ||
         subscriptions.error?.message ||
         payments.error?.message ||
         schemePurchases.error?.message ||
+        resourcePurchases.error?.message ||
         resources.error?.message ||
         "Failed to read Supabase data."
     );
@@ -149,6 +171,7 @@ export async function readAppData(): Promise<DataStore> {
     subscriptions: (subscriptions.data ?? []).map((row: Record<string, unknown>) => mapSubscription(row)),
     payments: (payments.data ?? []).map((row: Record<string, unknown>) => mapPayment(row)),
     schemePurchases: (schemePurchases.data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row)),
+    resourcePurchases: (resourcePurchases.data ?? []).map((row: Record<string, unknown>) => mapResourcePurchase(row)),
     resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row))
   };
 }
@@ -282,6 +305,30 @@ export async function createSchemePaymentBundle(input: {
   }
 }
 
+export async function createResourcePaymentBundle(input: {
+  payment: PaymentRecord;
+  resourcePurchase: ResourcePurchaseRecord;
+}) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      payments: [...current.payments, input.payment],
+      resourcePurchases: [...current.resourcePurchases, input.resourcePurchase]
+    }));
+    return;
+  }
+  const supabase = getSupabaseAdmin();
+  const [paymentRes, resourceRes] = await Promise.all([
+    supabase.from("payments").insert(toPaymentRow(input.payment)),
+    supabase.from("resource_purchases").insert(toResourcePurchaseRow(input.resourcePurchase))
+  ]);
+  if (paymentRes.error || resourceRes.error) {
+    throw new Error(
+      paymentRes.error?.message || resourceRes.error?.message || "Failed to create resource payment."
+    );
+  }
+}
+
 export async function updatePaymentById(paymentId: string, changes: Partial<PaymentRecord>) {
   if (!isSupabaseConfigured()) {
     await updateStore((current) => ({
@@ -315,6 +362,7 @@ export async function markPaymentOutcome(paymentId: string, input: {
   paymentChanges: Partial<PaymentRecord>;
   subscriptionStatus?: Partial<SubscriptionRecord>;
   schemeStatus?: Partial<SchemePurchaseRecord>;
+  resourceStatus?: Partial<ResourcePurchaseRecord>;
 }) {
   if (!isSupabaseConfigured()) {
     await updateStore((current) => ({
@@ -330,6 +378,11 @@ export async function markPaymentOutcome(paymentId: string, input: {
       schemePurchases: current.schemePurchases.map((purchase) =>
         purchase.paymentId === paymentId && input.schemeStatus
           ? { ...purchase, ...input.schemeStatus }
+          : purchase
+      ),
+      resourcePurchases: current.resourcePurchases.map((purchase) =>
+        purchase.paymentId === paymentId && input.resourceStatus
+          ? { ...purchase, ...input.resourceStatus }
           : purchase
       )
     }));
@@ -347,6 +400,11 @@ export async function markPaymentOutcome(paymentId: string, input: {
   if (input.schemeStatus) {
     updates.push(
       supabase.from("scheme_purchases").update(toSchemePurchaseRow(input.schemeStatus)).eq("payment_id", paymentId)
+    );
+  }
+  if (input.resourceStatus) {
+    updates.push(
+      supabase.from("resource_purchases").update(toResourcePurchaseRow(input.resourceStatus)).eq("payment_id", paymentId)
     );
   }
   const results = await Promise.all(updates);
@@ -519,6 +577,7 @@ function toPaymentRow(payment: Partial<PaymentRecord>) {
     ...(payment.schemeSubject !== undefined ? { scheme_subject: payment.schemeSubject } : {}),
     ...(payment.schemeLevel !== undefined ? { scheme_level: payment.schemeLevel } : {}),
     ...(payment.schemeTerm !== undefined ? { scheme_term: payment.schemeTerm } : {}),
+    ...(payment.resourceId !== undefined ? { resource_id: payment.resourceId } : {}),
     ...(payment.paymentReference !== undefined ? { payment_reference: payment.paymentReference } : {}),
     ...(payment.authorizationUrl !== undefined ? { authorization_url: payment.authorizationUrl } : {}),
     ...(payment.checkoutRequestId !== undefined ? { checkout_request_id: payment.checkoutRequestId } : {}),
@@ -554,6 +613,24 @@ function toSchemePurchaseRow(purchase: Partial<SchemePurchaseRecord>) {
     ...(purchase.subject ? { subject: purchase.subject } : {}),
     ...(purchase.level ? { level: purchase.level } : {}),
     ...(purchase.term !== undefined ? { term: purchase.term } : {}),
+    ...(typeof purchase.amount === "number" ? { amount: purchase.amount } : {}),
+    ...(purchase.status ? { status: purchase.status } : {}),
+    ...(purchase.paymentId ? { payment_id: purchase.paymentId } : {}),
+    ...(purchase.createdAt ? { created_at: purchase.createdAt } : {}),
+    ...(purchase.updatedAt ? { updated_at: purchase.updatedAt } : {})
+  };
+}
+
+function toResourcePurchaseRow(purchase: Partial<ResourcePurchaseRecord>) {
+  return {
+    ...(purchase.id ? { id: purchase.id } : {}),
+    ...(purchase.userId ? { user_id: purchase.userId } : {}),
+    ...(purchase.resourceId ? { resource_id: purchase.resourceId } : {}),
+    ...(purchase.title ? { title: purchase.title } : {}),
+    ...(purchase.level ? { level: purchase.level } : {}),
+    ...(purchase.subject ? { subject: purchase.subject } : {}),
+    ...(purchase.section ? { section: purchase.section } : {}),
+    ...(purchase.assessmentSet !== undefined ? { assessment_set: purchase.assessmentSet } : {}),
     ...(typeof purchase.amount === "number" ? { amount: purchase.amount } : {}),
     ...(purchase.status ? { status: purchase.status } : {}),
     ...(purchase.paymentId ? { payment_id: purchase.paymentId } : {}),

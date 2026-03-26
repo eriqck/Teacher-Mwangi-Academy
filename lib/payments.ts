@@ -1,8 +1,17 @@
 import { createId } from "@/lib/auth";
 import { getPaystackCallbackUrl, initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
-import { subscriptionPlans } from "@/lib/business";
-import type { PaymentRecord, SchemePurchaseRecord, SchemeTerm, SubscriptionPlan, SubscriptionRecord } from "@/lib/store";
+import { subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
+import type {
+  PaymentRecord,
+  ResourcePurchaseRecord,
+  ResourceRecord,
+  SchemePurchaseRecord,
+  SchemeTerm,
+  SubscriptionPlan,
+  SubscriptionRecord
+} from "@/lib/store";
 import {
+  createResourcePaymentBundle,
   createSchemePaymentBundle,
   createSubscriptionPaymentBundle,
   findPaymentByReference,
@@ -43,6 +52,7 @@ export async function createPendingSubscriptionPayment(input: {
     schemeSubject: null,
     schemeLevel: null,
     schemeTerm: null,
+    resourceId: null,
     paymentReference: paymentId,
     authorizationUrl: null,
     checkoutRequestId: null,
@@ -149,6 +159,7 @@ export async function createPendingSchemePayment(input: {
     schemeSubject: input.subject,
     schemeLevel: input.level,
     schemeTerm: input.term,
+    resourceId: null,
     paymentReference: paymentId,
     authorizationUrl: null,
     checkoutRequestId: null,
@@ -224,6 +235,114 @@ export async function createPendingSchemePayment(input: {
   }
 }
 
+export async function createPendingResourcePayment(input: {
+  userId: string;
+  email: string;
+  accountReference: string;
+  resource: ResourceRecord;
+}) {
+  const paymentId = createId("pay");
+  const resourcePurchaseId = createId("resource-purchase");
+  const createdAt = new Date().toISOString();
+
+  const payment: PaymentRecord = {
+    id: paymentId,
+    userId: input.userId,
+    kind: "resource",
+    status: "pending",
+    provider: "paystack",
+    currency: "KES",
+    amount: teacherMaterialPrice,
+    phoneNumber: "",
+    accountReference: input.accountReference,
+    plan: null,
+    schemeSubject: null,
+    schemeLevel: null,
+    schemeTerm: null,
+    resourceId: input.resource.id,
+    paymentReference: paymentId,
+    authorizationUrl: null,
+    checkoutRequestId: null,
+    merchantRequestId: null,
+    mpesaReceiptNumber: null,
+    resultCode: null,
+    resultDesc: null,
+    createdAt,
+    updatedAt: createdAt
+  };
+
+  const resourcePurchase: ResourcePurchaseRecord = {
+    id: resourcePurchaseId,
+    userId: input.userId,
+    resourceId: input.resource.id,
+    title: input.resource.title,
+    level: input.resource.level,
+    subject: input.resource.subject,
+    section: input.resource.section ?? "notes",
+    assessmentSet: input.resource.assessmentSet ?? null,
+    amount: teacherMaterialPrice,
+    status: "pending",
+    paymentId,
+    createdAt,
+    updatedAt: createdAt
+  };
+
+  await createResourcePaymentBundle({ payment, resourcePurchase });
+
+  try {
+    const result = await initializePaystackTransaction({
+      email: input.email,
+      amount: teacherMaterialPrice,
+      reference: paymentId,
+      callbackUrl: getPaystackCallbackUrl(),
+      metadata: {
+        paymentId,
+        resourcePurchaseId,
+        kind: "resource",
+        resourceId: input.resource.id,
+        title: input.resource.title,
+        level: input.resource.level,
+        subject: input.resource.subject,
+        section: input.resource.section ?? "notes",
+        assessmentSet: input.resource.assessmentSet,
+        accountReference: input.accountReference
+      }
+    });
+
+    await updatePaymentById(paymentId, {
+      paymentReference: result.reference,
+      authorizationUrl: result.authorization_url,
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      ok: true,
+      result: {
+        authorization_url: result.authorization_url,
+        reference: result.reference
+      }
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Paystack is not configured yet. Payment saved as pending.";
+
+    await updatePaymentById(paymentId, {
+      resultDesc: message,
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      ok: true,
+      result: {
+        authorization_url: null,
+        reference: paymentId,
+        mock: true,
+        message: "Material purchase saved. Add Paystack keys to continue checkout."
+      }
+    };
+  }
+}
+
 export async function verifyAndApplyPaystackPayment(reference: string) {
   const result = await verifyPaystackTransaction(reference);
   const paid = result.status === "success";
@@ -248,6 +367,10 @@ export async function verifyAndApplyPaystackPayment(reference: string) {
       updatedAt
     },
     schemeStatus: {
+      status: paid ? "paid" : "failed",
+      updatedAt
+    },
+    resourceStatus: {
       status: paid ? "paid" : "failed",
       updatedAt
     }
