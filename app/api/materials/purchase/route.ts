@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { createPendingResourcePayment, createPendingSchemePayment } from "@/lib/payments";
 import { readAppData } from "@/lib/repository";
-import { isSchemeTerm } from "@/lib/scheme-terms";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     if (user.role !== "teacher") {
       return NextResponse.json(
-        { error: "Only teacher accounts can buy schemes of work." },
+        { error: "Only teacher accounts can make one-time scheme or material purchases." },
         { status: 403 }
       );
     }
@@ -23,10 +22,6 @@ export async function POST(request: NextRequest) {
       kind?: string;
       accountReference?: string;
       resourceId?: string;
-      subject?: string;
-      level?: string;
-      term?: string;
-      amount?: number;
     };
 
     if (!body.accountReference || !body.kind) {
@@ -78,22 +73,42 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (!body.subject || !body.level || !body.term || !body.amount) {
-      return NextResponse.json({ error: "All scheme purchase fields are required." }, { status: 400 });
+    if (!body.resourceId) {
+      return NextResponse.json({ error: "Choose the exact scheme you want to buy." }, { status: 400 });
     }
 
-    if (!isSchemeTerm(body.term)) {
-      return NextResponse.json({ error: "Choose Term 1, Term 2, or Term 3 for the scheme purchase." }, { status: 400 });
+    const store = await readAppData();
+    const resource = store.resources.find((entry) => entry.id === body.resourceId);
+
+    if (!resource || resource.category !== "scheme-of-work") {
+      return NextResponse.json({ error: "Scheme not found." }, { status: 404 });
+    }
+
+    const alreadyPurchased = store.schemePurchases.some((purchase) => {
+      if (purchase.userId !== user.id || purchase.status !== "paid") {
+        return false;
+      }
+
+      if (purchase.resourceId) {
+        return purchase.resourceId === resource.id;
+      }
+
+      return (
+        purchase.level === resource.level &&
+        purchase.subject === resource.subject &&
+        (purchase.term ?? null) === (resource.term ?? null)
+      );
+    });
+
+    if (alreadyPurchased) {
+      return NextResponse.json({ error: "You already own this scheme." }, { status: 400 });
     }
 
     const result = await createPendingSchemePayment({
       userId: user.id,
       email: user.email,
       accountReference: body.accountReference,
-      subject: body.subject,
-      level: body.level,
-      term: body.term,
-      amount: body.amount
+      resource
     });
 
     return NextResponse.json({

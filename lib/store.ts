@@ -70,6 +70,7 @@ export type PaymentRecord = {
 export type SchemePurchaseRecord = {
   id: string;
   userId: string;
+  resourceId: string | null;
   subject: string;
   level: string;
   term: SchemeTerm | null;

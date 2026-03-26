@@ -38,7 +38,7 @@ export default async function LoginPage() {
             <ul className="list">
               <li>Parents can subscribe for KSh 300 per month.</li>
               <li>Teachers can subscribe for KSh 150 per month.</li>
-              <li>Teachers can also buy schemes of work at KSh {schemeOfWorkPrice} per subject, per term.</li>
+              <li>Teachers can also buy exact uploaded schemes of work at KSh {schemeOfWorkPrice} each.</li>
               <li>Teachers can buy single notes and assessments at KSh {teacherMaterialPrice} per material.</li>
             </ul>
             <div className="hero-actions">

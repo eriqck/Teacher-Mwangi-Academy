@@ -1,12 +1,11 @@
 import { createId } from "@/lib/auth";
 import { getPaystackCallbackUrl, initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
-import { subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
+import { schemeOfWorkPrice, subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
 import type {
   PaymentRecord,
   ResourcePurchaseRecord,
   ResourceRecord,
   SchemePurchaseRecord,
-  SchemeTerm,
   SubscriptionPlan,
   SubscriptionRecord
 } from "@/lib/store";
@@ -136,10 +135,7 @@ export async function createPendingSchemePayment(input: {
   userId: string;
   email: string;
   accountReference: string;
-  subject: string;
-  level: string;
-  term: SchemeTerm;
-  amount: number;
+  resource: ResourceRecord;
 }) {
   const paymentId = createId("pay");
   const schemeId = createId("scheme");
@@ -152,14 +148,14 @@ export async function createPendingSchemePayment(input: {
     status: "pending",
     provider: "paystack",
     currency: "KES",
-    amount: input.amount,
+    amount: schemeOfWorkPrice,
     phoneNumber: "",
     accountReference: input.accountReference,
     plan: null,
-    schemeSubject: input.subject,
-    schemeLevel: input.level,
-    schemeTerm: input.term,
-    resourceId: null,
+    schemeSubject: input.resource.subject,
+    schemeLevel: input.resource.level,
+    schemeTerm: input.resource.term ?? null,
+    resourceId: input.resource.id,
     paymentReference: paymentId,
     authorizationUrl: null,
     checkoutRequestId: null,
@@ -173,10 +169,11 @@ export async function createPendingSchemePayment(input: {
   const schemePurchase: SchemePurchaseRecord = {
     id: schemeId,
     userId: input.userId,
-    subject: input.subject,
-    level: input.level,
-    term: input.term,
-    amount: input.amount,
+    resourceId: input.resource.id,
+    subject: input.resource.subject,
+    level: input.resource.level,
+    term: input.resource.term ?? null,
+    amount: schemeOfWorkPrice,
     status: "pending",
     paymentId,
     createdAt,
@@ -187,16 +184,18 @@ export async function createPendingSchemePayment(input: {
   try {
     const result = await initializePaystackTransaction({
       email: input.email,
-      amount: input.amount,
+      amount: schemeOfWorkPrice,
       reference: paymentId,
       callbackUrl: getPaystackCallbackUrl(),
       metadata: {
         paymentId,
         schemeId,
         kind: "scheme",
-        subject: input.subject,
-        level: input.level,
-        term: input.term,
+        resourceId: input.resource.id,
+        title: input.resource.title,
+        subject: input.resource.subject,
+        level: input.resource.level,
+        term: input.resource.term ?? null,
         accountReference: input.accountReference
       }
     });

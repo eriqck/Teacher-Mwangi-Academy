@@ -20,6 +20,7 @@ export default async function DashboardPage() {
     .slice(0, 6);
   const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
   const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
+  const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
   const activeSubscription = subscriptions.find((item) => item.status === "active") ?? subscriptions[0];
   const accessibleLevels =
     user.role === "teacher"
@@ -142,7 +143,7 @@ export default async function DashboardPage() {
               <table className="mini-table">
                 <thead>
                   <tr>
-                    <th>Subject</th>
+                    <th>Scheme</th>
                     <th>Level</th>
                     <th>Term</th>
                     <th>Status</th>
@@ -151,7 +152,11 @@ export default async function DashboardPage() {
                 <tbody>
                   {schemePurchases.slice(0, 5).map((purchase) => (
                     <tr key={purchase.id}>
-                      <td>{purchase.subject}</td>
+                      <td>
+                        {purchase.resourceId
+                          ? (resourcesById.get(purchase.resourceId)?.title ?? purchase.subject)
+                          : purchase.subject}
+                      </td>
                       <td>{purchase.level}</td>
                       <td>{getSchemeTermLabel(purchase.term)}</td>
                       <td>{purchase.status}</td>

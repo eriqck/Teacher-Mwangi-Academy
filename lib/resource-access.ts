@@ -45,9 +45,11 @@ export async function getLevelPageData(levelId: string) {
           (purchase) =>
             purchase.userId === user.id &&
             purchase.status === "paid" &&
-            purchase.level === resource.level &&
-            purchase.subject === resource.subject &&
-            (purchase.term ?? null) === (resource.term ?? null)
+            (purchase.resourceId
+              ? purchase.resourceId === resource.id
+              : purchase.level === resource.level &&
+                purchase.subject === resource.subject &&
+                (purchase.term ?? null) === (resource.term ?? null))
         )
     }),
     canPurchase:

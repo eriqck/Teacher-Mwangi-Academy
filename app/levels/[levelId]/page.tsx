@@ -32,6 +32,12 @@ export default async function LevelPage({
   );
   const schemes = resources.filter((resource) => resource.category === "scheme-of-work");
   const unassignedSchemes = schemes.filter((resource) => !resource.term);
+  const termSchemeGroups = schemeTerms
+    .map((term) => ({
+      term,
+      resources: schemes.filter((resource) => resource.term === term.id)
+    }))
+    .filter((group) => group.resources.length > 0);
 
   return (
     <main>
@@ -218,15 +224,12 @@ export default async function LevelPage({
             <span className="eyebrow">Teacher resources</span>
             <h2>{level.title} schemes of work</h2>
           </div>
-          <p>Teacher schemes for this level are organised by term for easier planning by subject.</p>
+          <p>Teacher schemes for this level only show terms that already have uploaded scheme files.</p>
         </div>
 
         {schemes.length > 0 ? (
           <div className="assessment-stack">
-            {schemeTerms.map((term) => {
-              const termSchemes = schemes.filter((resource) => resource.term === term.id);
-
-              return (
+            {termSchemeGroups.map(({ term, resources: termSchemes }) => (
                 <section key={term.id} className="assessment-block">
                   <div className="assessment-head">
                     <span className="eyebrow">{term.label}</span>
@@ -234,8 +237,7 @@ export default async function LevelPage({
                   </div>
 
                   <div className="resource-grid">
-                    {termSchemes.length > 0 ? (
-                      termSchemes.map((resource) => (
+                    {termSchemes.map((resource) => (
                         <article key={resource.id} className="resource-card">
                           <h3>{resource.title}</h3>
                           <div className="resource-meta">
@@ -248,26 +250,23 @@ export default async function LevelPage({
                               <Link href={resource.fileUrl} target="_blank" className="button">
                                 Open scheme
                               </Link>
-                            ) : (
-                              <Link href="/subscribe" className="button-secondary">
-                                Buy or manage access
+                            ) : user?.role === "teacher" ? (
+                              <Link href={`/subscribe?schemeId=${resource.id}`} className="button-secondary">
+                                Buy exact scheme
                               </Link>
+                            ) : !user ? (
+                              <Link href="/login" className="button-secondary">
+                                Sign in as teacher
+                              </Link>
+                            ) : (
+                              <span className="pill">Teacher account required</span>
                             )}
                           </div>
                         </article>
-                      ))
-                    ) : (
-                      <article className="resource-card">
-                        <h3>No {term.label.toLowerCase()} schemes uploaded yet</h3>
-                        <p className="subtle">
-                          There are no {term.label.toLowerCase()} schemes uploaded for {level.title} yet.
-                        </p>
-                      </article>
-                    )}
+                      ))}
                   </div>
                 </section>
-              );
-            })}
+              ))}
 
             {unassignedSchemes.length > 0 ? (
               <section className="assessment-block">
@@ -290,10 +289,16 @@ export default async function LevelPage({
                           <Link href={resource.fileUrl} target="_blank" className="button">
                             Open scheme
                           </Link>
-                        ) : (
-                          <Link href="/subscribe" className="button-secondary">
-                            Buy or manage access
+                        ) : user?.role === "teacher" ? (
+                          <Link href={`/subscribe?schemeId=${resource.id}`} className="button-secondary">
+                            Buy exact scheme
                           </Link>
+                        ) : !user ? (
+                          <Link href="/login" className="button-secondary">
+                            Sign in as teacher
+                          </Link>
+                        ) : (
+                          <span className="pill">Teacher account required</span>
                         )}
                       </div>
                     </article>

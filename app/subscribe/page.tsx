@@ -5,14 +5,15 @@ import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/busi
 import { getCurrentUser } from "@/lib/auth";
 import { membershipPlans } from "@/lib/catalog";
 import { readAppData } from "@/lib/repository";
+import { schemeTerms } from "@/lib/scheme-terms";
 
 export default async function SubscribePage({
   searchParams
 }: {
-  searchParams: Promise<{ resourceId?: string }>;
+  searchParams: Promise<{ resourceId?: string; schemeId?: string }>;
 }) {
   const user = await getCurrentUser();
-  const { resourceId } = await searchParams;
+  const { resourceId, schemeId } = await searchParams;
 
   if (!user) {
     redirect("/signup");
@@ -22,7 +23,7 @@ export default async function SubscribePage({
     redirect("/admin");
   }
 
-  const store = resourceId ? await readAppData() : null;
+  const store = resourceId || schemeId || user.role === "teacher" ? await readAppData() : null;
   const selectedResource = resourceId
     ? (() => {
         const resource = store?.resources.find(
@@ -40,6 +41,51 @@ export default async function SubscribePage({
               subject: resource.subject,
               section: resource.section ?? "notes",
               assessmentSet: resource.assessmentSet ?? null
+            }
+          : null;
+      })()
+    : null;
+  const availableSchemes =
+    user.role === "teacher"
+      ? (store?.resources ?? [])
+          .flatMap((resource) =>
+            resource.category === "scheme-of-work" &&
+            resource.term &&
+            schemeTerms.some((term) => term.id === resource.term)
+              ? [
+                  {
+                    id: resource.id,
+                    title: resource.title,
+                    level: resource.level,
+                    subject: resource.subject,
+                    term: resource.term
+                  }
+                ]
+              : []
+          )
+          .sort((left, right) => {
+            const byLevel = left.level.localeCompare(right.level);
+            if (byLevel !== 0) return byLevel;
+            const bySubject = left.subject.localeCompare(right.subject);
+            if (bySubject !== 0) return bySubject;
+            const byTerm = left.term.localeCompare(right.term);
+            if (byTerm !== 0) return byTerm;
+            return left.title.localeCompare(right.title);
+          })
+      : [];
+  const selectedScheme = schemeId
+    ? (() => {
+        const resource = store?.resources.find(
+          (resource) => resource.id === schemeId && resource.category === "scheme-of-work"
+        );
+
+        return resource
+          ? {
+              id: resource.id,
+              title: resource.title,
+              level: resource.level,
+              subject: resource.subject,
+              term: resource.term ?? null
             }
           : null;
       })()
@@ -88,10 +134,11 @@ export default async function SubscribePage({
           <article className="dashboard-card">
             <h3>Teacher scheme purchase</h3>
             <p className="subtle">
-              Teachers can buy one-time schemes of work at KSh {schemeOfWorkPrice} per subject, per term.
+              Teachers can buy exact uploaded schemes of work at KSh {schemeOfWorkPrice} each. Only
+              levels, subjects, and terms with uploaded schemes appear here.
             </p>
             {user.role === "teacher" ? (
-              <SchemeCheckoutForm />
+              <SchemeCheckoutForm schemes={availableSchemes} selectedScheme={selectedScheme} />
             ) : (
               <p className="subtle">
                 Create or use a teacher account to buy one-time schemes of work.

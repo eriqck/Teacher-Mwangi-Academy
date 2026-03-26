@@ -8,7 +8,7 @@ Teacher Mwangi Academy is a Next.js membership platform for selling Kenyan CBC a
 - Catalog coverage for Grade 7, Grade 8, Grade 9, Grade 10, Form 3, and Form 4
 - Parent subscriptions at `KSh 300/month`
 - Teacher subscriptions at `KSh 150/month`
-- Teacher scheme-of-work purchases at `KSh 30` per subject
+- Teacher scheme-of-work purchases at `KSh 20` per exact uploaded scheme
 - Signup, login, logout, and protected member dashboard
 - Teacher-only admin upload area for revision files and schemes of work
 - Supabase-ready storage for users, sessions, subscriptions, payments, and resources

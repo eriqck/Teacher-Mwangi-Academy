@@ -75,6 +75,8 @@ function mapPayments() {
     plan: payment.plan,
     scheme_subject: payment.schemeSubject,
     scheme_level: payment.schemeLevel,
+    scheme_term: payment.schemeTerm ?? null,
+    resource_id: payment.resourceId ?? null,
     payment_reference: payment.paymentReference ?? null,
     authorization_url: payment.authorizationUrl ?? null,
     checkout_request_id: payment.checkoutRequestId,
@@ -107,8 +109,28 @@ function mapSchemePurchases() {
   return store.schemePurchases.map((purchase) => ({
     id: purchase.id,
     user_id: purchase.userId,
+    resource_id: purchase.resourceId ?? null,
     subject: purchase.subject,
     level: purchase.level,
+    term: purchase.term ?? null,
+    amount: purchase.amount,
+    status: purchase.status,
+    payment_id: purchase.paymentId,
+    created_at: purchase.createdAt,
+    updated_at: purchase.updatedAt
+  }));
+}
+
+function mapResourcePurchases() {
+  return (store.resourcePurchases ?? []).map((purchase) => ({
+    id: purchase.id,
+    user_id: purchase.userId,
+    resource_id: purchase.resourceId,
+    title: purchase.title,
+    level: purchase.level,
+    subject: purchase.subject,
+    section: purchase.section,
+    assessment_set: purchase.assessmentSet ?? null,
     amount: purchase.amount,
     status: purchase.status,
     payment_id: purchase.paymentId,
@@ -152,6 +174,9 @@ async function mapResources() {
       level: resource.level,
       subject: resource.subject,
       category: resource.category,
+      section: resource.section ?? "notes",
+      assessment_set: resource.assessmentSet ?? null,
+      term: resource.term ?? null,
       audience: resource.audience,
       price: resource.price,
       file_name: resource.fileName,
@@ -178,7 +203,8 @@ await upsert("users", mapUsers());
 await upsert("sessions", mapSessions(), "token");
 await upsert("payments", mapPayments());
 await upsert("subscriptions", mapSubscriptions());
-await upsert("scheme_purchases", mapSchemePurchases());
 await upsert("resources", await mapResources());
+await upsert("scheme_purchases", mapSchemePurchases());
+await upsert("resource_purchases", mapResourcePurchases());
 
 console.log("Supabase migration complete.");

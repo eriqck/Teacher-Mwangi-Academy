@@ -84,6 +84,7 @@ function mapSchemePurchase(row: Record<string, unknown>): SchemePurchaseRecord {
   return {
     id: `${row.id}`,
     userId: `${row.user_id}`,
+    resourceId: (row.resource_id as string | null) ?? null,
     subject: `${row.subject}`,
     level: `${row.level}`,
     term: (row.term as SchemePurchaseRecord["term"] | null) ?? null,
@@ -610,6 +611,7 @@ function toSchemePurchaseRow(purchase: Partial<SchemePurchaseRecord>) {
   return {
     ...(purchase.id ? { id: purchase.id } : {}),
     ...(purchase.userId ? { user_id: purchase.userId } : {}),
+    ...(purchase.resourceId !== undefined ? { resource_id: purchase.resourceId } : {}),
     ...(purchase.subject ? { subject: purchase.subject } : {}),
     ...(purchase.level ? { level: purchase.level } : {}),
     ...(purchase.term !== undefined ? { term: purchase.term } : {}),

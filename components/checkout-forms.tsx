@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { levels } from "@/lib/catalog";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
-import { schemeTerms } from "@/lib/scheme-terms";
-import type { AssessmentSet, ResourceSection } from "@/lib/store";
+import { getSchemeTermLabel } from "@/lib/scheme-terms";
+import type { AssessmentSet, ResourceSection, SchemeTerm } from "@/lib/store";
 
 type ApiResponse = {
   ok?: boolean;
@@ -21,20 +21,6 @@ type ApiResponse = {
 const planOptions = [
   { id: "parent-monthly", label: "Parent Subscription", role: "parent" },
   { id: "teacher-monthly", label: "Teacher Subscription", role: "teacher" }
-];
-
-const schemeSubjects = [
-  "Mathematics",
-  "English",
-  "Kiswahili",
-  "Integrated Science",
-  "Biology",
-  "Chemistry",
-  "Physics",
-  "Business Studies",
-  "History",
-  "Geography",
-  "CRE"
 ];
 
 export function SubscriptionCheckoutForm({ role }: { role: "parent" | "teacher" }) {
@@ -127,10 +113,64 @@ export function SubscriptionCheckoutForm({ role }: { role: "parent" | "teacher" 
   );
 }
 
-export function SchemeCheckoutForm() {
+type SelectedScheme = {
+  id: string;
+  title: string;
+  level: string;
+  subject: string;
+  term: SchemeTerm | null;
+};
+
+function getUniqueValues(values: string[]) {
+  return Array.from(new Set(values));
+}
+
+export function SchemeCheckoutForm({
+  schemes,
+  selectedScheme
+}: {
+  schemes: SelectedScheme[];
+  selectedScheme: SelectedScheme | null;
+}) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const selectableSchemes = schemes.filter(
+    (scheme): scheme is SelectedScheme & { term: SchemeTerm } => scheme.term !== null
+  );
+  const isPinnedLegacyScheme = !!selectedScheme && selectedScheme.term === null;
+  const initialScheme =
+    (selectedScheme
+      ? selectableSchemes.find((scheme) => scheme.id === selectedScheme.id) ?? null
+      : null) ??
+    selectableSchemes[0] ??
+    null;
+  const [selectedSchemeId, setSelectedSchemeId] = useState(initialScheme?.id ?? "");
+  const activeScheme = isPinnedLegacyScheme
+    ? selectedScheme
+    : selectableSchemes.find((scheme) => scheme.id === selectedSchemeId) ?? initialScheme;
+
+  function getSubjectsForLevel(level: string) {
+    return getUniqueValues(
+      selectableSchemes
+        .filter((scheme) => scheme.level === level)
+        .map((scheme) => scheme.subject)
+    );
+  }
+
+  function getTermsForSelection(level: string, subject: string) {
+    return getUniqueValues(
+      selectableSchemes
+        .filter((scheme) => scheme.level === level && scheme.subject === subject)
+        .map((scheme) => scheme.term)
+    ) as SchemeTerm[];
+  }
+
+  function getSchemesForSelection(level: string, subject: string, term: SchemeTerm) {
+    return selectableSchemes.filter(
+      (scheme) => scheme.level === level && scheme.subject === subject && scheme.term === term
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -146,10 +186,7 @@ export function SchemeCheckoutForm() {
       body: JSON.stringify({
         kind: "scheme",
         accountReference: formData.get("accountReference"),
-        subject: formData.get("subject"),
-        level: formData.get("level"),
-        term: formData.get("term"),
-        amount: schemeOfWorkPrice
+        resourceId: formData.get("resourceId")
       })
     });
 
@@ -169,40 +206,133 @@ export function SchemeCheckoutForm() {
     setMessage(data.data?.message ?? data.message ?? "Scheme purchase started.");
   }
 
+  if (!activeScheme) {
+    return (
+      <p className="subtle">
+        No schemes of work have been uploaded yet. Upload a scheme first, then it will appear here automatically.
+      </p>
+    );
+  }
+
+  const subjectOptions = isPinnedLegacyScheme ? [] : getSubjectsForLevel(activeScheme.level);
+  const termOptions =
+    isPinnedLegacyScheme || !activeScheme.term
+      ? []
+      : getTermsForSelection(activeScheme.level, activeScheme.subject);
+  const matchingSchemes =
+    isPinnedLegacyScheme || !activeScheme.term
+      ? []
+      : getSchemesForSelection(activeScheme.level, activeScheme.subject, activeScheme.term);
+
+  function handleLevelChange(nextLevel: string) {
+    const nextSubject = getSubjectsForLevel(nextLevel)[0] ?? "";
+    const nextTerm = nextSubject ? getTermsForSelection(nextLevel, nextSubject)[0] ?? null : null;
+    const nextScheme =
+      nextSubject && nextTerm
+        ? getSchemesForSelection(nextLevel, nextSubject, nextTerm)[0] ?? null
+        : null;
+    setSelectedSchemeId(nextScheme?.id ?? "");
+  }
+
+  function handleSubjectChange(nextSubject: string) {
+    const nextTerm = getTermsForSelection(activeScheme.level, nextSubject)[0] ?? null;
+    const nextScheme =
+      nextTerm
+        ? getSchemesForSelection(activeScheme.level, nextSubject, nextTerm)[0] ?? null
+        : null;
+    setSelectedSchemeId(nextScheme?.id ?? "");
+  }
+
+  function handleTermChange(nextTerm: SchemeTerm) {
+    const nextScheme =
+      getSchemesForSelection(activeScheme.level, activeScheme.subject, nextTerm)[0] ?? null;
+    setSelectedSchemeId(nextScheme?.id ?? "");
+  }
+
   return (
     <form className="panel-stack" onSubmit={handleSubmit}>
-      <div className="form-grid">
-        <div className="field">
-          <label htmlFor="subject">Subject</label>
-          <select id="subject" name="subject" defaultValue="Mathematics" required>
-            {schemeSubjects.map((subject) => (
-              <option key={subject} value={subject}>
-                {subject}
-              </option>
-            ))}
-          </select>
+      <input type="hidden" name="resourceId" value={activeScheme.id} />
+
+      <div className="dashboard-card">
+        <h3>{activeScheme.title}</h3>
+        <div className="resource-meta">
+          <span>{activeScheme.level}</span>
+          <span>{activeScheme.subject}</span>
+          <span>{getSchemeTermLabel(activeScheme.term)}</span>
         </div>
-        <div className="field">
-          <label htmlFor="level">Level</label>
-          <select id="level" name="level" defaultValue="Grade 7" required>
-            {levels.map((level) => (
-              <option key={level.id} value={level.title}>
-                {level.title}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="term">Term</label>
-          <select id="term" name="term" defaultValue="term-1" required>
-            {schemeTerms.map((term) => (
-              <option key={term.id} value={term.id}>
-                {term.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <p className="subtle">One-time teacher purchase at KSh {schemeOfWorkPrice} for this exact scheme.</p>
       </div>
+
+      {!isPinnedLegacyScheme ? (
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="scheme-level">Level</label>
+            <select
+              id="scheme-level"
+              value={activeScheme.level}
+              onChange={(event) => handleLevelChange(event.target.value)}
+              required
+            >
+              {getUniqueValues(selectableSchemes.map((scheme) => scheme.level)).map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="scheme-subject">Subject</label>
+            <select
+              id="scheme-subject"
+              value={activeScheme.subject}
+              onChange={(event) => handleSubjectChange(event.target.value)}
+              required
+            >
+              {subjectOptions.map((subject) => (
+                <option key={subject} value={subject}>
+                  {subject}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="scheme-term">Term</label>
+            <select
+              id="scheme-term"
+              value={activeScheme.term ?? ""}
+              onChange={(event) => handleTermChange(event.target.value as SchemeTerm)}
+              required
+            >
+              {termOptions.map((term) => (
+                <option key={term} value={term}>
+                  {getSchemeTermLabel(term)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="scheme-file">Available scheme</label>
+            <select
+              id="scheme-file"
+              value={activeScheme.id}
+              onChange={(event) => setSelectedSchemeId(event.target.value)}
+              required
+            >
+              {matchingSchemes.map((scheme) => (
+                <option key={scheme.id} value={scheme.id}>
+                  {scheme.title}
+                </option>
+              ))}
+            </select>
+            <small>Only subjects and terms with uploaded schemes appear in these lists.</small>
+          </div>
+        </div>
+      ) : (
+        <p className="subtle">
+          This scheme is an older upload without a saved term, so checkout is pinned to the exact file you selected.
+        </p>
+      )}
+
       <div className="form-grid">
         <div className="field">
           <label htmlFor="accountReference">Reference</label>
@@ -214,7 +344,7 @@ export function SchemeCheckoutForm() {
       {message ? <div className="message message-success">{message}</div> : null}
 
       <button className="button" type="submit" disabled={loading}>
-        {loading ? "Redirecting to Paystack..." : "Buy with Paystack"}
+        {loading ? "Redirecting to Paystack..." : `Buy selected scheme for KSh ${schemeOfWorkPrice}`}
       </button>
     </form>
   );

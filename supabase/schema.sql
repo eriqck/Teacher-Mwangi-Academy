@@ -61,6 +61,7 @@ create table if not exists subscriptions (
 create table if not exists scheme_purchases (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
+  resource_id text,
   subject text not null,
   level text not null,
   term text check (term in ('term-1', 'term-2', 'term-3')),
@@ -129,6 +130,9 @@ alter table payments
 alter table scheme_purchases
   add column if not exists term text;
 
+alter table scheme_purchases
+  add column if not exists resource_id text;
+
 alter table resources
   drop constraint if exists resources_section_check;
 
@@ -164,6 +168,13 @@ alter table scheme_purchases
   add constraint scheme_purchases_term_check
   check (term in ('term-1', 'term-2', 'term-3') or term is null);
 
+alter table scheme_purchases
+  drop constraint if exists scheme_purchases_resource_id_fkey;
+
+alter table scheme_purchases
+  add constraint scheme_purchases_resource_id_fkey
+  foreign key (resource_id) references resources(id) on delete cascade;
+
 alter table resource_purchases
   drop constraint if exists resource_purchases_assessment_set_check;
 
@@ -179,6 +190,7 @@ create index if not exists idx_sessions_user_id on sessions(user_id);
 create index if not exists idx_payments_user_id on payments(user_id);
 create index if not exists idx_subscriptions_user_id on subscriptions(user_id);
 create index if not exists idx_scheme_purchases_user_id on scheme_purchases(user_id);
+create index if not exists idx_scheme_purchases_resource_id on scheme_purchases(resource_id);
 create index if not exists idx_resource_purchases_user_id on resource_purchases(user_id);
 create index if not exists idx_resource_purchases_resource_id on resource_purchases(resource_id);
 create index if not exists idx_resources_level on resources(level);
