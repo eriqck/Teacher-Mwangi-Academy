@@ -3,6 +3,7 @@ import path from "path";
 import type {
   DataStore,
   PaymentRecord,
+  PasswordResetTokenRecord,
   ResourceRecord,
   ResourcePurchaseRecord,
   SchemePurchaseRecord,
@@ -33,6 +34,17 @@ function mapSession(row: Record<string, unknown>): SessionRecord {
     userId: `${row.user_id}`,
     createdAt: `${row.created_at}`,
     expiresAt: `${row.expires_at}`
+  };
+}
+
+function mapPasswordResetToken(row: Record<string, unknown>): PasswordResetTokenRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    tokenHash: `${row.token_hash}`,
+    createdAt: `${row.created_at}`,
+    expiresAt: `${row.expires_at}`,
+    usedAt: (row.used_at as string | null) ?? null
   };
 }
 
@@ -169,6 +181,7 @@ export async function readAppData(): Promise<DataStore> {
   return {
     users: (users.data ?? []).map((row: Record<string, unknown>) => mapUser(row)),
     sessions: (sessions.data ?? []).map((row: Record<string, unknown>) => mapSession(row)),
+    passwordResetTokens: [],
     subscriptions: (subscriptions.data ?? []).map((row: Record<string, unknown>) => mapSubscription(row)),
     payments: (payments.data ?? []).map((row: Record<string, unknown>) => mapPayment(row)),
     schemePurchases: (schemePurchases.data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row)),
@@ -220,6 +233,39 @@ export async function insertUser(user: UserRecord) {
   return user;
 }
 
+export async function updateUserPassword(input: {
+  userId: string;
+  passwordHash: string;
+  passwordSalt: string;
+}) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      users: current.users.map((user) =>
+        user.id === input.userId
+          ? {
+              ...user,
+              passwordHash: input.passwordHash,
+              passwordSalt: input.passwordSalt
+            }
+          : user
+      )
+    }));
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("users")
+    .update({
+      password_hash: input.passwordHash,
+      password_salt: input.passwordSalt
+    })
+    .eq("id", input.userId);
+
+  if (error) throw new Error(error.message);
+}
+
 export async function findSessionByToken(token: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
@@ -260,6 +306,54 @@ export async function deleteSessionByToken(token: string) {
   }
   const supabase = getSupabaseAdmin();
   const { error } = await supabase.from("sessions").delete().eq("token", token);
+  if (error) throw new Error(error.message);
+}
+
+export async function insertPasswordResetToken(token: PasswordResetTokenRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      passwordResetTokens: [token, ...current.passwordResetTokens]
+    }));
+    return token;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("password_reset_tokens").insert(
+    toPasswordResetTokenRow(token)
+  );
+  if (error) throw new Error(error.message);
+  return token;
+}
+
+export async function findPasswordResetTokenByHash(tokenHash: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.passwordResetTokens.find((token) => token.tokenHash === tokenHash) ?? null;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("password_reset_tokens")
+    .select("*")
+    .eq("token_hash", tokenHash)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapPasswordResetToken(data) : null;
+}
+
+export async function deletePasswordResetTokensByUserId(userId: string) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      passwordResetTokens: current.passwordResetTokens.filter((token) => token.userId !== userId)
+    }));
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("password_reset_tokens").delete().eq("user_id", userId);
   if (error) throw new Error(error.message);
 }
 
@@ -604,6 +698,17 @@ function toSubscriptionRow(subscription: Partial<SubscriptionRecord>) {
     ...(subscription.createdAt ? { created_at: subscription.createdAt } : {}),
     ...(subscription.updatedAt ? { updated_at: subscription.updatedAt } : {}),
     ...(subscription.paymentId ? { payment_id: subscription.paymentId } : {})
+  };
+}
+
+function toPasswordResetTokenRow(token: Partial<PasswordResetTokenRecord>) {
+  return {
+    ...(token.id ? { id: token.id } : {}),
+    ...(token.userId ? { user_id: token.userId } : {}),
+    ...(token.tokenHash ? { token_hash: token.tokenHash } : {}),
+    ...(token.createdAt ? { created_at: token.createdAt } : {}),
+    ...(token.expiresAt ? { expires_at: token.expiresAt } : {}),
+    ...(token.usedAt !== undefined ? { used_at: token.usedAt } : {})
   };
 }
 

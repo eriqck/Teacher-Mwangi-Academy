@@ -21,6 +21,15 @@ export type SessionRecord = {
   expiresAt: string;
 };
 
+export type PasswordResetTokenRecord = {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
+};
+
 export type SubscriptionPlan = "parent-monthly" | "teacher-monthly";
 export type PaymentStatus = "pending" | "paid" | "failed";
 
@@ -125,6 +134,7 @@ export type ResourceRecord = {
 export type DataStore = {
   users: UserRecord[];
   sessions: SessionRecord[];
+  passwordResetTokens: PasswordResetTokenRecord[];
   subscriptions: SubscriptionRecord[];
   payments: PaymentRecord[];
   schemePurchases: SchemePurchaseRecord[];
@@ -147,6 +157,7 @@ async function ensureStoreFile() {
         {
           users: [],
           sessions: [],
+          passwordResetTokens: [],
           subscriptions: [],
           payments: [],
           schemePurchases: [],
@@ -168,6 +179,7 @@ export async function readStore(): Promise<DataStore> {
   return {
     users: parsed.users ?? [],
     sessions: parsed.sessions ?? [],
+    passwordResetTokens: parsed.passwordResetTokens ?? [],
     subscriptions: parsed.subscriptions ?? [],
     payments: parsed.payments ?? [],
     schemePurchases: parsed.schemePurchases ?? [],

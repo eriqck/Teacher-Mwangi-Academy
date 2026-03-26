@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -104,6 +105,12 @@ export function AuthForm({ mode }: AuthFormProps) {
       <button className="button" type="submit" disabled={loading}>
         {loading ? "Please wait..." : mode === "signup" ? "Create account" : "Sign in"}
       </button>
+
+      {mode === "login" ? (
+        <div className="auth-form-meta">
+          <Link href="/forgot-password">Forgot password?</Link>
+        </div>
+      ) : null}
     </form>
   );
 }

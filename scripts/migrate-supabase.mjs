@@ -61,6 +61,17 @@ function mapSessions() {
   }));
 }
 
+function mapPasswordResetTokens() {
+  return (store.passwordResetTokens ?? []).map((token) => ({
+    id: token.id,
+    user_id: token.userId,
+    token_hash: token.tokenHash,
+    created_at: token.createdAt,
+    expires_at: token.expiresAt,
+    used_at: token.usedAt
+  }));
+}
+
 function mapPayments() {
   return store.payments.map((payment) => ({
     id: payment.id,
@@ -201,6 +212,7 @@ async function upsert(table, rows, conflict = "id") {
 await ensureBucket();
 await upsert("users", mapUsers());
 await upsert("sessions", mapSessions(), "token");
+await upsert("password_reset_tokens", mapPasswordResetTokens());
 await upsert("payments", mapPayments());
 await upsert("subscriptions", mapSubscriptions());
 await upsert("resources", await mapResources());

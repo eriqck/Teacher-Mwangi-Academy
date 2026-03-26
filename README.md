@@ -10,6 +10,7 @@ Teacher Mwangi Academy is a Next.js membership platform for selling Kenyan CBC a
 - Teacher subscriptions at `KSh 150/month`
 - Teacher scheme-of-work purchases at `KSh 20` per exact uploaded scheme
 - Signup, login, logout, and protected member dashboard
+- Password reset request and secure reset-link flow
 - Teacher-only admin upload area for revision files and schemes of work
 - Supabase-ready storage for users, sessions, subscriptions, payments, and resources
 - Supabase Storage-ready file uploads with local fallback during development
@@ -36,8 +37,9 @@ copy .env.example .env.local
 ```
 
 3. Update the Paystack, Supabase, and session env values in `.env.local`.
+4. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` if you want live password reset emails sent automatically.
 
-4. Start the app:
+5. Start the app:
 
 ```bash
 npm run dev
@@ -57,7 +59,8 @@ Uploaded files go to Supabase Storage when `SUPABASE_URL` and `SUPABASE_SERVICE_
 4. Add the environment variables from `.env.example` to Vercel.
 5. Deploy the app to Vercel.
 6. Update `NEXT_PUBLIC_SITE_URL` and `PAYSTACK_CALLBACK_URL` to your real domain.
-7. Test signup, login, uploads, payments, and level access on the deployed site.
+7. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` for live password reset emails.
+8. Test signup, login, password reset, uploads, payments, and level access on the deployed site.
 
 ## Admin uploads
 
@@ -79,7 +82,7 @@ npm run make-admin -- you@example.com
 1. Add a migration/import script to move current local JSON data into Supabase.
 2. Harden Paystack verification with webhook support and stricter idempotency handling.
 3. Add row-level security and tighter admin-only storage rules if you later move off service-role-only server access.
-4. Add password reset and email verification.
+4. Add email verification.
 5. Add school and bulk-teacher plans if needed.
 
 ## Recommended data model

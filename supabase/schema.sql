@@ -18,6 +18,15 @@ create table if not exists sessions (
   expires_at timestamptz not null
 );
 
+create table if not exists password_reset_tokens (
+  id text primary key,
+  user_id text not null references users(id) on delete cascade,
+  token_hash text not null unique,
+  created_at timestamptz not null,
+  expires_at timestamptz not null,
+  used_at timestamptz
+);
+
 create table if not exists payments (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
@@ -187,6 +196,7 @@ set section = 'notes'
 where section is null;
 
 create index if not exists idx_sessions_user_id on sessions(user_id);
+create index if not exists idx_password_reset_tokens_user_id on password_reset_tokens(user_id);
 create index if not exists idx_payments_user_id on payments(user_id);
 create index if not exists idx_subscriptions_user_id on subscriptions(user_id);
 create index if not exists idx_scheme_purchases_user_id on scheme_purchases(user_id);

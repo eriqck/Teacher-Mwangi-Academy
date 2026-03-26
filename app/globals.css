@@ -790,6 +790,26 @@ main {
   width: 100%;
 }
 
+.auth-form-meta {
+  display: flex;
+  justify-content: center;
+  font-size: 0.94rem;
+}
+
+.auth-form-meta a {
+  color: var(--secondary);
+  text-decoration: none;
+}
+
+.auth-form-meta a:hover {
+  text-decoration: underline;
+}
+
+.auth-helper-stack {
+  display: grid;
+  gap: 10px;
+}
+
 .message {
   padding: 14px 16px;
   border-radius: 14px;

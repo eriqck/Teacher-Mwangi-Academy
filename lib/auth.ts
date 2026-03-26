@@ -4,15 +4,21 @@ import { redirect } from "next/navigation";
 import type { SessionRecord, UserRecord, UserRole } from "@/lib/store";
 import {
   deleteSessionByToken,
+  deletePasswordResetTokensByUserId,
   findSessionByToken,
+  findPasswordResetTokenByHash,
   findUserByEmail,
   findUserById,
   insertUser,
-  replaceSessionForUser
+  insertPasswordResetToken,
+  replaceSessionForUser,
+  updateUserPassword
 } from "@/lib/repository";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 const sessionCookieName = "teacher_mwangi_session";
 const sessionDurationMs = 1000 * 60 * 60 * 24 * 30;
+const passwordResetDurationMs = 1000 * 60 * 60;
 
 function getSecret() {
   return process.env.JWT_SECRET || "teacher-mwangi-academy-dev-secret";
@@ -30,6 +36,14 @@ export function verifyPassword(password: string, salt: string, expectedHash: str
 
 export function createId(prefix: string) {
   return `${prefix}_${crypto.randomUUID()}`;
+}
+
+function hashResetToken(token: string) {
+  return crypto.createHash("sha256").update(`${token}.${getSecret()}`).digest("hex");
+}
+
+function getSiteUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
 
 function signValue(value: string) {
@@ -96,6 +110,82 @@ export async function authenticateUser(email: string, password: string) {
   if (!verifyPassword(password, user.passwordSalt, user.passwordHash)) {
     return null;
   }
+
+  return user;
+}
+
+export async function requestPasswordReset(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await findUserByEmail(normalizedEmail);
+
+  if (!user) {
+    return {
+      requested: true,
+      previewUrl: null as string | null,
+      emailSent: false
+    };
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const createdAt = new Date();
+  const expiresAt = new Date(createdAt.getTime() + passwordResetDurationMs).toISOString();
+  const resetUrl = `${getSiteUrl()}/reset-password?token=${rawToken}`;
+
+  await deletePasswordResetTokensByUserId(user.id);
+  await insertPasswordResetToken({
+    id: createId("reset"),
+    userId: user.id,
+    tokenHash: hashResetToken(rawToken),
+    createdAt: createdAt.toISOString(),
+    expiresAt,
+    usedAt: null
+  });
+
+  let emailSent = false;
+
+  try {
+    emailSent = await sendPasswordResetEmail({
+      email: user.email,
+      fullName: user.fullName,
+      resetUrl
+    });
+  } catch {
+    emailSent = false;
+  }
+
+  return {
+    requested: true,
+    previewUrl: process.env.NODE_ENV === "production" ? null : emailSent ? null : resetUrl,
+    emailSent
+  };
+}
+
+export async function resetPasswordWithToken(token: string, password: string) {
+  const tokenRecord = await findPasswordResetTokenByHash(hashResetToken(token));
+
+  if (!tokenRecord || tokenRecord.usedAt) {
+    throw new Error("This reset link is invalid or has already been used.");
+  }
+
+  if (new Date(tokenRecord.expiresAt).getTime() < Date.now()) {
+    await deletePasswordResetTokensByUserId(tokenRecord.userId);
+    throw new Error("This reset link has expired. Please request a new one.");
+  }
+
+  const user = await findUserById(tokenRecord.userId);
+
+  if (!user) {
+    throw new Error("We could not find the account for this reset link.");
+  }
+
+  const { hash, salt } = hashPassword(password);
+
+  await updateUserPassword({
+    userId: user.id,
+    passwordHash: hash,
+    passwordSalt: salt
+  });
+  await deletePasswordResetTokensByUserId(user.id);
 
   return user;
 }
