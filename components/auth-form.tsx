@@ -47,7 +47,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <form className="panel-stack" onSubmit={handleSubmit}>
+    <form className={`panel-stack auth-form auth-form--${mode}`} onSubmit={handleSubmit}>
       {mode === "signup" ? (
         <>
           <div className="form-grid">
@@ -76,19 +76,27 @@ export function AuthForm({ mode }: AuthFormProps) {
         </>
       ) : null}
 
-      <div className="form-grid">
-        {mode === "login" ? (
+      {mode === "login" ? (
+        <div className="auth-login-grid">
           <div className="field">
             <label htmlFor="email">Email address</label>
             <input id="email" name="email" type="email" required />
           </div>
-        ) : null}
-        <div className="field">
-          <label htmlFor="password">Password</label>
-          <input id="password" name="password" type="password" minLength={6} required />
-          <small>Use at least 6 characters.</small>
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" minLength={6} required />
+            <small>Use at least 6 characters.</small>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="form-grid form-grid-single">
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" minLength={6} required />
+            <small>Use at least 6 characters.</small>
+          </div>
+        </div>
+      )}
 
       {error ? <div className="message message-error">{error}</div> : null}
       {success ? <div className="message message-success">{success}</div> : null}

@@ -737,6 +737,11 @@ main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.form-grid-single,
+.auth-login-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .field {
   display: grid;
   gap: 8px;
@@ -760,6 +765,29 @@ main {
 
 .field small {
   color: var(--muted);
+}
+
+.auth-form {
+  width: 100%;
+}
+
+.auth-form .field {
+  min-width: 0;
+  text-align: left;
+}
+
+.auth-form .field input,
+.auth-form .field select {
+  width: 100%;
+}
+
+.auth-form--login {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.auth-form--login .button {
+  width: 100%;
 }
 
 .message {
