@@ -110,7 +110,7 @@ export async function createPendingSubscriptionPayment(input: {
     };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Paystack is not configured yet. Payment saved as pending.";
+      error instanceof Error ? error.message : "M-Pesa checkout is not configured yet. Payment saved as pending.";
 
     await updatePaymentById(paymentId, {
       resultDesc: message,
@@ -125,7 +125,7 @@ export async function createPendingSubscriptionPayment(input: {
         authorization_url: null,
         reference: paymentId,
         mock: true,
-        message: "Subscription saved. Add Paystack keys to continue checkout."
+        message: "Subscription saved. Finish the M-Pesa checkout setup to continue."
       }
     };
   }
@@ -215,7 +215,7 @@ export async function createPendingSchemePayment(input: {
     };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Paystack is not configured yet. Payment saved as pending.";
+      error instanceof Error ? error.message : "M-Pesa checkout is not configured yet. Payment saved as pending.";
 
     await updatePaymentById(paymentId, {
       resultDesc: message,
@@ -228,7 +228,7 @@ export async function createPendingSchemePayment(input: {
         authorization_url: null,
         reference: paymentId,
         mock: true,
-        message: "Scheme purchase saved. Add Paystack keys to continue checkout."
+        message: "Scheme purchase saved. Finish the M-Pesa checkout setup to continue."
       }
     };
   }
@@ -323,7 +323,7 @@ export async function createPendingResourcePayment(input: {
     };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Paystack is not configured yet. Payment saved as pending.";
+      error instanceof Error ? error.message : "M-Pesa checkout is not configured yet. Payment saved as pending.";
 
     await updatePaymentById(paymentId, {
       resultDesc: message,
@@ -336,7 +336,7 @@ export async function createPendingResourcePayment(input: {
         authorization_url: null,
         reference: paymentId,
         mock: true,
-        message: "Material purchase saved. Add Paystack keys to continue checkout."
+        message: "Material purchase saved. Finish the M-Pesa checkout setup to continue."
       }
     };
   }

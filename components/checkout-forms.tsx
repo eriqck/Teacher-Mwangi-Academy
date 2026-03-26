@@ -106,8 +106,8 @@ export function SubscriptionCheckoutForm({ role }: { role: "parent" | "teacher" 
       {error ? <div className="message message-error">{error}</div> : null}
       {message ? <div className="message message-success">{message}</div> : null}
 
-      <button className="button" type="submit" disabled={loading}>
-        {loading ? "Redirecting to Paystack..." : "Continue to Paystack"}
+      <button className="button button-buy" type="submit" disabled={loading}>
+        {loading ? "Redirecting to M-Pesa..." : "Continue to M-Pesa"}
       </button>
     </form>
   );
@@ -343,8 +343,8 @@ export function SchemeCheckoutForm({
       {error ? <div className="message message-error">{error}</div> : null}
       {message ? <div className="message message-success">{message}</div> : null}
 
-      <button className="button" type="submit" disabled={loading}>
-        {loading ? "Redirecting to Paystack..." : `Buy selected scheme for KSh ${schemeOfWorkPrice}`}
+      <button className="button button-buy" type="submit" disabled={loading}>
+        {loading ? "Redirecting to M-Pesa..." : `Buy selected scheme for KSh ${schemeOfWorkPrice}`}
       </button>
     </form>
   );
@@ -438,8 +438,8 @@ export function ResourceCheckoutForm({ resource }: { resource: SelectedResource 
       {error ? <div className="message message-error">{error}</div> : null}
       {message ? <div className="message message-success">{message}</div> : null}
 
-      <button className="button" type="submit" disabled={loading}>
-        {loading ? "Redirecting to Paystack..." : `Buy for KSh ${teacherMaterialPrice}`}
+      <button className="button button-buy" type="submit" disabled={loading}>
+        {loading ? "Redirecting to M-Pesa..." : `Buy for KSh ${teacherMaterialPrice}`}
       </button>
     </form>
   );

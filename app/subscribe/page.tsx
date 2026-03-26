@@ -99,11 +99,11 @@ export default async function SubscribePage({
         <div className="section-head">
           <div>
             <span className="eyebrow">Subscription checkout</span>
-            <h2>Start subscriptions and teacher purchases with Paystack.</h2>
+            <h2>Start subscriptions and teacher purchases with M-Pesa.</h2>
           </div>
           <p>
             Signed in as {user.fullName}. {academyName} now saves customer, subscription, and
-            payment records before Paystack verification unlocks access.
+            payment records before M-Pesa confirmation unlocks access.
           </p>
         </div>
 
