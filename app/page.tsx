@@ -197,7 +197,7 @@ export default async function HomePage() {
               <h3>{level.title}</h3>
               <p className="subtle">{level.description}</p>
               <div className="tag-row">
-                {level.subjects.map((subject) => (
+                {(level.cardTags ?? level.subjects).slice(0, 6).map((subject) => (
                   <span key={subject} className="tag">
                     {subject}
                   </span>

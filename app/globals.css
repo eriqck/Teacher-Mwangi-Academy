@@ -478,6 +478,8 @@ main {
 
 .class-card {
   border-color: var(--card-border, rgba(19, 42, 28, 0.12));
+  border-width: 1.5px;
+  border-style: solid;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.74)),
     linear-gradient(
@@ -486,7 +488,9 @@ main {
       var(--card-base-end, rgba(255, 252, 244, 0.8))
     );
   box-shadow:
+    0 0 0 1px var(--card-outline, rgba(255, 255, 255, 0.48)),
     0 18px 44px rgba(19, 42, 28, 0.12),
+    0 24px 54px var(--card-shadow, rgba(19, 42, 28, 0.14)),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
@@ -502,36 +506,42 @@ main {
 }
 
 .class-card[data-level="grade-7"] {
-  --card-base-start: rgba(255, 240, 202, 0.94);
-  --card-base-end: rgba(255, 219, 181, 0.9);
-  --card-tint-start: rgba(255, 181, 71, 0.28);
-  --card-tint-end: rgba(255, 126, 95, 0.14);
-  --card-accent: #b8561e;
+  --card-base-start: rgba(255, 237, 200, 0.96);
+  --card-base-end: rgba(255, 206, 146, 0.92);
+  --card-tint-start: rgba(255, 170, 54, 0.34);
+  --card-tint-end: rgba(255, 115, 67, 0.18);
+  --card-accent: #b65318;
   --card-chip: rgba(255, 246, 230, 0.88);
   --card-tag-bg: rgba(255, 245, 226, 0.74);
-  --card-border: rgba(184, 86, 30, 0.2);
+  --card-border: rgba(182, 83, 24, 0.3);
+  --card-outline: rgba(255, 250, 238, 0.72);
+  --card-shadow: rgba(182, 83, 24, 0.18);
 }
 
 .class-card[data-level="grade-8"] {
-  --card-base-start: rgba(227, 246, 255, 0.94);
-  --card-base-end: rgba(198, 234, 255, 0.9);
-  --card-tint-start: rgba(67, 160, 255, 0.2);
-  --card-tint-end: rgba(0, 188, 212, 0.16);
-  --card-accent: #146a8b;
+  --card-base-start: rgba(219, 247, 255, 0.96);
+  --card-base-end: rgba(176, 228, 255, 0.92);
+  --card-tint-start: rgba(30, 160, 219, 0.26);
+  --card-tint-end: rgba(0, 204, 186, 0.18);
+  --card-accent: #0f6c88;
   --card-chip: rgba(237, 250, 255, 0.88);
   --card-tag-bg: rgba(232, 248, 255, 0.76);
-  --card-border: rgba(20, 106, 139, 0.2);
+  --card-border: rgba(15, 108, 136, 0.28);
+  --card-outline: rgba(241, 252, 255, 0.74);
+  --card-shadow: rgba(15, 108, 136, 0.17);
 }
 
 .class-card[data-level="grade-9"] {
-  --card-base-start: rgba(230, 246, 226, 0.94);
-  --card-base-end: rgba(201, 236, 206, 0.9);
-  --card-tint-start: rgba(63, 181, 111, 0.22);
-  --card-tint-end: rgba(136, 202, 80, 0.16);
-  --card-accent: #2b7b3f;
-  --card-chip: rgba(241, 252, 239, 0.9);
-  --card-tag-bg: rgba(236, 249, 233, 0.76);
-  --card-border: rgba(43, 123, 63, 0.2);
+  --card-base-start: rgba(244, 232, 255, 0.96);
+  --card-base-end: rgba(224, 206, 255, 0.92);
+  --card-tint-start: rgba(147, 75, 214, 0.28);
+  --card-tint-end: rgba(227, 86, 169, 0.16);
+  --card-accent: #7c3ea8;
+  --card-chip: rgba(248, 242, 255, 0.9);
+  --card-tag-bg: rgba(244, 236, 255, 0.78);
+  --card-border: rgba(124, 62, 168, 0.28);
+  --card-outline: rgba(251, 246, 255, 0.74);
+  --card-shadow: rgba(124, 62, 168, 0.18);
 }
 
 .class-card[data-level="grade-10"] {

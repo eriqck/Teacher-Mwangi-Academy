@@ -4,6 +4,7 @@ export type Level = {
   stage: "Junior School" | "Senior School";
   description: string;
   subjects: string[];
+  cardTags?: string[];
   formats: string[];
 };
 
@@ -14,7 +15,25 @@ export const levels: Level[] = [
     stage: "Junior School",
     description:
       "Foundation revision packs, topical questions, and home-study guides aligned to CBC learning outcomes.",
-    subjects: ["Mathematics", "Integrated Science", "English", "Kiswahili", "Social Studies"],
+    subjects: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Creative Arts and Sports",
+      "Pre-Technical Studies",
+      "Social Studies",
+      "Religious Education",
+      "Agriculture & Nutrition"
+    ],
+    cardTags: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Agriculture & Nutrition"
+    ],
     formats: ["Topical PDFs", "Weekly revision plans", "Teacher marking schemes"]
   },
   {
@@ -23,7 +42,25 @@ export const levels: Level[] = [
     stage: "Junior School",
     description:
       "Skill-building revision bundles with model answers, remedial practice, and exam-style assessments.",
-    subjects: ["Mathematics", "Pre-Technical Studies", "English", "Kiswahili", "Agriculture"],
+    subjects: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Creative Arts and Sports",
+      "Pre-Technical Studies",
+      "Social Studies",
+      "Religious Education",
+      "Agriculture & Nutrition"
+    ],
+    cardTags: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Creative Arts and Sports",
+      "Pre-Technical Studies",
+      "Religious Education"
+    ],
     formats: ["Revision booklets", "Printable tests", "Parent support guides"]
   },
   {
@@ -32,7 +69,25 @@ export const levels: Level[] = [
     stage: "Junior School",
     description:
       "Transition-focused materials for stronger end-of-stage preparation and subject mastery.",
-    subjects: ["Mathematics", "Integrated Science", "Business Studies", "English", "CRE"],
+    subjects: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Creative Arts and Sports",
+      "Pre-Technical Studies",
+      "Social Studies",
+      "Religious Education",
+      "Agriculture & Nutrition"
+    ],
+    cardTags: [
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture & Nutrition"
+    ],
     formats: ["End-term exams", "Scheme-based worksheets", "Teacher progress trackers"]
   },
   {
