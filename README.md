@@ -1,6 +1,6 @@
 # Teacher Mwangi Academy
 
-Teacher Mwangi Academy is a Next.js membership platform for selling Kenyan CBC and secondary school revision materials through parent and teacher accounts, Paystack checkout, Supabase-backed data, and protected member access.
+Teacher Mwangi Academy is a Next.js membership platform for selling Kenyan CBE and secondary school revision materials through parent and teacher accounts, Paystack checkout, Supabase-backed data, and protected member access.
 
 ## What is included
 

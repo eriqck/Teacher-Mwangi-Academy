@@ -14,7 +14,7 @@ export const levels: Level[] = [
     title: "Grade 7",
     stage: "Junior School",
     description:
-      "Foundation revision packs, topical questions, and home-study guides aligned to CBC learning outcomes.",
+      "Foundation revision packs, topical questions, and home-study guides aligned to CBE learning outcomes.",
     subjects: [
       "English",
       "Kiswahili",

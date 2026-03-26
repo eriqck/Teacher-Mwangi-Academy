@@ -10,7 +10,7 @@ const reasons = [
   {
     title: "Competency-Focused Learning",
     description:
-      "We do not just teach for exams. Every lesson is designed to build real understanding, practical application, and confident mastery aligned to the CBC framework."
+      "We do not just teach for exams. Every lesson is designed to build real understanding, practical application, and confident mastery aligned to the CBE framework."
   },
   {
     title: "Personalized Student Support",
@@ -145,7 +145,7 @@ export default async function HomePage() {
             <div className="mini-profile">
               <strong>Focus areas</strong>
               <div className="tag-row">
-                <span className="tag">CBC alignment</span>
+                <span className="tag">CBE alignment</span>
                 <span className="tag">Physics</span>
                 <span className="tag">Mathematics</span>
                 <span className="tag">Revision support</span>
@@ -346,7 +346,7 @@ export default async function HomePage() {
       </section>
 
       <footer className="page-shell footer">
-        {academyName} supports learners, parents, and teachers with focused CBC-aligned materials,
+        {academyName} supports learners, parents, and teachers with focused CBE-aligned materials,
         mentorship, and purposeful academic growth.
       </footer>
     </main>
