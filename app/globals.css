@@ -810,6 +810,43 @@ main {
   gap: 10px;
 }
 
+.auth-oauth-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-divider {
+  position: relative;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.auth-divider::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  border-top: 1px solid var(--line);
+}
+
+.auth-divider span {
+  position: relative;
+  display: inline-block;
+  padding: 0 12px;
+  background: var(--paper);
+}
+
+.button-google {
+  width: 100%;
+  border-color: rgba(26, 42, 64, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  color: #1b3048;
+}
+
+.button-google:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
 .message {
   padding: 14px 16px;
   border-radius: 14px;

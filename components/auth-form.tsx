@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { GoogleAuthButton } from "@/components/google-auth-button";
 
 type Mode = "login" | "signup";
 
@@ -105,6 +106,8 @@ export function AuthForm({ mode }: AuthFormProps) {
       <button className="button" type="submit" disabled={loading}>
         {loading ? "Please wait..." : mode === "signup" ? "Create account" : "Sign in"}
       </button>
+
+      <GoogleAuthButton mode={mode} />
 
       {mode === "login" ? (
         <div className="auth-form-meta">

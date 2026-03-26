@@ -37,6 +37,7 @@ export default async function SignupPage() {
             <ul className="list">
               <li>Your account is saved immediately.</li>
               <li>You are signed in automatically after signup.</li>
+              <li>You can also continue with Google and finish your role setup in one step.</li>
               <li>You can then start a subscription or buy teacher materials.</li>
             </ul>
             <p className="subtle">

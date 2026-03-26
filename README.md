@@ -11,6 +11,7 @@ Teacher Mwangi Academy is a Next.js membership platform for selling Kenyan CBC a
 - Teacher scheme-of-work purchases at `KSh 20` per exact uploaded scheme
 - Signup, login, logout, and protected member dashboard
 - Password reset request and secure reset-link flow
+- Google sign-in with first-time profile completion for parent or teacher accounts
 - Teacher-only admin upload area for revision files and schemes of work
 - Supabase-ready storage for users, sessions, subscriptions, payments, and resources
 - Supabase Storage-ready file uploads with local fallback during development
@@ -36,7 +37,7 @@ npm install
 copy .env.example .env.local
 ```
 
-3. Update the Paystack, Supabase, and session env values in `.env.local`.
+3. Update the Paystack, Supabase, public Supabase, and session env values in `.env.local`.
 4. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` if you want live password reset emails sent automatically.
 
 5. Start the app:
@@ -56,11 +57,13 @@ Uploaded files go to Supabase Storage when `SUPABASE_URL` and `SUPABASE_SERVICE_
 1. Create a Supabase project.
 2. Run the SQL in [supabase/schema.sql](./supabase/schema.sql).
 3. Create a public storage bucket named `materials` or set `SUPABASE_STORAGE_BUCKET`.
-4. Add the environment variables from `.env.example` to Vercel.
-5. Deploy the app to Vercel.
-6. Update `NEXT_PUBLIC_SITE_URL` and `PAYSTACK_CALLBACK_URL` to your real domain.
-7. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` for live password reset emails.
-8. Test signup, login, password reset, uploads, payments, and level access on the deployed site.
+4. Add the environment variables from `.env.example` to Vercel, including `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+5. In Supabase Auth providers, enable Google and add your Google client ID and secret.
+6. Add your local and live Google callback URLs to the Supabase redirect allow list.
+7. Deploy the app to Vercel.
+8. Update `NEXT_PUBLIC_SITE_URL` and `PAYSTACK_CALLBACK_URL` to your real domain.
+9. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` for live password reset emails.
+10. Test signup, login, Google sign-in, password reset, uploads, payments, and level access on the deployed site.
 
 ## Admin uploads
 

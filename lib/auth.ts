@@ -17,8 +17,10 @@ import {
 import { sendPasswordResetEmail } from "@/lib/email";
 
 const sessionCookieName = "teacher_mwangi_session";
+const socialProfileCookieName = "teacher_mwangi_social_profile";
 const sessionDurationMs = 1000 * 60 * 60 * 24 * 30;
 const passwordResetDurationMs = 1000 * 60 * 60;
+const socialProfileDurationMs = 1000 * 60 * 30;
 
 function getSecret() {
   return process.env.JWT_SECRET || "teacher-mwangi-academy-dev-secret";
@@ -50,26 +52,59 @@ function signValue(value: string) {
   return crypto.createHmac("sha256", getSecret()).update(value).digest("hex");
 }
 
-function encodeSessionToken(token: string) {
-  return `${token}.${signValue(token)}`;
+function encodeSignedValue(value: string) {
+  return `${value}.${signValue(value)}`;
 }
 
-function decodeSessionToken(raw: string | undefined) {
+function decodeSignedValue(raw: string | undefined) {
   if (!raw) {
     return null;
   }
 
-  const [token, signature] = raw.split(".");
+  const [value, signature] = raw.split(".");
 
-  if (!token || !signature) {
+  if (!value || !signature) {
     return null;
   }
 
-  if (signValue(token) !== signature) {
+  if (signValue(value) !== signature) {
     return null;
   }
 
-  return token;
+  return value;
+}
+
+function encodeSessionToken(token: string) {
+  return encodeSignedValue(token);
+}
+
+function decodeSessionToken(raw: string | undefined) {
+  return decodeSignedValue(raw);
+}
+
+type PendingSocialProfile = {
+  email: string;
+  fullName: string;
+  provider: "google";
+  createdAt: string;
+};
+
+function encodePendingSocialProfile(profile: PendingSocialProfile) {
+  return encodeSignedValue(Buffer.from(JSON.stringify(profile), "utf8").toString("base64url"));
+}
+
+function decodePendingSocialProfile(raw: string | undefined) {
+  const value = decodeSignedValue(raw);
+
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as PendingSocialProfile;
+  } catch {
+    return null;
+  }
 }
 
 export async function createUser(input: {
@@ -97,6 +132,18 @@ export async function createUser(input: {
   };
   await insertUser(user);
   return user;
+}
+
+export async function createSocialUser(input: {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  role: Exclude<UserRole, "admin">;
+}) {
+  return createUser({
+    ...input,
+    password: crypto.randomBytes(32).toString("hex")
+  });
 }
 
 export async function authenticateUser(email: string, password: string) {
@@ -212,6 +259,29 @@ export async function createSession(userId: string) {
   });
 
   return session;
+}
+
+export async function savePendingSocialProfile(profile: PendingSocialProfile) {
+  const cookieStore = await cookies();
+  const expiresAt = new Date(Date.now() + socialProfileDurationMs);
+
+  cookieStore.set(socialProfileCookieName, encodePendingSocialProfile(profile), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: expiresAt
+  });
+}
+
+export async function getPendingSocialProfile() {
+  const cookieStore = await cookies();
+  return decodePendingSocialProfile(cookieStore.get(socialProfileCookieName)?.value);
+}
+
+export async function clearPendingSocialProfile() {
+  const cookieStore = await cookies();
+  cookieStore.delete(socialProfileCookieName);
 }
 
 export async function clearSession() {
