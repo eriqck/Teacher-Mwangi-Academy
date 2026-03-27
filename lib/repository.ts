@@ -370,11 +370,17 @@ export async function createSubscriptionPaymentBundle(input: {
     return;
   }
   const supabase = getSupabaseAdmin();
-  const paymentInsert = supabase.from("payments").insert(toPaymentRow(input.payment));
-  const subscriptionInsert = supabase.from("subscriptions").insert(toSubscriptionRow(input.subscription));
-  const [paymentRes, subscriptionRes] = await Promise.all([paymentInsert, subscriptionInsert]);
-  if (paymentRes.error || subscriptionRes.error) {
-    throw new Error(paymentRes.error?.message || subscriptionRes.error?.message || "Failed to create payment bundle.");
+  const paymentRes = await supabase.from("payments").insert(toPaymentRow(input.payment));
+  if (paymentRes.error) {
+    throw new Error(paymentRes.error.message);
+  }
+
+  const subscriptionRes = await supabase
+    .from("subscriptions")
+    .insert(toSubscriptionRow(input.subscription));
+  if (subscriptionRes.error) {
+    await supabase.from("payments").delete().eq("id", input.payment.id);
+    throw new Error(subscriptionRes.error.message || "Failed to create payment bundle.");
   }
 }
 
@@ -391,12 +397,17 @@ export async function createSchemePaymentBundle(input: {
     return;
   }
   const supabase = getSupabaseAdmin();
-  const [paymentRes, schemeRes] = await Promise.all([
-    supabase.from("payments").insert(toPaymentRow(input.payment)),
-    supabase.from("scheme_purchases").insert(toSchemePurchaseRow(input.schemePurchase))
-  ]);
-  if (paymentRes.error || schemeRes.error) {
-    throw new Error(paymentRes.error?.message || schemeRes.error?.message || "Failed to create scheme payment.");
+  const paymentRes = await supabase.from("payments").insert(toPaymentRow(input.payment));
+  if (paymentRes.error) {
+    throw new Error(paymentRes.error.message);
+  }
+
+  const schemeRes = await supabase
+    .from("scheme_purchases")
+    .insert(toSchemePurchaseRow(input.schemePurchase));
+  if (schemeRes.error) {
+    await supabase.from("payments").delete().eq("id", input.payment.id);
+    throw new Error(schemeRes.error.message || "Failed to create scheme payment.");
   }
 }
 
@@ -413,14 +424,17 @@ export async function createResourcePaymentBundle(input: {
     return;
   }
   const supabase = getSupabaseAdmin();
-  const [paymentRes, resourceRes] = await Promise.all([
-    supabase.from("payments").insert(toPaymentRow(input.payment)),
-    supabase.from("resource_purchases").insert(toResourcePurchaseRow(input.resourcePurchase))
-  ]);
-  if (paymentRes.error || resourceRes.error) {
-    throw new Error(
-      paymentRes.error?.message || resourceRes.error?.message || "Failed to create resource payment."
-    );
+  const paymentRes = await supabase.from("payments").insert(toPaymentRow(input.payment));
+  if (paymentRes.error) {
+    throw new Error(paymentRes.error.message);
+  }
+
+  const resourceRes = await supabase
+    .from("resource_purchases")
+    .insert(toResourcePurchaseRow(input.resourcePurchase));
+  if (resourceRes.error) {
+    await supabase.from("payments").delete().eq("id", input.payment.id);
+    throw new Error(resourceRes.error.message || "Failed to create resource payment.");
   }
 }
 
