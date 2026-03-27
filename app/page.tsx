@@ -352,7 +352,7 @@ export default async function HomePage() {
           {testimonials.map((item) => (
             <article key={item.author} className="home-testimonial-card">
               <div className="home-stars" aria-hidden="true">
-                ★★★★★
+                {"\u2605\u2605\u2605\u2605\u2605"}
               </div>
               <p>"{item.quote}"</p>
               <strong>{item.author}</strong>

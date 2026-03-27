@@ -1160,9 +1160,9 @@ main {
 .home-landing {
   padding-bottom: 84px;
   background:
-    radial-gradient(circle at top left, rgba(255, 247, 237, 0.96), transparent 24%),
-    radial-gradient(circle at top right, rgba(236, 254, 255, 0.88), transparent 28%),
-    linear-gradient(180deg, #fff8ef 0%, #f5f9ff 52%, #eef7f3 100%);
+    radial-gradient(circle at top left, #fff7ed, transparent 24%),
+    radial-gradient(circle at top right, #ecfeff, transparent 28%),
+    linear-gradient(180deg, #fff7ed 0%, #f8fafc 70%, #eff6ff 100%);
 }
 
 .home-nav-wrap {
@@ -1177,9 +1177,9 @@ main {
   gap: 22px;
   padding: 14px 18px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(16px);
 }
 
@@ -1199,8 +1199,8 @@ main {
   font-size: 0.88rem;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(135deg, #0f766e, #f97316);
-  box-shadow: 0 14px 24px rgba(15, 118, 110, 0.24);
+  background: linear-gradient(135deg, #064e3b, #f97316);
+  box-shadow: 0 10px 24px rgba(249, 115, 22, 0.22);
 }
 
 .home-brand-copy {
@@ -1280,16 +1280,37 @@ main {
 }
 
 .home-nav-secondary:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.92);
 }
 
-.home-nav-primary,
-.home-hero-primary,
-.home-pricing-button,
-.home-cta-primary {
+.home-nav-primary {
   color: #fff;
-  background: linear-gradient(135deg, #15803d, #16a34a);
-  box-shadow: 0 16px 28px rgba(21, 128, 61, 0.24);
+  background: linear-gradient(90deg, #f97316, #f59e0b);
+  box-shadow: 0 16px 28px rgba(254, 215, 170, 0.95);
+}
+
+.home-hero-primary {
+  color: #fff;
+  background: #0f172a;
+  box-shadow: 0 16px 28px rgba(226, 232, 240, 0.95);
+}
+
+.home-pricing-card--parent .home-pricing-button {
+  color: #fff;
+  background: linear-gradient(90deg, #f97316, #f59e0b);
+  box-shadow: 0 16px 28px rgba(254, 215, 170, 0.95);
+}
+
+.home-pricing-card--teacher .home-pricing-button {
+  color: #fff;
+  background: #047857;
+  box-shadow: 0 16px 28px rgba(209, 250, 229, 0.95);
+}
+
+.home-cta-primary {
+  color: #0f172a;
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .home-nav-primary:hover,
@@ -1305,10 +1326,10 @@ main {
 
 .home-hero-secondary,
 .home-one-time-button {
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   color: #334155;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
 
 .home-hero-grid {
@@ -1325,9 +1346,9 @@ main {
 .home-pricing-card,
 .home-one-time-card,
 .home-testimonial-card {
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 30px 80px -30px rgba(15, 23, 42, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 30px 80px -30px rgba(15, 23, 42, 0.25);
   backdrop-filter: blur(16px);
 }
 
@@ -1367,12 +1388,13 @@ main {
 
 .home-kicker,
 .home-section-kicker {
-  background: rgba(236, 253, 245, 0.92);
+  border: 1px solid #d1fae5;
+  background: #ecfdf5;
   color: #047857;
 }
 
 .home-kicker--soft {
-  background: rgba(236, 253, 245, 0.9);
+  background: #ecfdf5;
 }
 
 .home-title,
@@ -1414,7 +1436,7 @@ main {
 
 .home-pill {
   border-radius: 999px;
-  background: rgba(241, 245, 249, 0.92);
+  background: #f1f5f9;
   padding: 10px 14px;
   font-size: 0.88rem;
   font-weight: 600;
@@ -1434,8 +1456,8 @@ main {
 
 .home-metric-card {
   border-radius: 22px;
-  border: 1px solid rgba(241, 245, 249, 0.95);
-  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid #f1f5f9;
+  background: rgba(255, 255, 255, 0.8);
   padding: 18px 16px;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
 }
@@ -1477,7 +1499,7 @@ main {
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: 30px;
-  background: linear-gradient(135deg, #fde68a, #fdba74);
+  background: linear-gradient(135deg, #fef3c7, #fed7aa);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
@@ -1538,26 +1560,30 @@ main {
 }
 
 .home-skill-card--emerald {
-  background: rgba(209, 250, 229, 0.72);
-  color: rgba(6, 95, 70, 0.9);
+  background: #ecfdf5;
+  color: rgba(6, 78, 59, 0.9);
 }
 
 .home-skill-card--orange {
-  background: rgba(255, 237, 213, 0.82);
-  color: rgba(154, 52, 18, 0.9);
+  background: #fff7ed;
+  color: rgba(124, 45, 18, 0.9);
 }
 
 .home-dark-card {
   border-radius: 34px;
-  background: linear-gradient(145deg, #0f172a, #172554 86%);
+  border: 1px solid #e2e8f0;
+  background: #0f172a;
   padding: 28px;
   color: #fff;
   box-shadow: 0 28px 70px -30px rgba(15, 23, 42, 0.68);
 }
 
 .home-dark-kicker {
-  background: rgba(167, 243, 208, 0.16);
-  color: #a7f3d0;
+  border: 0;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+  color: #6ee7b7;
 }
 
 .home-dark-title {
@@ -1653,13 +1679,13 @@ main {
 }
 
 .home-chip-card--problem {
-  border: 1px solid rgba(254, 202, 202, 0.76);
-  background: rgba(255, 241, 242, 0.82);
+  border: 1px solid #ffe4e6;
+  background: rgba(255, 241, 242, 0.7);
 }
 
 .home-chip-card--solution {
-  border: 1px solid rgba(187, 247, 208, 0.9);
-  background: rgba(236, 253, 245, 0.84);
+  border: 1px solid #d1fae5;
+  background: rgba(236, 253, 245, 0.7);
 }
 
 .home-section-head {
@@ -1763,43 +1789,43 @@ main {
 .home-level-card[data-level="grade-7"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
-    linear-gradient(145deg, rgba(255, 237, 213, 0.96), rgba(254, 243, 199, 0.9));
-  border-color: rgba(251, 146, 60, 0.24);
+    linear-gradient(145deg, #ffedd5, #fffbeb);
+  border-color: #fed7aa;
 }
 
 .home-level-card[data-level="grade-8"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
-    linear-gradient(145deg, rgba(224, 242, 254, 0.96), rgba(207, 250, 254, 0.88));
-  border-color: rgba(56, 189, 248, 0.22);
+    linear-gradient(145deg, #e0f2fe, #ecfeff);
+  border-color: #bae6fd;
 }
 
 .home-level-card[data-level="grade-9"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
-    linear-gradient(145deg, rgba(243, 232, 255, 0.96), rgba(250, 232, 255, 0.88));
-  border-color: rgba(168, 85, 247, 0.22);
+    linear-gradient(145deg, #ede9fe, #fdf4ff);
+  border-color: #ddd6fe;
 }
 
 .home-level-card[data-level="grade-10"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
-    linear-gradient(145deg, rgba(224, 231, 255, 0.96), rgba(238, 242, 255, 0.88));
-  border-color: rgba(99, 102, 241, 0.22);
+    linear-gradient(145deg, #f3e8ff, #eef2ff);
+  border-color: #e9d5ff;
 }
 
 .home-level-card[data-level="form-3"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
-    linear-gradient(145deg, rgba(255, 228, 230, 0.96), rgba(255, 241, 242, 0.88));
-  border-color: rgba(251, 113, 133, 0.22);
+    linear-gradient(145deg, #ffe4e6, #fdf2f8);
+  border-color: #fecdd3;
 }
 
 .home-level-card[data-level="form-4"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
-    linear-gradient(145deg, rgba(254, 249, 195, 0.96), rgba(255, 251, 235, 0.88));
-  border-color: rgba(234, 179, 8, 0.22);
+    linear-gradient(145deg, #fef9c3, #fffbeb);
+  border-color: #fde68a;
 }
 
 .home-pricing-grid {
@@ -1816,15 +1842,15 @@ main {
 .home-pricing-card--parent {
   background:
     radial-gradient(circle at top right, rgba(249, 115, 22, 0.12), transparent 34%),
-    linear-gradient(145deg, rgba(255, 237, 213, 0.96), rgba(255, 241, 242, 0.88));
-  border-color: rgba(251, 146, 60, 0.22);
+    linear-gradient(145deg, #fff7ed, #fff1f2);
+  border-color: #fed7aa;
 }
 
 .home-pricing-card--teacher {
   background:
     radial-gradient(circle at top right, rgba(5, 150, 105, 0.12), transparent 34%),
-    linear-gradient(145deg, rgba(220, 252, 231, 0.94), rgba(236, 253, 245, 0.88));
-  border-color: rgba(16, 185, 129, 0.22);
+    linear-gradient(145deg, #ecfdf5, #ecfeff);
+  border-color: #a7f3d0;
 }
 
 .home-pricing-badge {
@@ -1838,7 +1864,7 @@ main {
   font-size: 0.72rem;
   font-weight: 700;
   color: #fff;
-  box-shadow: 0 12px 24px rgba(249, 115, 22, 0.2);
+  box-shadow: 0 12px 24px rgba(249, 115, 22, 0.24);
 }
 
 .home-pricing-name {
@@ -1901,6 +1927,7 @@ main {
 .home-one-time-card {
   margin-top: 22px;
   border-radius: 34px;
+  border-color: #e2e8f0;
   padding: 26px 28px;
   display: flex;
   align-items: center;
@@ -1959,13 +1986,14 @@ main {
   overflow: hidden;
   border-radius: 36px;
   padding: 38px;
-  background: linear-gradient(125deg, #052e16, #065f46 52%, #0f766e 100%);
+  background: linear-gradient(90deg, #022c22, #065f46 50%, #0f766e 100%);
   color: #fff;
-  box-shadow: 0 30px 90px -35px rgba(4, 120, 87, 0.72);
+  box-shadow: 0 30px 90px -35px rgba(4, 120, 87, 0.7);
 }
 
 .home-cta-tag {
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: #d1fae5;
 }
 
@@ -1984,8 +2012,8 @@ main {
 }
 
 .home-cta-secondary {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
