@@ -77,6 +77,37 @@ main {
   display: block;
 }
 
+.site-footer {
+  padding: 22px 0 34px;
+}
+
+.site-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(19, 42, 28, 0.12);
+  background: rgba(255, 252, 244, 0.78);
+  box-shadow: 0 16px 34px rgba(19, 42, 28, 0.08);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.site-footer-inner p {
+  margin: 0;
+}
+
+.site-footer-link {
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.site-footer-link:hover {
+  text-decoration: underline;
+}
+
 .page-shell {
   width: min(calc(100% - 32px), var(--content));
   margin: 0 auto;
@@ -1069,6 +1100,11 @@ main {
   .mini-profile,
   .resource-admin-card,
   .cta-box {
+    text-align: center;
+  }
+
+  .site-footer-inner {
+    flex-direction: column;
     text-align: center;
   }
 }
