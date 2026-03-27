@@ -1838,6 +1838,10 @@ main {
   box-shadow: 0 12px 24px rgba(249, 115, 22, 0.24);
 }
 
+.home-pricing-card--parent {
+  padding-top: 74px;
+}
+
 .home-pricing-name {
   margin: 0;
   font-size: 1rem;
@@ -2100,8 +2104,13 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .home-skill-grid {
-    grid-template-columns: 1fr;
+  .home-pricing-badge {
+    position: static;
+    margin: 0 auto 16px;
+  }
+
+  .home-pricing-card--parent {
+    padding-top: 24px;
   }
 
   .home-nav-primary,
