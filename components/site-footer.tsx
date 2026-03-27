@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="page-shell">
         <p className="site-footer-copy">
-          Copyright (C) {new Date().getFullYear()} {academyName}. All rights reserved. Made by{" "}
+          Copyright @ {new Date().getFullYear()} {academyName}. All rights reserved. Made by{" "}
           <a
             href="https://ericdevportfolio.vercel.app"
             target="_blank"
