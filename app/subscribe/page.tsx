@@ -103,7 +103,7 @@ export default async function SubscribePage({
           </div>
           <p>
             Signed in as {user.fullName}. {academyName} now saves customer, subscription, and
-            payment records before M-Pesa confirmation unlocks access.
+            payment records before M-Pesa confirmation unlocks access across the right resources.
           </p>
         </div>
 

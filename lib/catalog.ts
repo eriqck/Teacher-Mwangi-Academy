@@ -151,9 +151,9 @@ export const membershipPlans = [
     name: "Parent Subscription",
     price: "KSh 300",
     cadence: "/month",
-    audience: "For parents supporting one learner at a time",
+    audience: "For parents supporting learners across all available levels",
     highlights: [
-      "Access to one class level at a time",
+      "Access across all revision levels",
       "Weekly downloadable revision packs",
       "Parent guidance notes and progress tips",
       "M-Pesa recurring renewal support"

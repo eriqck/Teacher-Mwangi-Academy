@@ -19,14 +19,14 @@ export const subscriptionPlans: Record<
     role: "parent",
     amount: 300,
     cadence: "/month",
-    audience: "For parents supporting one learner at a time",
+    audience: "For parents supporting learners across all available levels",
     highlights: [
-      "One active learner level at a time",
+      "Access to all learning levels with one subscription",
       "Weekly revision downloads and exam practice",
       "Parent guidance notes and home-study support",
       "M-Pesa monthly renewal flow"
     ],
-    levelAccessMode: "single"
+    levelAccessMode: "all"
   },
   "teacher-monthly": {
     name: "Teacher Subscription",

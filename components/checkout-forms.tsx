@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { levels } from "@/lib/catalog";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceSection, SchemeTerm } from "@/lib/store";
@@ -86,21 +85,20 @@ export function SubscriptionCheckoutForm({ role }: { role: "parent" | "teacher" 
           <label htmlFor="accountReference">Learner or account reference</label>
           <input id="accountReference" name="accountReference" placeholder="Parent account or learner name" required />
         </div>
-        <div className="field">
-          <label htmlFor="level">Level access for parent plan</label>
-          <select id="level" name="level" defaultValue="grade-7">
-            {levels.map((level) => (
-              <option key={level.id} value={level.id}>
-                {level.title}
-              </option>
-            ))}
-          </select>
-          <small>
-            {role === "teacher"
-              ? "Teacher subscriptions automatically unlock all levels."
-              : "Parent subscriptions unlock one selected learner level."}
-          </small>
-        </div>
+      </div>
+
+      <div className="field">
+        <label htmlFor="level-access-summary">Level access</label>
+        <input
+          id="level-access-summary"
+          value="All levels unlocked with this monthly plan"
+          readOnly
+        />
+        <small>
+          {role === "teacher"
+            ? "Teacher subscriptions automatically unlock all revision levels."
+            : "Parent subscriptions now unlock all revision levels too."}
+        </small>
       </div>
 
       {error ? <div className="message message-error">{error}</div> : null}

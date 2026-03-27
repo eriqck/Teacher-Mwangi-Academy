@@ -22,12 +22,15 @@ export default async function DashboardPage() {
   const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
   const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
   const activeSubscription = subscriptions.find((item) => item.status === "active") ?? subscriptions[0];
+  const activePlan = activeSubscription ? subscriptionPlans[activeSubscription.plan] : null;
   const accessibleLevels =
     user.role === "teacher"
       ? levels
       : user.role === "admin"
         ? []
-        : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
+        : activePlan?.levelAccessMode === "all"
+          ? levels
+          : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
 
   return (
     <main>
@@ -114,7 +117,7 @@ export default async function DashboardPage() {
           <p>
             {user.role === "admin"
               ? "Admin accounts manage uploads. Teacher accounts stay on the subscriber path."
-              : "Parents get their chosen learner level. Teachers can unlock all levels and buy schemes."}
+              : "Parents and teachers can unlock all revision levels, while teachers can also buy exact schemes and single materials."}
           </p>
         </div>
 
@@ -133,7 +136,7 @@ export default async function DashboardPage() {
                 ? "Use the admin workspace to upload and manage materials."
                 : user.role === "teacher"
                 ? "Teacher subscriptions unlock all revision levels."
-                : "Parent subscriptions unlock the selected learner level."}
+                : "Parent subscriptions now unlock all revision levels."}
             </p>
           </article>
 

@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
+import { subscriptionPlans } from "@/lib/business";
 import { readAppData } from "@/lib/repository";
 import type { ResourceRecord } from "@/lib/store";
 import { getLevelById } from "@/lib/levels";
@@ -18,8 +19,12 @@ export async function getLevelPageData(levelId: string) {
     ? store.subscriptions.find((subscription) => subscription.userId === user.id && subscription.status === "active")
     : null;
   const hasTeacherSubscription = user?.role === "teacher" && activeSubscription?.plan === "teacher-monthly";
+  const activeSubscriptionPlan = activeSubscription ? subscriptionPlans[activeSubscription.plan] : null;
   const hasParentLevelAccess =
-    user?.role === "parent" && !!activeSubscription && activeSubscription.levelAccess.includes(level.id);
+    user?.role === "parent" &&
+    !!activeSubscription &&
+    (activeSubscriptionPlan?.levelAccessMode === "all" ||
+      activeSubscription.levelAccess.includes(level.id));
 
   const hasLevelAccess =
     user?.role === "admin" ||
