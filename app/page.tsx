@@ -176,17 +176,6 @@ export default async function HomePage() {
                 </p>
               </div>
             </div>
-
-            <div className="home-skill-grid">
-              <div className="home-skill-card home-skill-card--emerald">
-                <strong>Physics</strong>
-                <span>Clear explanations and practical understanding</span>
-              </div>
-              <div className="home-skill-card home-skill-card--orange">
-                <strong>Mathematics</strong>
-                <span>Confidence-building support and stronger revision habits</span>
-              </div>
-            </div>
           </article>
 
           <article className="home-dark-card">

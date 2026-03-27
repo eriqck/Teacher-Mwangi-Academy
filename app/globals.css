@@ -1535,40 +1535,6 @@ main {
   font-size: 0.94rem;
 }
 
-.home-skill-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 24px;
-}
-
-.home-skill-card {
-  display: grid;
-  gap: 8px;
-  border-radius: 22px;
-  padding: 18px;
-}
-
-.home-skill-card strong {
-  font-size: 0.96rem;
-  color: #0f172a;
-}
-
-.home-skill-card span {
-  font-size: 0.82rem;
-  line-height: 1.55;
-}
-
-.home-skill-card--emerald {
-  background: #ecfdf5;
-  color: rgba(6, 78, 59, 0.9);
-}
-
-.home-skill-card--orange {
-  background: #fff7ed;
-  color: rgba(124, 45, 18, 0.9);
-}
-
 .home-dark-card {
   border-radius: 34px;
   border: 1px solid #e2e8f0;
@@ -1714,6 +1680,10 @@ main {
 
 .home-level-card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   border-radius: 34px;
   border: 1.5px solid rgba(255, 255, 255, 0.88);
   padding: 26px;
@@ -1778,6 +1748,7 @@ main {
 .home-level-button {
   display: inline-flex;
   margin-top: 24px;
+  align-self: center;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.92);
   padding: 11px 18px;
