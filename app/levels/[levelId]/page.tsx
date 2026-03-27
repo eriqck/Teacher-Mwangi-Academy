@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
+import { getLevelById } from "@/lib/levels";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 
@@ -10,6 +12,36 @@ const assessmentSets = [
   { id: "set-2", label: "Set 2" },
   { id: "set-3", label: "Set 3" }
 ] as const;
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ levelId: string }>;
+}): Promise<Metadata> {
+  const { levelId } = await params;
+  const level = getLevelById(levelId);
+
+  if (!level) {
+    return {
+      title: "Level not found"
+    };
+  }
+
+  const description = `${level.description} Explore notes, assessments, and teacher resources for ${level.title} at Teacher Mwangi Academy.`;
+
+  return {
+    title: `${level.title} materials`,
+    description,
+    alternates: {
+      canonical: `/levels/${level.id}`
+    },
+    openGraph: {
+      title: `${level.title} materials`,
+      description,
+      url: `/levels/${level.id}`
+    }
+  };
+}
 
 export default async function LevelPage({
   params

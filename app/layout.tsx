@@ -1,11 +1,51 @@
 import type { Metadata } from "next";
+import { academyName } from "@/lib/business";
 import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004";
+const siteDescription =
+  "Teacher Mwangi Academy offers CBE revision materials, assessments, notes, and teacher resources for Kenyan parents, learners, and teachers.";
+
 export const metadata: Metadata = {
-  title: "Teacher Mwangi Academy",
-  description:
-    "Membership-based CBE and secondary revision materials for Kenyan parents and teachers with M-Pesa checkout."
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: academyName,
+    template: `%s | ${academyName}`
+  },
+  description: siteDescription,
+  applicationName: academyName,
+  keywords: [
+    "Teacher Mwangi Academy",
+    "CBE revision materials Kenya",
+    "Grade 7 notes",
+    "Grade 8 assessments",
+    "Grade 9 revision",
+    "Grade 10 materials",
+    "Form 3 revision",
+    "Form 4 revision",
+    "schemes of work Kenya"
+  ],
+  alternates: {
+    canonical: "/"
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: academyName,
+    title: academyName,
+    description: siteDescription
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: academyName,
+    description: siteDescription
+  },
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? {
+        google: process.env.GOOGLE_SITE_VERIFICATION
+      }
+    : undefined
 };
 
 export default function RootLayout({
