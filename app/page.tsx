@@ -2,29 +2,51 @@ import Link from "next/link";
 import Image from "next/image";
 import { access } from "fs/promises";
 import path from "path";
-import { SiteHeader } from "@/components/site-header";
+import { getCurrentUser } from "@/lib/auth";
 import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
-import { featuredResources, levels, membershipPlans } from "@/lib/catalog";
+import { levels, membershipPlans } from "@/lib/catalog";
 
-const reasons = [
+const testimonials = [
   {
-    title: "Competency-Focused Learning",
-    description:
-      "We do not just teach for exams. Every lesson is designed to build real understanding, practical application, and confident mastery aligned to the CBE framework."
+    quote:
+      "My son became far more consistent in Mathematics after using the weekly revision packs. The structure made a huge difference.",
+    author: "Parent, Nairobi"
   },
   {
-    title: "Personalized Student Support",
-    description:
-      "Every learner is unique. We provide tailored guidance, regular feedback, and close mentorship so students can strengthen their abilities and overcome academic gaps."
+    quote:
+      "The materials save me preparation time and help my learners revise with more confidence.",
+    author: "Teacher, Kiambu"
   },
   {
-    title: "Proven Results and Holistic Growth",
-    description:
-      "Our approach blends theory, practical learning, revision strategy, and exam preparation while also nurturing discipline, critical thinking, and character."
+    quote:
+      "This feels more guided than random notes online. It gives both parents and students a clear path.",
+    author: "Parent, Thika"
   }
 ];
 
+const metrics = [
+  { value: "1,200+", label: "Learners supported" },
+  { value: "6", label: "Levels covered" },
+  { value: "Weekly", label: "Fresh revision support" },
+  { value: "KSh 150", label: "Starting subscription" }
+];
+
+const painPoints = [
+  "CBE revision can feel confusing and scattered.",
+  "Parents often lack time to guide study consistently.",
+  "Students revise hard but still underperform without structure.",
+  "Teachers need ready-made quality resources they can trust."
+];
+
+const solutions = [
+  "Structured learning paths by class level and subject.",
+  "Downloadable packs with practical revision guidance.",
+  "Clear assessments, topical drills, and model answers.",
+  "One trusted place for both home and classroom support."
+];
+
 export default async function HomePage() {
+  const user = await getCurrentUser();
   const founderImagePath = "/teacher-mwangi-profile.png";
   const founderImageAvailable = await access(
     path.join(process.cwd(), "public", "teacher-mwangi-profile.png")
@@ -32,323 +54,336 @@ export default async function HomePage() {
     .then(() => true)
     .catch(() => false);
 
-  return (
-    <main>
-      <SiteHeader />
+  const navLinks = [
+    { href: "#why", label: "Why us" },
+    { href: "#levels", label: "Levels" },
+    { href: "#pricing", label: "Pricing" },
+    { href: "#testimonials", label: "Results" },
+    ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
+  ];
 
-      <section className="page-shell hero">
-        <div className="hero-grid">
-          <div className="hero-card">
-            <span className="eyebrow">Access all essential CBE learning materials in one convenient place</span>
-            <h1>Guiding students to competence and confidence.</h1>
-            <p>
-              {academyName} brings together structured revision materials, trusted teacher guidance,
-              and a focused learning environment for students, parents, and teachers across Grades
-              7, 8, 9, 10, Form 3, and Form 4.
-            </p>
-            <div className="hero-actions">
-              <Link href="/subscribe" className="button">
-                Explore membership
+  const parentPlan =
+    membershipPlans.find((plan) => plan.name === "Parent Subscription") ?? membershipPlans[0];
+  const teacherPlan =
+    membershipPlans.find((plan) => plan.name === "Teacher Subscription") ?? membershipPlans[1];
+
+  return (
+    <main className="home-landing">
+      <section className="page-shell home-nav-wrap">
+        <nav className="home-nav" aria-label="Primary">
+          <Link href="/" className="home-brand">
+            <span className="home-brand-mark">TM</span>
+            <span className="home-brand-copy">
+              <span className="home-brand-title">{academyName}</span>
+              <span className="home-brand-subtitle">CBE learning support for families and teachers</span>
+            </span>
+          </Link>
+
+          <div className="home-nav-links">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="home-nav-link">
+                {link.label}
               </Link>
-              <Link href="#about" className="button-secondary">
-                About Teacher Mwangi
-              </Link>
-            </div>
+            ))}
           </div>
 
-          <div className="hero-side">
-            <div className="panel founder-panel">
-              <div className="founder-portrait">
+          <div className="home-nav-actions">
+            {user ? (
+              <>
+                <Link href="/dashboard" className="home-nav-secondary">
+                  Dashboard
+                </Link>
+                <form action="/api/auth/logout" method="post">
+                  <button type="submit" className="home-nav-primary home-button-reset">
+                    Log out
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="home-nav-secondary">
+                  Sign in
+                </Link>
+                <Link href="/subscribe" className="home-nav-primary">
+                  Start subscription
+                </Link>
+              </>
+            )}
+          </div>
+        </nav>
+      </section>
+
+      <section className="page-shell home-hero-grid">
+        <article className="home-hero-card">
+          <div className="home-hero-glow" aria-hidden="true" />
+          <div className="home-hero-content">
+            <span className="home-kicker">Trusted CBE revision platform</span>
+            <h1 className="home-title">Help your child move from confusion to confidence.</h1>
+            <p className="home-copy">
+              Structured revision materials, teacher guidance, and classroom-ready resources designed
+              for Grade 7, Grade 8, Grade 9, Grade 10, Form 3, and Form 4.
+            </p>
+
+            <div className="home-pill-row">
+              <span className="home-pill">Weekly guided revision</span>
+              <span className="home-pill">Parents and teachers supported</span>
+              <span className="home-pill">Simple, local, practical</span>
+            </div>
+
+            <div className="home-hero-actions">
+              <Link href="/subscribe" className="home-hero-primary">
+                Explore membership
+              </Link>
+              <Link href="#levels" className="home-hero-secondary">
+                Browse materials
+              </Link>
+            </div>
+
+            <div className="home-metric-grid">
+              {metrics.map((item) => (
+                <div key={item.label} className="home-metric-card">
+                  <strong className="home-metric-value">{item.value}</strong>
+                  <span className="home-metric-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </article>
+
+        <aside className="home-side-stack">
+          <article className="home-founder-card">
+            <div className="home-founder-head">
+              <div className="home-founder-portrait">
                 {founderImageAvailable ? (
                   <Image
                     src={founderImagePath}
                     alt="Teacher Mwangi portrait"
                     fill
-                    sizes="220px"
-                    className="portrait-image founder-image"
+                    sizes="112px"
+                    className="home-founder-image"
                   />
                 ) : (
-                  <span className="portrait-fallback">TM</span>
+                  <span className="home-founder-fallback">TM</span>
                 )}
               </div>
-              <span className="eyebrow">Founder spotlight</span>
-              <h3>James Mwangi</h3>
-              <p className="subtle">
-                Physics and Mathematics teacher passionate about shaping minds and redefining
-                learning through innovative teaching and accessible resources.
-              </p>
-              <div className="stat-grid">
-                <div className="stat">
-                  <strong>Physics</strong>
-                  <span>Clear explanations and practical understanding</span>
-                </div>
-                <div className="stat">
-                  <strong>Maths</strong>
-                  <span>Confidence-building support and strong revision habits</span>
-                </div>
+
+              <div className="home-founder-copy">
+                <span className="home-kicker home-kicker--soft">Founder spotlight</span>
+                <h2 className="home-founder-name">James Mwangi</h2>
+                <p className="home-founder-text">
+                  Physics and Mathematics teacher focused on helping learners understand concepts
+                  clearly and improve steadily.
+                </p>
               </div>
             </div>
 
-            <div className="panel">
-              <h3>Built for homes and classrooms</h3>
-              <p className="subtle">
-                Parents access guided learning support and revision materials in one place. Teachers
-                subscribe for broad curriculum support and can also buy schemes of work at KSh{" "}
-                {schemeOfWorkPrice} per exact uploaded scheme, plus single notes and assessments at KSh{" "}
-                {teacherMaterialPrice} per material.
-              </p>
-              <div className="tag-row">
-                <span className="tag">Competency-focused</span>
-                <span className="tag">Student support</span>
-                <span className="tag">Teacher resources</span>
+            <div className="home-skill-grid">
+              <div className="home-skill-card home-skill-card--emerald">
+                <strong>Physics</strong>
+                <span>Clear explanations and practical understanding</span>
+              </div>
+              <div className="home-skill-card home-skill-card--orange">
+                <strong>Mathematics</strong>
+                <span>Confidence-building support and stronger revision habits</span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="page-shell section" id="about">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">About me</span>
-            <h2>Teaching with clarity, care, and competence.</h2>
-          </div>
-          <p>
-            Home / About Me
-          </p>
-        </div>
-
-        <div className="about-grid">
-          <article className="feature-card about-card">
-            <span className="eyebrow">Guiding students to competence and confidence</span>
-            <h3>Teacher Mwangi supports students, parents, and teachers with practical academic direction.</h3>
-            <p className="subtle">
-              Tr Mwangi is a Physics and Mathematics teacher passionate about shaping minds and
-              redefining learning. Through innovative teaching and accessible resources, he supports
-              students, parents, and teachers in achieving academic excellence.
-            </p>
-            <p className="subtle">
-              This academy is built around understanding, confidence, and everyday progress. The aim
-              is not only to help learners pass, but to help them truly grow in skill, discipline,
-              and self-belief.
-            </p>
           </article>
 
-          <aside className="about-aside">
-            <div className="quote-card">
-              <span className="eyebrow">Teaching philosophy</span>
-              <p>
-                “We do not just prepare learners for assessments. We prepare them to think clearly,
-                apply knowledge confidently, and grow with purpose.”
-              </p>
-            </div>
-            <div className="mini-profile">
-              <strong>Focus areas</strong>
-              <div className="tag-row">
-                <span className="tag">CBE alignment</span>
-                <span className="tag">Physics</span>
-                <span className="tag">Mathematics</span>
-                <span className="tag">Revision support</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section className="page-shell section">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Why Teacher Mwangi?</span>
-            <h2>Focused support for real growth, not just exam performance.</h2>
-          </div>
-          <p>
-            The academy is built to help learners master concepts, improve steadily, and feel more
-            confident in every stage of their learning journey.
-          </p>
-        </div>
-
-        <div className="feature-grid">
-          {reasons.map((reason) => (
-            <article key={reason.title} className="feature-card reason-card">
-              <h3>{reason.title}</h3>
-              <p className="subtle">{reason.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="page-shell section" id="levels">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Coverage</span>
-            <h2>Essential learning materials organised by grade and form.</h2>
-          </div>
-          <p>
-            Learners and teachers can move directly into the right level and access the materials
-            designed for that stage.
-          </p>
-        </div>
-
-        <div className="class-grid">
-          {levels.map((level) => (
-            <Link key={level.id} href={`/levels/${level.id}`} className="card-link">
-              <article className="class-card" data-level={level.id}>
-              <p className="eyebrow">{level.stage}</p>
-              <h3>{level.title}</h3>
-              <p className="subtle">{level.description}</p>
-              <div className="tag-row">
-                {(level.cardTags ?? level.subjects).slice(0, 6).map((subject) => (
-                  <span key={subject} className="tag">
-                    {subject}
-                  </span>
-                ))}
-              </div>
-              </article>
+          <article className="home-dark-card">
+            <span className="home-dark-kicker">Why parents join</span>
+            <h2 className="home-dark-title">A guided system, not random notes.</h2>
+            <ul className="home-dark-list">
+              <li>Easy-to-follow revision paths</li>
+              <li>Better home support without overwhelm</li>
+              <li>Trusted materials organised by level</li>
+              <li>Practical support for both learners and teachers</li>
+            </ul>
+            <Link href="#pricing" className="home-dark-link">
+              See how it works
             </Link>
-          ))}
-        </div>
+          </article>
+        </aside>
       </section>
 
-      <section className="page-shell section" id="membership">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Pricing</span>
-            <h2>Simple access plans for families and teachers.</h2>
+      <section className="page-shell home-problem-grid" id="why">
+        <article className="home-problem-card">
+          <span className="home-section-kicker">The problem</span>
+          <h2 className="home-section-title">Families do not need more content. They need clarity.</h2>
+          <div className="home-chip-list">
+            {painPoints.map((item) => (
+              <div key={item} className="home-chip-card home-chip-card--problem">
+                {item}
+              </div>
+            ))}
           </div>
-          <p>
-            Choose a monthly subscription or add one-time professional teaching resources when
-            needed.
-          </p>
-        </div>
+        </article>
 
-        <div className="pricing-grid">
-          {membershipPlans.map((plan) => (
-            <article
-              key={plan.name}
-              className="pricing-card"
-              data-audience={plan.name.toLowerCase().includes("parent") ? "parent" : "teacher"}
-            >
-              <h3>{plan.name}</h3>
-              <p className="subtle">{plan.audience}</p>
-              <p className="price">
-                {plan.price}
-                <small>{plan.cadence}</small>
-              </p>
-              <Link href="/subscribe" className="button">
-                Choose {plan.name}
-              </Link>
-              <ul className="list">
-                {plan.highlights.map((highlight) => (
-                  <li key={highlight}>{highlight}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-        <article className="dashboard-card" style={{ marginTop: 18 }}>
-          <h3>Teacher one-time purchase</h3>
-          <p className="subtle">
-            Schemes of work are sold separately at KSh {schemeOfWorkPrice} per exact uploaded
-            scheme. Notes and assessments can also be bought one time at KSh{" "}
-            {teacherMaterialPrice} per material.
-          </p>
+        <article className="home-problem-card home-problem-card--solution">
+          <span className="home-section-kicker home-section-kicker--emerald">Our solution</span>
+          <h2 className="home-section-title">
+            Everything needed to revise with direction and confidence.
+          </h2>
+          <div className="home-chip-list">
+            {solutions.map((item) => (
+              <div key={item} className="home-chip-card home-chip-card--solution">
+                {item}
+              </div>
+            ))}
+          </div>
         </article>
       </section>
 
-      <section className="page-shell section" id="library">
-        <div className="section-head">
+      <section className="page-shell home-section" id="levels">
+        <div className="home-section-head">
           <div>
-            <span className="eyebrow">Featured library</span>
-            <h2>A closer look at the learning resources inside.</h2>
+            <span className="home-section-kicker">Coverage</span>
+            <h2 className="home-section-title">Find the right materials by grade and level.</h2>
           </div>
-          <p>
-            Preview the kinds of packs, guides, and revision support available inside the academy.
+          <p className="home-section-copy">
+            Simple navigation makes it easy for parents, learners, and teachers to go straight to
+            the right support materials.
           </p>
         </div>
 
-        <div className="resource-grid">
-          {featuredResources.map((resource) => (
-            <Link
-              key={resource.title}
-              href={`/levels/${levels.find((level) => level.title === resource.level)?.id ?? "grade-7"}`}
-              className="card-link"
-            >
-              <article className="resource-card">
-              <h3>{resource.title}</h3>
-              <div className="resource-meta">
-                <span>{resource.level}</span>
-                <span>{resource.type}</span>
-              </div>
-              <p className="subtle">{resource.access}</p>
+        <div className="home-level-grid">
+          {levels.map((level) => (
+            <Link key={level.id} href={`/levels/${level.id}`} className="home-level-link">
+              <article className="home-level-card" data-level={level.id}>
+                <span className="home-level-stage">{level.stage}</span>
+                <h3 className="home-level-title">{level.title}</h3>
+                <p className="home-level-description">{level.description}</p>
+
+                <div className="home-tag-row">
+                  {(level.cardTags ?? level.subjects).slice(0, 6).map((subject) => (
+                    <span key={subject} className="home-tag">
+                      {subject}
+                    </span>
+                  ))}
+                </div>
+
+                <span className="home-level-button">View materials</span>
               </article>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="page-shell section" id="team">
-        <div className="section-head">
+      <section className="page-shell home-section" id="pricing">
+        <div className="home-section-head">
           <div>
-            <span className="eyebrow">Our team</span>
-            <h2>Leadership grounded in subject mastery and learner support.</h2>
+            <span className="home-section-kicker">Pricing</span>
+            <h2 className="home-section-title">Simple plans for parents and teachers.</h2>
           </div>
-          <p>
-            The academy is led by an educator committed to excellence in teaching, mentorship, and
-            meaningful student progress.
+          <p className="home-section-copy">
+            Keep the decision easy: one affordable monthly plan for consistent support, plus
+            one-time purchases when needed.
           </p>
         </div>
 
-        <div className="team-grid">
-          <article className="team-card">
-            <div className="team-portrait">
-              {founderImageAvailable ? (
-                <Image
-                  src={founderImagePath}
-                  alt="James Mwangi portrait"
-                  fill
-                  sizes="120px"
-                  className="portrait-image team-image"
-                />
-              ) : (
-                <span className="portrait-fallback">JM</span>
-              )}
-            </div>
-            <div>
-              <h3>James Mwangi</h3>
-              <p className="team-role">Founder & Leader</p>
-              <p className="subtle">
-                James Mwangi is a Physics and Mathematics teacher passionate about shaping minds and
-                redefining learning. Through innovative teaching and accessible resources, he
-                supports students, parents, and teachers in achieving academic excellence.
-              </p>
-            </div>
+        <div className="home-pricing-grid">
+          <article className="home-pricing-card home-pricing-card--parent">
+            <span className="home-pricing-badge">Most popular</span>
+            <p className="home-pricing-name">{parentPlan.name}</p>
+            <h3 className="home-pricing-price">
+              {parentPlan.price}
+              <span className="home-pricing-cadence">{parentPlan.cadence}</span>
+            </h3>
+            <p className="home-pricing-copy">
+              That is about KSh 10 a day for guided revision support.
+            </p>
+            <ul className="home-pricing-list">
+              {parentPlan.highlights.map((highlight) => (
+                <li key={highlight}>{highlight}</li>
+              ))}
+            </ul>
+            <Link href="/subscribe" className="home-pricing-button">
+              Choose parent plan
+            </Link>
           </article>
+
+          <article className="home-pricing-card home-pricing-card--teacher">
+            <p className="home-pricing-name">{teacherPlan.name}</p>
+            <h3 className="home-pricing-price">
+              {teacherPlan.price}
+              <span className="home-pricing-cadence">{teacherPlan.cadence}</span>
+            </h3>
+            <p className="home-pricing-copy">
+              Affordable professional support for teachers and tutors.
+            </p>
+            <ul className="home-pricing-list">
+              {teacherPlan.highlights.map((highlight) => (
+                <li key={highlight}>{highlight}</li>
+              ))}
+            </ul>
+            <Link href="/subscribe" className="home-pricing-button">
+              Choose teacher plan
+            </Link>
+          </article>
+        </div>
+
+        <article className="home-one-time-card">
+          <div>
+            <h3>One-time resource purchases</h3>
+            <p className="home-one-time-copy">
+              Schemes of work can be bought separately at KSh {schemeOfWorkPrice} each, while notes
+              and assessments are available to teachers at KSh {teacherMaterialPrice} per material.
+            </p>
+          </div>
+          <Link href="/subscribe" className="home-one-time-button">
+            Browse one-time resources
+          </Link>
+        </article>
+      </section>
+
+      <section className="page-shell home-section" id="testimonials">
+        <div className="home-section-head">
+          <div>
+            <span className="home-section-kicker">Results</span>
+            <h2 className="home-section-title">
+              The kind of trust that keeps families subscribed.
+            </h2>
+          </div>
+          <p className="home-section-copy">
+            Real feedback helps the homepage feel credible, grounded, and conversion-focused.
+          </p>
+        </div>
+
+        <div className="home-testimonial-grid">
+          {testimonials.map((item) => (
+            <article key={item.author} className="home-testimonial-card">
+              <div className="home-stars" aria-hidden="true">
+                ★★★★★
+              </div>
+              <p>"{item.quote}"</p>
+              <strong>{item.author}</strong>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="page-shell cta">
-        <div className="cta-box">
-          <span className="eyebrow">Ready to learn with confidence</span>
-          <h2>Access essential CBE learning materials in one trusted, guided academy.</h2>
-          <p>
-            Join the academy, choose the right level, and start learning with materials designed to
-            build understanding, confidence, and measurable progress.
-          </p>
-          <div className="hero-actions">
-            <Link href="/subscribe" className="button">
+      <section className="page-shell home-cta">
+        <div className="home-cta-inner">
+          <div>
+            <span className="home-cta-tag">Ready to learn with confidence</span>
+            <h2 className="home-cta-title">
+              Give learners one trusted place for structured CBE revision.
+            </h2>
+            <p className="home-cta-copy">
+              Join {academyName} and help students revise with more clarity, more consistency, and
+              less confusion.
+            </p>
+          </div>
+
+          <div className="home-cta-actions">
+            <Link href="/subscribe" className="home-cta-primary">
               Start subscription
             </Link>
-            <Link href="/levels/grade-7" className="button-secondary">
+            <Link href="/levels/grade-7" className="home-cta-secondary">
               Browse materials
             </Link>
           </div>
         </div>
       </section>
-
-      <footer className="page-shell footer">
-        {academyName} supports learners, parents, and teachers with focused CBE-aligned materials,
-        mentorship, and purposeful academic growth.
-      </footer>
     </main>
   );
 }
