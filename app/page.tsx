@@ -327,13 +327,12 @@ export default async function HomePage() {
       <section className="page-shell home-section" id="testimonials">
         <div className="home-section-head">
           <div>
-            <span className="home-section-kicker">Results</span>
-            <h2 className="home-section-title">
-              The kind of trust that keeps families subscribed.
-            </h2>
+            <span className="home-section-kicker">Community feedback</span>
+            <h2 className="home-section-title">What parents and teachers are saying.</h2>
           </div>
           <p className="home-section-copy">
-            Real feedback helps the homepage feel credible, grounded, and conversion-focused.
+            Honest feedback from homes and classrooms shows how the academy is supporting clearer
+            revision, stronger routines, and more confident learning.
           </p>
         </div>
 
