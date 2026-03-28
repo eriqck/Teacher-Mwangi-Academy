@@ -28,6 +28,7 @@ function addDays(days: number) {
 export async function createPendingSubscriptionPayment(input: {
   userId: string;
   email: string;
+  phoneNumber: string;
   plan: SubscriptionPlan;
   accountReference: string;
   level: string | null;
@@ -46,7 +47,7 @@ export async function createPendingSubscriptionPayment(input: {
     provider: "paystack",
     currency: "KES",
     amount: plan.amount,
-    phoneNumber: "",
+    phoneNumber: input.phoneNumber,
     accountReference: input.accountReference,
     plan: input.plan,
     schemeSubject: null,
@@ -135,6 +136,7 @@ export async function createPendingSubscriptionPayment(input: {
 export async function createPendingSchemePayment(input: {
   userId: string;
   email: string;
+  phoneNumber: string;
   accountReference: string;
   resource: ResourceRecord;
 }) {
@@ -150,7 +152,7 @@ export async function createPendingSchemePayment(input: {
     provider: "paystack",
     currency: "KES",
     amount: schemeOfWorkPrice,
-    phoneNumber: "",
+    phoneNumber: input.phoneNumber,
     accountReference: input.accountReference,
     plan: null,
     schemeSubject: input.resource.subject,
@@ -238,6 +240,7 @@ export async function createPendingSchemePayment(input: {
 export async function createPendingResourcePayment(input: {
   userId: string;
   email: string;
+  phoneNumber: string;
   accountReference: string;
   resource: ResourceRecord;
 }) {
@@ -253,7 +256,7 @@ export async function createPendingResourcePayment(input: {
     provider: "paystack",
     currency: "KES",
     amount: teacherMaterialPrice,
-    phoneNumber: "",
+    phoneNumber: input.phoneNumber,
     accountReference: input.accountReference,
     plan: null,
     schemeSubject: null,

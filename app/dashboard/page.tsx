@@ -12,6 +12,22 @@ function formatMoney(amount: number) {
   return `KSh ${amount}`;
 }
 
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-KE", {
+    dateStyle: "medium",
+    timeZone: "Africa/Nairobi"
+  }).format(new Date(value));
+}
+
+function formatTime(value: string) {
+  return new Intl.DateTimeFormat("en-KE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Africa/Nairobi"
+  }).format(new Date(value));
+}
+
 export default async function DashboardPage() {
   const user = await requireUser();
   await reconcilePaidPaystackPaymentsForUser(user.id);
@@ -37,6 +53,7 @@ export default async function DashboardPage() {
       createdAt: subscription.createdAt,
       fullName: subscriber?.fullName ?? subscription.userId,
       email: subscriber?.email ?? "-",
+      phoneNumber: subscriber?.phoneNumber ?? "-",
       planName: subscriptionPlans[subscription.plan].name,
       status: subscription.status,
       amountLabel: formatMoney(subscription.amount),
@@ -257,7 +274,9 @@ export default async function DashboardPage() {
               <thead>
                 <tr>
                   <th>Date</th>
+                  <th>Time</th>
                   {user.role === "admin" ? <th>User</th> : null}
+                  <th>Phone</th>
                   <th>Type</th>
                   <th>Amount</th>
                   <th>Status</th>
@@ -267,10 +286,12 @@ export default async function DashboardPage() {
               <tbody>
                 {payments.map((payment) => (
                   <tr key={payment.id}>
-                    <td>{payment.createdAt.slice(0, 10)}</td>
+                    <td>{formatDate(payment.status === "paid" ? payment.updatedAt : payment.createdAt)}</td>
+                    <td>{formatTime(payment.status === "paid" ? payment.updatedAt : payment.createdAt)}</td>
                     {user.role === "admin" ? (
                       <td>{usersById.get(payment.userId)?.fullName ?? payment.userId}</td>
                     ) : null}
+                    <td>{payment.phoneNumber || usersById.get(payment.userId)?.phoneNumber || "-"}</td>
                     <td>{payment.kind}</td>
                     <td>{formatMoney(payment.amount)}</td>
                     <td>{payment.status}</td>

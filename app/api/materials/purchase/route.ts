@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       const result = await createPendingResourcePayment({
         userId: user.id,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         accountReference: body.accountReference,
         resource
       });
@@ -107,6 +108,7 @@ export async function POST(request: NextRequest) {
     const result = await createPendingSchemePayment({
       userId: user.id,
       email: user.email,
+      phoneNumber: user.phoneNumber,
       accountReference: body.accountReference,
       resource
     });

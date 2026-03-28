@@ -7,6 +7,7 @@ type AdminSubscriptionRow = {
   createdAt: string;
   fullName: string;
   email: string;
+  phoneNumber: string;
   planName: string;
   status: string;
   amountLabel: string;
@@ -78,6 +79,7 @@ export function AdminSubscriptionsTable({
               <th>Date</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Phone</th>
               <th>Plan</th>
               <th>Status</th>
               <th>Amount</th>
@@ -91,6 +93,7 @@ export function AdminSubscriptionsTable({
                 <td>{subscription.createdAt.slice(0, 10)}</td>
                 <td>{subscription.fullName}</td>
                 <td>{subscription.email}</td>
+                <td>{subscription.phoneNumber}</td>
                 <td>{subscription.planName}</td>
                 <td>{subscription.status}</td>
                 <td>{subscription.amountLabel}</td>

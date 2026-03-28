@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     const result = await createPendingSubscriptionPayment({
       userId: user.id,
       email: user.email,
+      phoneNumber: user.phoneNumber,
       plan: body.plan,
       accountReference: body.accountReference,
       level: body.level ?? null
