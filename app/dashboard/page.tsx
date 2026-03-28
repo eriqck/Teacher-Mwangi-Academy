@@ -16,16 +16,18 @@ export default async function DashboardPage() {
   await reconcilePaidPaystackPaymentsForUser(user.id);
 
   const store = await readAppData();
+  const usersById = new Map(store.users.map((entry) => [entry.id, entry]));
   const subscriptions = store.subscriptions
     .filter((item) => item.userId === user.id)
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  const payments = store.payments
-    .filter((item) => item.userId === user.id)
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-    .slice(0, 6);
+  const payments = (user.role === "admin" ? store.payments : store.payments.filter((item) => item.userId === user.id))
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
   const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
   const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
+  const allSubscriptions = store.subscriptions
+    .slice()
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const activeSubscription =
     subscriptions.find((item) => item.status === "active") ??
     subscriptions.find((item) => item.status === "pending") ??
@@ -224,11 +226,12 @@ export default async function DashboardPage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">Payments</span>
-            <h2>Recent payment activity.</h2>
+            <h2>{user.role === "admin" ? "All payment activity." : "Recent payment activity."}</h2>
           </div>
           <p>
-            These records are saved when checkout starts and updated when the M-Pesa callback
-            completes.
+            {user.role === "admin"
+              ? "This view shows every saved payment across subscriptions, one-time schemes, and teacher material purchases."
+              : "These records are saved when checkout starts and updated when the M-Pesa callback completes."}
           </p>
         </div>
 
@@ -238,6 +241,7 @@ export default async function DashboardPage() {
               <thead>
                 <tr>
                   <th>Date</th>
+                  {user.role === "admin" ? <th>User</th> : null}
                   <th>Type</th>
                   <th>Amount</th>
                   <th>Status</th>
@@ -248,6 +252,9 @@ export default async function DashboardPage() {
                 {payments.map((payment) => (
                   <tr key={payment.id}>
                     <td>{payment.createdAt.slice(0, 10)}</td>
+                    {user.role === "admin" ? (
+                      <td>{usersById.get(payment.userId)?.fullName ?? payment.userId}</td>
+                    ) : null}
                     <td>{payment.kind}</td>
                     <td>{formatMoney(payment.amount)}</td>
                     <td>{payment.status}</td>
@@ -257,10 +264,65 @@ export default async function DashboardPage() {
               </tbody>
             </table>
           ) : (
-            <p className="subtle">No payments saved yet. Start with a subscription or scheme purchase.</p>
+            <p className="subtle">
+              {user.role === "admin"
+                ? "No payments have been saved yet."
+                : "No payments saved yet. Start with a subscription or scheme purchase."}
+            </p>
           )}
         </article>
       </section>
+
+      {user.role === "admin" ? (
+        <section className="page-shell section">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Subscribers</span>
+              <h2>All subscriber records.</h2>
+            </div>
+            <p>
+              Every saved subscription appears here, including pending, active, expired, and failed states.
+            </p>
+          </div>
+
+          <article className="dashboard-card">
+            {allSubscriptions.length > 0 ? (
+              <table className="mini-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Access ends</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allSubscriptions.map((subscription) => {
+                    const subscriber = usersById.get(subscription.userId);
+
+                    return (
+                      <tr key={subscription.id}>
+                        <td>{subscription.createdAt.slice(0, 10)}</td>
+                        <td>{subscriber?.fullName ?? subscription.userId}</td>
+                        <td>{subscriber?.email ?? "-"}</td>
+                        <td>{subscriptionPlans[subscription.plan].name}</td>
+                        <td>{subscription.status}</td>
+                        <td>{formatMoney(subscription.amount)}</td>
+                        <td>{subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p className="subtle">No subscriber records have been saved yet.</p>
+            )}
+          </article>
+        </section>
+      ) : null}
 
       <section className="page-shell section">
         <div className="section-head">
