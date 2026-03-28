@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { featuredResources, levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
 import { subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
+import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
 import { readAppData } from "@/lib/repository";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 
@@ -12,8 +13,12 @@ function formatMoney(amount: number) {
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  await reconcilePaidPaystackPaymentsForUser(user.id);
+
   const store = await readAppData();
-  const subscriptions = store.subscriptions.filter((item) => item.userId === user.id);
+  const subscriptions = store.subscriptions
+    .filter((item) => item.userId === user.id)
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const payments = store.payments
     .filter((item) => item.userId === user.id)
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
@@ -21,7 +26,10 @@ export default async function DashboardPage() {
   const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
   const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
   const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
-  const activeSubscription = subscriptions.find((item) => item.status === "active") ?? subscriptions[0];
+  const activeSubscription =
+    subscriptions.find((item) => item.status === "active") ??
+    subscriptions.find((item) => item.status === "pending") ??
+    subscriptions[0];
   const activePlan = activeSubscription ? subscriptionPlans[activeSubscription.plan] : null;
   const accessibleLevels =
     user.role === "teacher"

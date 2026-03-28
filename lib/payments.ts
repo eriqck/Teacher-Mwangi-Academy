@@ -15,6 +15,7 @@ import {
   createSubscriptionPaymentBundle,
   findPaymentByReference,
   markPaymentOutcome,
+  readAppData,
   updatePaymentById
 } from "@/lib/repository";
 
@@ -376,4 +377,52 @@ export async function verifyAndApplyPaystackPayment(reference: string) {
   });
 
   return result;
+}
+
+export async function reconcilePaidPaystackPaymentsForUser(userId: string) {
+  const store = await readAppData();
+  const pendingPayments = store.payments
+    .filter(
+      (payment) =>
+        payment.userId === userId &&
+        payment.provider === "paystack" &&
+        payment.status === "pending" &&
+        !!(payment.paymentReference ?? payment.id)
+    )
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+    .slice(0, 5);
+
+  for (const payment of pendingPayments) {
+    try {
+      const result = await verifyPaystackTransaction(payment.paymentReference ?? payment.id);
+
+      if (result.status === "success") {
+        await markPaymentOutcome(payment.id, {
+          paymentChanges: {
+            status: "paid",
+            currency: result.currency,
+            paymentReference: result.reference,
+            resultDesc: result.gateway_response,
+            updatedAt: new Date().toISOString()
+          },
+          subscriptionStatus: {
+            status: "active",
+            startDate: new Date().toISOString(),
+            endDate: addDays(30),
+            updatedAt: new Date().toISOString()
+          },
+          schemeStatus: {
+            status: "paid",
+            updatedAt: new Date().toISOString()
+          },
+          resourceStatus: {
+            status: "paid",
+            updatedAt: new Date().toISOString()
+          }
+        });
+      }
+    } catch {
+      // Ignore reconciliation errors so the dashboard still loads.
+    }
+  }
 }
