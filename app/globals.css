@@ -1747,16 +1747,22 @@ main {
 
 .home-level-more {
   display: inline-flex;
-  align-self: center;
-  margin-top: 12px;
   font-size: 0.85rem;
   font-weight: 600;
   color: #475569;
 }
 
+.home-level-actions {
+  margin-top: auto;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding-top: 20px;
+}
+
 .home-level-button {
   display: inline-flex;
-  margin-top: 24px;
   align-self: center;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.92);
