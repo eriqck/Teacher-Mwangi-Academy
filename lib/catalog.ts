@@ -96,7 +96,8 @@ export const levels: Level[] = [
     stage: "Senior School",
     description:
       "New-stage revision resources designed for serious coverage, retention, and independent study habits.",
-    subjects: ["Mathematics", "English", "Kiswahili", "Biology", "History"],
+    subjects: ["Core Mathematics", "English", "Kiswahili", "Biology", "History & Citizenship"],
+    cardTags: ["Core Mathematics", "English", "Kiswahili", "Biology", "History & Citizenship"],
     formats: ["Topic mastery packs", "Holiday revision kits", "Assessment blueprints"]
   },
   {

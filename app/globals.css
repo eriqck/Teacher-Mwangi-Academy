@@ -1745,6 +1745,15 @@ main {
   color: #334155;
 }
 
+.home-level-more {
+  display: inline-flex;
+  align-self: center;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
 .home-level-button {
   display: inline-flex;
   margin-top: 24px;

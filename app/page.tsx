@@ -249,6 +249,7 @@ export default async function HomePage() {
                     </span>
                   ))}
                 </div>
+                <span className="home-level-more">See more...</span>
 
                 <span className="home-level-button">View materials</span>
               </article>
