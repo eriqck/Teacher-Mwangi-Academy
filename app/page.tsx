@@ -250,8 +250,7 @@ export default async function HomePage() {
                   ))}
                 </div>
                 <div className="home-level-actions">
-                  <span className="home-level-more">See more...</span>
-                  <span className="home-level-button">View materials</span>
+                  <span className="home-level-button">See more...</span>
                 </div>
               </article>
             </Link>
