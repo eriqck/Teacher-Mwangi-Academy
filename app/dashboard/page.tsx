@@ -1,3 +1,4 @@
+import { AdminSubscriptionsTable } from "@/components/admin-subscriptions-table";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { featuredResources, levels } from "@/lib/catalog";
@@ -28,6 +29,21 @@ export default async function DashboardPage() {
   const allSubscriptions = store.subscriptions
     .slice()
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  const adminSubscriptionRows = allSubscriptions.map((subscription) => {
+    const subscriber = usersById.get(subscription.userId);
+
+    return {
+      id: subscription.id,
+      createdAt: subscription.createdAt,
+      fullName: subscriber?.fullName ?? subscription.userId,
+      email: subscriber?.email ?? "-",
+      planName: subscriptionPlans[subscription.plan].name,
+      status: subscription.status,
+      amountLabel: formatMoney(subscription.amount),
+      endDateLabel: subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment",
+      canGrantAccess: subscription.status === "pending"
+    };
+  });
   const activeSubscription =
     subscriptions.find((item) => item.status === "active") ??
     subscriptions.find((item) => item.status === "pending") ??
@@ -285,42 +301,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <article className="dashboard-card">
-            {allSubscriptions.length > 0 ? (
-              <table className="mini-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Plan</th>
-                    <th>Status</th>
-                    <th>Amount</th>
-                    <th>Access ends</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allSubscriptions.map((subscription) => {
-                    const subscriber = usersById.get(subscription.userId);
-
-                    return (
-                      <tr key={subscription.id}>
-                        <td>{subscription.createdAt.slice(0, 10)}</td>
-                        <td>{subscriber?.fullName ?? subscription.userId}</td>
-                        <td>{subscriber?.email ?? "-"}</td>
-                        <td>{subscriptionPlans[subscription.plan].name}</td>
-                        <td>{subscription.status}</td>
-                        <td>{formatMoney(subscription.amount)}</td>
-                        <td>{subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment"}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            ) : (
-              <p className="subtle">No subscriber records have been saved yet.</p>
-            )}
-          </article>
+          <AdminSubscriptionsTable initialSubscriptions={adminSubscriptionRows} />
         </section>
       ) : null}
 

@@ -426,3 +426,40 @@ export async function reconcilePaidPaystackPaymentsForUser(userId: string) {
     }
   }
 }
+
+export async function manuallyGrantSubscriptionAccess(subscriptionId: string) {
+  const store = await readAppData();
+  const subscription = store.subscriptions.find((entry) => entry.id === subscriptionId);
+
+  if (!subscription) {
+    throw new Error("Subscription not found.");
+  }
+
+  if (subscription.status === "active") {
+    return subscription;
+  }
+
+  const updatedAt = new Date().toISOString();
+  await markPaymentOutcome(subscription.paymentId, {
+    paymentChanges: {
+      status: "paid",
+      resultDesc: "Manually approved by admin.",
+      updatedAt
+    },
+    subscriptionStatus: {
+      status: "active",
+      startDate: subscription.startDate ?? updatedAt,
+      endDate: addDays(30),
+      updatedAt
+    }
+  });
+
+  const refreshedStore = await readAppData();
+  const refreshedSubscription = refreshedStore.subscriptions.find((entry) => entry.id === subscriptionId);
+
+  if (!refreshedSubscription) {
+    throw new Error("Subscription could not be reloaded after granting access.");
+  }
+
+  return refreshedSubscription;
+}
