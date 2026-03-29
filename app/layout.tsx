@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { academyName } from "@/lib/business";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteWhatsAppButton } from "@/components/site-whatsapp-button";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004";
@@ -57,6 +58,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <SiteWhatsAppButton />
         <SiteFooter />
       </body>
     </html>
