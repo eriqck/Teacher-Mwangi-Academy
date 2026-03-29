@@ -6,20 +6,22 @@ import {
   deleteSessionByToken,
   deletePasswordResetTokensByUserId,
   findSessionByToken,
-  findPasswordResetTokenByHash,
+  findLatestPasswordResetTokenByUserId,
   findUserByEmail,
   findUserById,
   insertUser,
   insertPasswordResetToken,
   replaceSessionForUser,
+  updatePasswordResetToken,
   updateUserPassword
 } from "@/lib/repository";
-import { sendPasswordResetEmail } from "@/lib/email";
+import { sendPasswordResetOtp } from "@/lib/email";
 
 const sessionCookieName = "teacher_mwangi_session";
 const socialProfileCookieName = "teacher_mwangi_social_profile";
 const sessionDurationMs = 1000 * 60 * 60 * 24 * 30;
-const passwordResetDurationMs = 1000 * 60 * 60;
+const passwordResetDurationMs = 1000 * 60 * 15;
+const passwordResetMaxAttempts = 5;
 const socialProfileDurationMs = 1000 * 60 * 30;
 
 function getSecret() {
@@ -44,8 +46,19 @@ function hashResetToken(token: string) {
   return crypto.createHash("sha256").update(`${token}.${getSecret()}`).digest("hex");
 }
 
-function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+function createOtpCode() {
+  return crypto.randomInt(100000, 1000000).toString();
+}
+
+function safelyEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left, "utf8");
+  const rightBuffer = Buffer.from(right, "utf8");
+
+  if (leftBuffer.length !== rightBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 function signValue(value: string) {
@@ -168,61 +181,81 @@ export async function requestPasswordReset(email: string) {
   if (!user) {
     return {
       requested: true,
-      previewUrl: null as string | null,
-      emailSent: false
+      previewCode: null as string | null,
+      deliverySent: false
     };
   }
 
-  const rawToken = crypto.randomBytes(32).toString("hex");
+  const otp = createOtpCode();
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + passwordResetDurationMs).toISOString();
-  const resetUrl = `${getSiteUrl()}/reset-password?token=${rawToken}`;
 
   await deletePasswordResetTokensByUserId(user.id);
   await insertPasswordResetToken({
     id: createId("reset"),
     userId: user.id,
-    tokenHash: hashResetToken(rawToken),
+    tokenHash: hashResetToken(otp),
     createdAt: createdAt.toISOString(),
     expiresAt,
-    usedAt: null
+    usedAt: null,
+    attempts: 0
   });
 
-  let emailSent = false;
+  let deliverySent = false;
 
   try {
-    emailSent = await sendPasswordResetEmail({
+    deliverySent = await sendPasswordResetOtp({
       email: user.email,
       fullName: user.fullName,
-      resetUrl
+      otp
     });
   } catch {
-    emailSent = false;
+    deliverySent = false;
   }
 
   return {
     requested: true,
-    previewUrl: process.env.NODE_ENV === "production" ? null : emailSent ? null : resetUrl,
-    emailSent
+    previewCode: process.env.NODE_ENV === "production" ? null : deliverySent ? null : otp,
+    deliverySent
   };
 }
 
-export async function resetPasswordWithToken(token: string, password: string) {
-  const tokenRecord = await findPasswordResetTokenByHash(hashResetToken(token));
+export async function resetPasswordWithOtp(email: string, otp: string, password: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await findUserByEmail(normalizedEmail);
+
+  if (!user) {
+    throw new Error("This reset code is invalid or has expired.");
+  }
+
+  const tokenRecord = await findLatestPasswordResetTokenByUserId(user.id);
 
   if (!tokenRecord || tokenRecord.usedAt) {
-    throw new Error("This reset link is invalid or has already been used.");
+    throw new Error("This reset code is invalid or has expired.");
   }
 
   if (new Date(tokenRecord.expiresAt).getTime() < Date.now()) {
     await deletePasswordResetTokensByUserId(tokenRecord.userId);
-    throw new Error("This reset link has expired. Please request a new one.");
+    throw new Error("This reset code has expired. Please request a new one.");
   }
 
-  const user = await findUserById(tokenRecord.userId);
+  if (tokenRecord.attempts >= passwordResetMaxAttempts) {
+    await deletePasswordResetTokensByUserId(tokenRecord.userId);
+    throw new Error("Too many incorrect attempts. Please request a new reset code.");
+  }
 
-  if (!user) {
-    throw new Error("We could not find the account for this reset link.");
+  if (!safelyEqual(hashResetToken(otp.trim()), tokenRecord.tokenHash)) {
+    const nextAttempts = tokenRecord.attempts + 1;
+
+    if (nextAttempts >= passwordResetMaxAttempts) {
+      await deletePasswordResetTokensByUserId(tokenRecord.userId);
+      throw new Error("Too many incorrect attempts. Please request a new reset code.");
+    }
+
+    await updatePasswordResetToken(tokenRecord.id, {
+      attempts: nextAttempts
+    });
+    throw new Error("This reset code is invalid or has expired.");
   }
 
   const { hash, salt } = hashPassword(password);

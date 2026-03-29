@@ -44,7 +44,8 @@ function mapPasswordResetToken(row: Record<string, unknown>): PasswordResetToken
     tokenHash: `${row.token_hash}`,
     createdAt: `${row.created_at}`,
     expiresAt: `${row.expires_at}`,
-    usedAt: (row.used_at as string | null) ?? null
+    usedAt: (row.used_at as string | null) ?? null,
+    attempts: Number(row.attempts ?? 0)
   };
 }
 
@@ -326,6 +327,29 @@ export async function insertPasswordResetToken(token: PasswordResetTokenRecord) 
   return token;
 }
 
+export async function findLatestPasswordResetTokenByUserId(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return (
+      store.passwordResetTokens
+        .filter((token) => token.userId === userId)
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0] ?? null
+    );
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("password_reset_tokens")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapPasswordResetToken(data) : null;
+}
+
 export async function findPasswordResetTokenByHash(tokenHash: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
@@ -354,6 +378,29 @@ export async function deletePasswordResetTokensByUserId(userId: string) {
 
   const supabase = getSupabaseAdmin();
   const { error } = await supabase.from("password_reset_tokens").delete().eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updatePasswordResetToken(
+  tokenId: string,
+  changes: Partial<PasswordResetTokenRecord>
+) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      passwordResetTokens: current.passwordResetTokens.map((token) =>
+        token.id === tokenId ? { ...token, ...changes } : token
+      )
+    }));
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("password_reset_tokens")
+    .update(toPasswordResetTokenRow(changes))
+    .eq("id", tokenId);
+
   if (error) throw new Error(error.message);
 }
 
@@ -722,7 +769,8 @@ function toPasswordResetTokenRow(token: Partial<PasswordResetTokenRecord>) {
     ...(token.tokenHash ? { token_hash: token.tokenHash } : {}),
     ...(token.createdAt ? { created_at: token.createdAt } : {}),
     ...(token.expiresAt ? { expires_at: token.expiresAt } : {}),
-    ...(token.usedAt !== undefined ? { used_at: token.usedAt } : {})
+    ...(token.usedAt !== undefined ? { used_at: token.usedAt } : {}),
+    ...(typeof token.attempts === "number" ? { attempts: token.attempts } : {})
   };
 }
 

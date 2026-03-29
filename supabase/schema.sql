@@ -24,7 +24,8 @@ create table if not exists password_reset_tokens (
   token_hash text not null unique,
   created_at timestamptz not null,
   expires_at timestamptz not null,
-  used_at timestamptz
+  used_at timestamptz,
+  attempts integer not null default 0
 );
 
 create table if not exists payments (
@@ -197,6 +198,9 @@ where section is null;
 
 create index if not exists idx_sessions_user_id on sessions(user_id);
 create index if not exists idx_password_reset_tokens_user_id on password_reset_tokens(user_id);
+
+alter table password_reset_tokens
+  add column if not exists attempts integer not null default 0;
 create index if not exists idx_payments_user_id on payments(user_id);
 create index if not exists idx_subscriptions_user_id on subscriptions(user_id);
 create index if not exists idx_scheme_purchases_user_id on scheme_purchases(user_id);

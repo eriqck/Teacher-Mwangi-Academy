@@ -12,10 +12,12 @@
     "migrate-supabase": "node scripts/migrate-supabase.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.49.8",
+    "@types/nodemailer": "^7.0.11",
     "next": "15.5.14",
+    "nodemailer": "^8.0.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "@supabase/supabase-js": "2.49.8"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@types/node": "22.15.3",

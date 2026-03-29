@@ -28,6 +28,7 @@ export type PasswordResetTokenRecord = {
   createdAt: string;
   expiresAt: string;
   usedAt: string | null;
+  attempts: number;
 };
 
 export type SubscriptionPlan = "parent-monthly" | "teacher-monthly";

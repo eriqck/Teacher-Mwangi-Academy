@@ -5,9 +5,9 @@ import { SiteHeader } from "@/components/site-header";
 export default async function ResetPasswordPage({
   searchParams
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ email?: string }>;
 }) {
-  const { token } = await searchParams;
+  const { email } = await searchParams;
 
   return (
     <main>
@@ -20,24 +20,24 @@ export default async function ResetPasswordPage({
             <h2>Choose a new password for your account.</h2>
           </div>
           <p>
-            Reset links are single-use and expire after one hour for security.
+            Reset codes are single-use and expire after 15 minutes for security.
           </p>
         </div>
 
         <div className="dashboard-grid">
           <article className="dashboard-card">
-            <h3>Set new password</h3>
-            <PasswordResetForm token={token ?? null} />
+            <h3>Enter your reset code</h3>
+            <PasswordResetForm email={email ?? null} />
           </article>
 
           <article className="dashboard-card">
-            <h3>Need a fresh link?</h3>
+            <h3>Need a fresh code?</h3>
             <p className="subtle">
-              If this link has expired, request a new password reset and we will issue a fresh secure link.
+              If this code has expired, request a new password reset and we will issue a fresh secure code.
             </p>
             <div className="hero-actions">
               <Link href="/forgot-password" className="button-secondary">
-                Request new link
+                Request new code
               </Link>
             </div>
           </article>

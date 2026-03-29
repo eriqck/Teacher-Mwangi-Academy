@@ -8,7 +8,8 @@ type ApiResponse = {
   error?: string;
   message?: string;
   data?: {
-    previewUrl?: string | null;
+    previewCode?: string | null;
+    email?: string | null;
   };
 };
 
@@ -16,14 +17,16 @@ export function PasswordResetRequestForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewCode, setPreviewCode] = useState<string | null>(null);
+  const [resetEmail, setResetEmail] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError("");
     setMessage("");
-    setPreviewUrl(null);
+    setPreviewCode(null);
+    setResetEmail(null);
 
     const formData = new FormData(event.currentTarget);
     const response = await fetch("/api/auth/forgot-password", {
@@ -46,9 +49,10 @@ export function PasswordResetRequestForm() {
 
     setMessage(
       data.message ??
-        "If an account exists for that email, we have sent password reset instructions."
+        "If an account exists for that email, we have sent a reset code."
     );
-    setPreviewUrl(data.data?.previewUrl ?? null);
+    setPreviewCode(data.data?.previewCode ?? null);
+    setResetEmail(data.data?.email ?? null);
   }
 
   return (
@@ -64,19 +68,20 @@ export function PasswordResetRequestForm() {
       {error ? <div className="message message-error">{error}</div> : null}
       {message ? <div className="message message-success">{message}</div> : null}
 
-      {previewUrl ? (
+      {previewCode ? (
         <div className="auth-helper-stack">
-          <Link href={previewUrl} className="button-secondary">
-            Open reset link
+          <div className="message message-success">Reset code: {previewCode}</div>
+          <Link href={`/reset-password${resetEmail ? `?email=${encodeURIComponent(resetEmail)}` : ""}`} className="button-secondary">
+            Enter reset code
           </Link>
           <small className="subtle">
-            Email sending is not configured here yet, so the secure reset link is shown for local testing.
+            Delivery is not configured here yet, so the OTP is shown for local testing.
           </small>
         </div>
       ) : null}
 
       <button className="button" type="submit" disabled={loading}>
-        {loading ? "Sending instructions..." : "Send reset instructions"}
+        {loading ? "Sending code..." : "Send reset code"}
       </button>
     </form>
   );

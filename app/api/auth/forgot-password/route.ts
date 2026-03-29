@@ -15,9 +15,10 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     message:
-      "If an account exists for that email, we have sent password reset instructions.",
+      "If an account exists for that email, we have sent a reset code.",
     data: {
-      previewUrl: result.previewUrl
+      previewCode: result.previewCode,
+      email: body.email
     }
   });
 }

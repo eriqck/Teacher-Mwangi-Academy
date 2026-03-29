@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSession, resetPasswordWithToken } from "@/lib/auth";
+import { createSession, resetPasswordWithOtp } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
-      token?: string;
+      email?: string;
+      otp?: string;
       password?: string;
     };
 
-    if (!body.token || !body.password) {
+    if (!body.email || !body.otp || !body.password) {
       return NextResponse.json(
-        { error: "Reset token and new password are required." },
+        { error: "Email address, reset code, and new password are required." },
         { status: 400 }
       );
     }
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await resetPasswordWithToken(body.token, body.password);
+    const user = await resetPasswordWithOtp(body.email, body.otp, body.password);
     await createSession(user.id);
 
     return NextResponse.json({

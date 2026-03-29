@@ -10,7 +10,7 @@ type ApiResponse = {
   message?: string;
 };
 
-export function PasswordResetForm({ token }: { token: string | null }) {
+export function PasswordResetForm({ email }: { email: string | null }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,14 +21,16 @@ export function PasswordResetForm({ token }: { token: string | null }) {
     setError("");
     setMessage("");
 
-    if (!token) {
-      setError("This reset link is missing or invalid. Request a new one.");
-      return;
-    }
-
     const formData = new FormData(event.currentTarget);
+    const resetEmail = `${formData.get("email") ?? ""}`.trim();
+    const otp = `${formData.get("otp") ?? ""}`.trim();
     const password = `${formData.get("password") ?? ""}`;
     const confirmPassword = `${formData.get("confirmPassword") ?? ""}`;
+
+    if (!resetEmail || !otp) {
+      setError("Enter your email address and reset code.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -43,7 +45,8 @@ export function PasswordResetForm({ token }: { token: string | null }) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        token,
+        email: resetEmail,
+        otp,
         password
       })
     });
@@ -61,22 +64,18 @@ export function PasswordResetForm({ token }: { token: string | null }) {
     router.refresh();
   }
 
-  if (!token) {
-    return (
-      <div className="panel-stack auth-form auth-form--login">
-        <div className="message message-error">
-          This reset link is missing or invalid. Request a new password reset email first.
-        </div>
-        <Link href="/forgot-password" className="button-secondary">
-          Request new reset link
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <form className="panel-stack auth-form auth-form--login" onSubmit={handleSubmit}>
       <div className="auth-login-grid">
+        <div className="field">
+          <label htmlFor="reset-email">Email address</label>
+          <input id="reset-email" name="email" type="email" defaultValue={email ?? ""} required />
+        </div>
+        <div className="field">
+          <label htmlFor="otp">Reset code</label>
+          <input id="otp" name="otp" inputMode="numeric" minLength={6} maxLength={6} required />
+          <small>Enter the 6-digit code you received.</small>
+        </div>
         <div className="field">
           <label htmlFor="password">New password</label>
           <input id="password" name="password" type="password" minLength={6} required />
@@ -92,8 +91,12 @@ export function PasswordResetForm({ token }: { token: string | null }) {
       {message ? <div className="message message-success">{message}</div> : null}
 
       <button className="button" type="submit" disabled={loading}>
-        {loading ? "Updating password..." : "Reset password"}
+        {loading ? "Updating password..." : "Reset with code"}
       </button>
+
+      <Link href="/forgot-password" className="button-secondary">
+        Request new reset code
+      </Link>
     </form>
   );
 }

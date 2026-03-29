@@ -19,10 +19,10 @@ export default async function ForgotPasswordPage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">Forgot password</span>
-            <h2>Request a secure password reset link.</h2>
+            <h2>Request a secure password reset code.</h2>
           </div>
           <p>
-            Enter your account email and we will help you reset access safely.
+            Enter your account email and we will help you reset access safely with a one-time code.
           </p>
         </div>
 

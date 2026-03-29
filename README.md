@@ -10,7 +10,7 @@ Teacher Mwangi Academy is a Next.js membership platform for selling Kenyan CBE a
 - Teacher subscriptions at `KSh 150/month`
 - Teacher scheme-of-work purchases at `KSh 20` per exact uploaded scheme
 - Signup, login, logout, and protected member dashboard
-- Password reset request and secure reset-link flow
+- Password reset request and secure OTP reset flow
 - Google sign-in with first-time profile completion for parent or teacher accounts
 - Teacher-only admin upload area for revision files and schemes of work
 - Supabase-ready storage for users, sessions, subscriptions, payments, and resources
@@ -38,9 +38,19 @@ copy .env.example .env.local
 ```
 
 3. Update the Paystack, Supabase, public Supabase, and session env values in `.env.local`.
-4. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` if you want live password reset emails sent automatically.
+4. Password reset now uses OTP codes. During local development, the OTP is shown in the UI preview if no delivery channel is configured.
+5. To send OTPs by email, add SMTP values such as Gmail SMTP in `.env.local`:
 
-5. Start the app:
+```env
+EMAIL_FROM=Teacher Mwangi Academy <no-reply@teachermwangi.site>
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=your-gmail-address@gmail.com
+SMTP_PASS=your-gmail-app-password
+```
+
+6. Start the app:
 
 ```bash
 npm run dev
@@ -62,7 +72,7 @@ Uploaded files go to Supabase Storage when `SUPABASE_URL` and `SUPABASE_SERVICE_
 6. Add your local and live Google callback URLs to the Supabase redirect allow list.
 7. Deploy the app to Vercel.
 8. Update `NEXT_PUBLIC_SITE_URL` and `PAYSTACK_CALLBACK_URL` to your real domain.
-9. Optional: add `RESEND_API_KEY` and `EMAIL_FROM` for live password reset emails.
+9. Add SMTP email delivery values in Vercel if you want live OTP emails from Gmail or another SMTP provider.
 10. Test signup, login, Google sign-in, password reset, uploads, payments, and level access on the deployed site.
 
 ## Admin uploads
