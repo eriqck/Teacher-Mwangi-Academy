@@ -1,9 +1,9 @@
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "") ?? "";
-const defaultMessage =
-  process.env.NEXT_PUBLIC_WHATSAPP_MESSAGE ??
-  "Hello Teacher Mwangi Academy, I would like help with subscriptions and materials.";
-
 function buildWhatsAppUrl() {
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "") ?? "";
+  const defaultMessage =
+    process.env.NEXT_PUBLIC_WHATSAPP_MESSAGE ??
+    "Hello Teacher Mwangi Academy, I would like help with subscriptions and materials.";
+
   if (!whatsappNumber) {
     return null;
   }
