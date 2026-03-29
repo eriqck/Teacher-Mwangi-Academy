@@ -77,6 +77,7 @@ export async function sendPasswordResetOtp(input: {
     ]);
   } catch (error) {
     transporterPromise = null;
+    console.error("SMTP password reset send failed:", error);
     throw error;
   }
 

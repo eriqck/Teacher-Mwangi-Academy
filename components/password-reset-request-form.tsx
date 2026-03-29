@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type ApiResponse = {
@@ -14,6 +15,7 @@ type ApiResponse = {
 };
 
 export function PasswordResetRequestForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -52,7 +54,13 @@ export function PasswordResetRequestForm() {
           "If an account exists for that email, we have sent a reset code."
       );
       setPreviewCode(data.data?.previewCode ?? null);
-      setResetEmail(data.data?.email ?? null);
+      const nextEmail = data.data?.email ?? null;
+      setResetEmail(nextEmail);
+
+      if (nextEmail) {
+        router.push(`/reset-password?email=${encodeURIComponent(nextEmail)}`);
+        router.refresh();
+      }
     } catch {
       setError("Unable to send a reset code right now. Please try again.");
     } finally {
@@ -73,14 +81,16 @@ export function PasswordResetRequestForm() {
       {error ? <div className="message message-error">{error}</div> : null}
       {message ? <div className="message message-success">{message}</div> : null}
 
-      {previewCode ? (
+      {message && resetEmail ? (
         <div className="auth-helper-stack">
-          <div className="message message-success">Reset code: {previewCode}</div>
+          {previewCode ? <div className="message message-success">Reset code: {previewCode}</div> : null}
           <Link href={`/reset-password${resetEmail ? `?email=${encodeURIComponent(resetEmail)}` : ""}`} className="button-secondary">
             Enter reset code
           </Link>
           <small className="subtle">
-            Delivery is not configured here yet, so the OTP is shown for local testing.
+            {previewCode
+              ? "Delivery is not configured here yet, so the OTP is shown for local testing."
+              : "Check your inbox for the OTP, then continue here to reset your password."}
           </small>
         </div>
       ) : null}

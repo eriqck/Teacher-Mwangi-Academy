@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
         email: body.email
       }
     });
-  } catch {
+  } catch (error) {
+    console.error("Forgot password request failed:", error);
     return NextResponse.json(
       {
         ok: false,
