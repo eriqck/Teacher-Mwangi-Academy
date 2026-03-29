@@ -28,31 +28,36 @@ export function PasswordResetRequestForm() {
     setPreviewCode(null);
     setResetEmail(null);
 
-    const formData = new FormData(event.currentTarget);
-    const response = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: formData.get("email")
-      })
-    });
+    try {
+      const formData = new FormData(event.currentTarget);
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: formData.get("email")
+        })
+      });
 
-    const data = (await response.json()) as ApiResponse;
-    setLoading(false);
+      const data = (await response.json()) as ApiResponse;
 
-    if (!response.ok) {
-      setError(data.error ?? "Unable to start password reset.");
-      return;
+      if (!response.ok) {
+        setError(data.error ?? "Unable to start password reset.");
+        return;
+      }
+
+      setMessage(
+        data.message ??
+          "If an account exists for that email, we have sent a reset code."
+      );
+      setPreviewCode(data.data?.previewCode ?? null);
+      setResetEmail(data.data?.email ?? null);
+    } catch {
+      setError("Unable to send a reset code right now. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setMessage(
-      data.message ??
-        "If an account exists for that email, we have sent a reset code."
-    );
-    setPreviewCode(data.data?.previewCode ?? null);
-    setResetEmail(data.data?.email ?? null);
   }
 
   return (
