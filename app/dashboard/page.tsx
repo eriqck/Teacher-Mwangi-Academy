@@ -255,60 +255,54 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="page-shell section">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Payments</span>
-            <h2>{user.role === "admin" ? "All payment activity." : "Recent payment activity."}</h2>
-          </div>
-          <p>
-            {user.role === "admin"
-              ? "This view shows every saved payment across subscriptions, one-time schemes, and teacher material purchases."
-              : "These records are saved when checkout starts and updated when the M-Pesa callback completes."}
-          </p>
-        </div>
-
-        <article className="dashboard-card">
-          {payments.length > 0 ? (
-            <table className="mini-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Time</th>
-                  {user.role === "admin" ? <th>User</th> : null}
-                  <th>Phone</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Reference</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((payment) => (
-                  <tr key={payment.id}>
-                    <td>{formatDate(payment.status === "paid" ? payment.updatedAt : payment.createdAt)}</td>
-                    <td>{formatTime(payment.status === "paid" ? payment.updatedAt : payment.createdAt)}</td>
-                    {user.role === "admin" ? (
-                      <td>{usersById.get(payment.userId)?.fullName ?? payment.userId}</td>
-                    ) : null}
-                    <td>{payment.phoneNumber || usersById.get(payment.userId)?.phoneNumber || "-"}</td>
-                    <td>{payment.kind}</td>
-                    <td>{formatMoney(payment.amount)}</td>
-                    <td>{payment.status}</td>
-                    <td>{payment.accountReference}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="subtle">
-              {user.role === "admin"
-                ? "No payments have been saved yet."
-                : "No payments saved yet. Start with a subscription or scheme purchase."}
+      {user.role === "admin" ? (
+        <section className="page-shell section">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Payments</span>
+              <h2>All payment activity.</h2>
+            </div>
+            <p>
+              This view shows every saved payment across subscriptions, one-time schemes, and teacher material purchases.
             </p>
-          )}
-        </article>
-      </section>
+          </div>
+
+          <article className="dashboard-card">
+            {payments.length > 0 ? (
+              <table className="mini-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Phone</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Reference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((payment) => (
+                    <tr key={payment.id}>
+                      <td>{formatDate(payment.status === "paid" ? payment.updatedAt : payment.createdAt)}</td>
+                      <td>{formatTime(payment.status === "paid" ? payment.updatedAt : payment.createdAt)}</td>
+                      <td>{usersById.get(payment.userId)?.fullName ?? payment.userId}</td>
+                      <td>{payment.phoneNumber || usersById.get(payment.userId)?.phoneNumber || "-"}</td>
+                      <td>{payment.kind}</td>
+                      <td>{formatMoney(payment.amount)}</td>
+                      <td>{payment.status}</td>
+                      <td>{payment.accountReference}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="subtle">No payments have been saved yet.</p>
+            )}
+          </article>
+        </section>
+      ) : null}
 
       {user.role === "admin" ? (
         <section className="page-shell section">
