@@ -1804,6 +1804,13 @@ main {
   border-color: #fed7aa;
 }
 
+.home-level-card[data-level="grade-6"] {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),
+    linear-gradient(145deg, #dcfce7, #ecfdf5);
+  border-color: #86efac;
+}
+
 .home-level-card[data-level="grade-8"] {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 34%),

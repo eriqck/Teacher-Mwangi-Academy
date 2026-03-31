@@ -10,6 +10,33 @@ export type Level = {
 
 export const levels: Level[] = [
   {
+    id: "grade-6",
+    title: "Grade 6",
+    stage: "Junior School",
+    description:
+      "Early junior school revision support with practical notes, assessments, and subject-by-subject guidance.",
+    subjects: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Creative Arts and Sports",
+      "Pre-Technical Studies",
+      "Social Studies",
+      "Religious Education",
+      "Agriculture & Nutrition"
+    ],
+    cardTags: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Agriculture & Nutrition"
+    ],
+    formats: ["Topical PDFs", "Revision exercises", "Assessment practice"]
+  },
+  {
     id: "grade-7",
     title: "Grade 7",
     stage: "Junior School",

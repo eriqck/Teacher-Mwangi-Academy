@@ -26,7 +26,7 @@ const testimonials = [
 
 const metrics = [
   { value: "1,200+", label: "Learners supported" },
-  { value: "6", label: "Levels covered" },
+  { value: "7", label: "Levels covered" },
   { value: "Weekly", label: "Fresh revision support" },
   { value: "KSh 150", label: "Starting subscription" }
 ];
@@ -121,7 +121,7 @@ export default async function HomePage() {
             <h1 className="home-title">Help your child move from confusion to confidence.</h1>
             <p className="home-copy">
               Structured revision materials, teacher guidance, and classroom-ready resources designed
-              for Grade 7, Grade 8, Grade 9, Grade 10, Form 3, and Form 4.
+              for Grade 6, Grade 7, Grade 8, Grade 9, Grade 10, Form 3, and Form 4.
             </p>
 
             <div className="home-pill-row">
