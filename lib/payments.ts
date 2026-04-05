@@ -1,4 +1,5 @@
 import { createId } from "@/lib/auth";
+import { levels } from "@/lib/catalog";
 import { getPaystackCallbackUrl, initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
 import { schemeOfWorkPrice, subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
 import type {
@@ -15,7 +16,9 @@ import {
   createSubscriptionPaymentBundle,
   findPaymentByReference,
   markPaymentOutcome,
+  findUserById,
   readAppData,
+  updateUserRole,
   updatePaymentById
 } from "@/lib/repository";
 
@@ -465,4 +468,131 @@ export async function manuallyGrantSubscriptionAccess(subscriptionId: string) {
   }
 
   return refreshedSubscription;
+}
+
+export async function adminAssignMembership(input: {
+  userId: string;
+  plan: SubscriptionPlan;
+}) {
+  const user = await findUserById(input.userId);
+
+  if (!user) {
+    throw new Error("User account not found.");
+  }
+
+  if (user.role === "admin") {
+    throw new Error("Admin accounts cannot be assigned subscriber membership here.");
+  }
+
+  const plan = subscriptionPlans[input.plan];
+  const now = new Date().toISOString();
+  const endDate = addDays(30);
+  const levelAccess =
+    plan.levelAccessMode === "all" ? [] : levels.map((level) => level.id);
+
+  if (user.role !== plan.role) {
+    await updateUserRole({
+      userId: user.id,
+      role: plan.role
+    });
+  }
+
+  const store = await readAppData();
+  const latestSubscription = store.subscriptions
+    .filter((entry) => entry.userId === user.id)
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0];
+
+  if (latestSubscription) {
+    await markPaymentOutcome(latestSubscription.paymentId, {
+      paymentChanges: {
+        status: "paid",
+        amount: plan.amount,
+        plan: input.plan,
+        currency: "KES",
+        phoneNumber: user.phoneNumber,
+        resultDesc: "Manually updated by admin.",
+        updatedAt: now
+      },
+      subscriptionStatus: {
+        plan: input.plan,
+        status: "active",
+        amount: plan.amount,
+        levelAccess,
+        startDate: latestSubscription.startDate ?? now,
+        endDate,
+        updatedAt: now
+      }
+    });
+
+    const refreshedStore = await readAppData();
+    const refreshedSubscription = refreshedStore.subscriptions.find(
+      (entry) => entry.id === latestSubscription.id
+    );
+
+    if (!refreshedSubscription) {
+      throw new Error("Membership was updated but could not be reloaded.");
+    }
+
+    return {
+      user: await findUserById(user.id),
+      subscription: refreshedSubscription
+    };
+  }
+
+  const paymentId = createId("pay");
+  const subscriptionId = createId("sub");
+
+  await createSubscriptionPaymentBundle({
+    payment: {
+      id: paymentId,
+      userId: user.id,
+      kind: "subscription",
+      status: "paid",
+      currency: "KES",
+      amount: plan.amount,
+      phoneNumber: user.phoneNumber,
+      accountReference: `${user.fullName} manual admin assignment`,
+      plan: input.plan,
+      schemeSubject: null,
+      schemeLevel: null,
+      schemeTerm: null,
+      resourceId: null,
+      paymentReference: paymentId,
+      authorizationUrl: null,
+      checkoutRequestId: null,
+      merchantRequestId: null,
+      mpesaReceiptNumber: null,
+      resultCode: null,
+      resultDesc: "Manually created by admin.",
+      createdAt: now,
+      updatedAt: now
+    },
+    subscription: {
+      id: subscriptionId,
+      userId: user.id,
+      plan: input.plan,
+      status: "active",
+      amount: plan.amount,
+      levelAccess,
+      startDate: now,
+      endDate,
+      createdAt: now,
+      updatedAt: now,
+      paymentId
+    }
+  });
+
+  const refreshedStore = await readAppData();
+  const createdSubscription = refreshedStore.subscriptions.find(
+    (entry) => entry.id === subscriptionId
+  );
+
+  if (!createdSubscription) {
+    throw new Error("Membership was created but could not be reloaded.");
+  }
+
+  return {
+    user: await findUserById(user.id),
+    subscription: createdSubscription
+  };
 }

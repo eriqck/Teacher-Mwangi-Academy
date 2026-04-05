@@ -267,6 +267,36 @@ export async function updateUserPassword(input: {
   if (error) throw new Error(error.message);
 }
 
+export async function updateUserRole(input: {
+  userId: string;
+  role: UserRecord["role"];
+}) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      users: current.users.map((user) =>
+        user.id === input.userId
+          ? {
+              ...user,
+              role: input.role
+            }
+          : user
+      )
+    }));
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("users")
+    .update({
+      role: input.role
+    })
+    .eq("id", input.userId);
+
+  if (error) throw new Error(error.message);
+}
+
 export async function findSessionByToken(token: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();

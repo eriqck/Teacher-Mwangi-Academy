@@ -1,4 +1,5 @@
 import { AdminSubscriptionsTable } from "@/components/admin-subscriptions-table";
+import { AdminUserManager } from "@/components/admin-user-manager";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { featuredResources, levels } from "@/lib/catalog";
@@ -61,6 +62,34 @@ export default async function DashboardPage() {
       canGrantAccess: subscription.status === "pending"
     };
   });
+  const latestSubscriptionByUserId = new Map<string, (typeof allSubscriptions)[number]>();
+  for (const subscription of allSubscriptions) {
+    if (!latestSubscriptionByUserId.has(subscription.userId)) {
+      latestSubscriptionByUserId.set(subscription.userId, subscription);
+    }
+  }
+  const adminUserRows = store.users
+    .slice()
+    .sort((left, right) => left.fullName.localeCompare(right.fullName))
+    .map((entry) => {
+      const latestSubscription = latestSubscriptionByUserId.get(entry.id);
+      const selectedPlan =
+        latestSubscription?.plan ??
+        (entry.role === "teacher" ? "teacher-monthly" : entry.role === "parent" ? "parent-monthly" : null);
+
+      return {
+        id: entry.id,
+        fullName: entry.fullName,
+        email: entry.email,
+        phoneNumber: entry.phoneNumber,
+        role: entry.role,
+        selectedPlan,
+        planLabel: selectedPlan ? subscriptionPlans[selectedPlan].name : "No membership yet",
+        subscriptionStatus: latestSubscription?.status ?? "none",
+        accessEnds: latestSubscription?.endDate ? latestSubscription.endDate.slice(0, 10) : "Not granted",
+        canManageMembership: entry.role !== "admin"
+      };
+    });
   const activeSubscription =
     subscriptions.find((item) => item.status === "active") ??
     subscriptions.find((item) => item.status === "pending") ??
@@ -254,6 +283,22 @@ export default async function DashboardPage() {
           </article>
         </div>
       </section>
+
+      {user.role === "admin" ? (
+        <section className="page-shell section">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Users</span>
+              <h2>Search and manage all user accounts.</h2>
+            </div>
+            <p>
+              Search by name, email, phone, or role, then grant access or change membership manually.
+            </p>
+          </div>
+
+          <AdminUserManager initialUsers={adminUserRows} />
+        </section>
+      ) : null}
 
       {user.role === "admin" ? (
         <section className="page-shell section">
