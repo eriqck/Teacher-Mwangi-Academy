@@ -68,54 +68,64 @@ export function AdminSubscriptionsTable({
   }
 
   return (
-    <article className="dashboard-card">
+    <article className="dashboard-card admin-panel-card">
       {error ? <div className="message message-error">{error}</div> : null}
       {message ? <div className="message message-success">{message}</div> : null}
 
       {subscriptions.length > 0 ? (
-        <table className="mini-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Plan</th>
-              <th>Status</th>
-              <th>Amount</th>
-              <th>Access ends</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {subscriptions.map((subscription) => (
-              <tr key={subscription.id}>
-                <td>{subscription.createdAt.slice(0, 10)}</td>
-                <td>{subscription.fullName}</td>
-                <td>{subscription.email}</td>
-                <td>{subscription.phoneNumber}</td>
-                <td>{subscription.planName}</td>
-                <td>{subscription.status}</td>
-                <td>{subscription.amountLabel}</td>
-                <td>{subscription.endDateLabel}</td>
-                <td>
-                  {subscription.canGrantAccess ? (
-                    <button
-                      type="button"
-                      className="button-secondary button-reset"
-                      onClick={() => handleGrantAccess(subscription.id)}
-                      disabled={grantingId === subscription.id}
-                    >
-                      {grantingId === subscription.id ? "Granting..." : "Grant access"}
-                    </button>
-                  ) : (
-                    <span className="pill">Up to date</span>
-                  )}
-                </td>
+        <div className="admin-table-wrap">
+          <table className="mini-table admin-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th>Access ends</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {subscriptions.map((subscription) => (
+                <tr key={subscription.id}>
+                  <td>{subscription.createdAt.slice(0, 10)}</td>
+                  <td>
+                    <div className="admin-user-cell">
+                      <strong>{subscription.fullName}</strong>
+                    </div>
+                  </td>
+                  <td>{subscription.email}</td>
+                  <td>{subscription.phoneNumber}</td>
+                  <td>{subscription.planName}</td>
+                  <td>
+                    <span className={`pill admin-status-pill admin-status-pill--${subscription.status}`}>
+                      {subscription.status}
+                    </span>
+                  </td>
+                  <td>{subscription.amountLabel}</td>
+                  <td>{subscription.endDateLabel}</td>
+                  <td>
+                    {subscription.canGrantAccess ? (
+                      <button
+                        type="button"
+                        className="button-secondary button-reset"
+                        onClick={() => handleGrantAccess(subscription.id)}
+                        disabled={grantingId === subscription.id}
+                      >
+                        {grantingId === subscription.id ? "Granting..." : "Grant access"}
+                      </button>
+                    ) : (
+                      <span className="pill">Up to date</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p className="subtle">No subscriber records have been saved yet.</p>
       )}

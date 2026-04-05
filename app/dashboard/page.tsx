@@ -103,6 +103,21 @@ export default async function DashboardPage() {
         : activePlan?.levelAccessMode === "all"
           ? levels
           : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
+  const paidPayments = payments.filter((payment) => payment.status === "paid");
+  const pendingPayments = payments.filter((payment) => payment.status === "pending");
+  const failedPayments = payments.filter((payment) => payment.status === "failed");
+  const totalPaidAmount = paidPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  const totalPendingAmount = pendingPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  const totalFailedAmount = failedPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  const paidSubscriptionsAmount = paidPayments
+    .filter((payment) => payment.kind === "subscription")
+    .reduce((sum, payment) => sum + payment.amount, 0);
+  const paidSchemesAmount = paidPayments
+    .filter((payment) => payment.kind === "scheme")
+    .reduce((sum, payment) => sum + payment.amount, 0);
+  const paidResourcesAmount = paidPayments
+    .filter((payment) => payment.kind === "resource")
+    .reduce((sum, payment) => sum + payment.amount, 0);
 
   return (
     <main>
@@ -305,14 +320,75 @@ export default async function DashboardPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Payments</span>
-              <h2>All payment activity.</h2>
+              <h2>Payment summary and reporting.</h2>
             </div>
             <p>
-              This view shows every saved payment across subscriptions, one-time schemes, and teacher material purchases.
+              Track successful totals, see pending balances, and export the full payments report anytime.
             </p>
           </div>
 
+          <div className="dashboard-summary-grid">
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Successful payments total</span>
+              <strong className="dashboard-summary-value">{formatMoney(totalPaidAmount)}</strong>
+              <p className="subtle">
+                {paidPayments.length} successful payment{paidPayments.length === 1 ? "" : "s"} saved.
+              </p>
+            </article>
+
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Pending payments total</span>
+              <strong className="dashboard-summary-value">{formatMoney(totalPendingAmount)}</strong>
+              <p className="subtle">
+                {pendingPayments.length} pending payment{pendingPayments.length === 1 ? "" : "s"} still open.
+              </p>
+            </article>
+
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Failed payments total</span>
+              <strong className="dashboard-summary-value">{formatMoney(totalFailedAmount)}</strong>
+              <p className="subtle">
+                {failedPayments.length} failed payment{failedPayments.length === 1 ? "" : "s"} recorded.
+              </p>
+            </article>
+
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Paid subscriptions total</span>
+              <strong className="dashboard-summary-value">{formatMoney(paidSubscriptionsAmount)}</strong>
+              <p className="subtle">Successful subscription income only.</p>
+            </article>
+
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Paid schemes total</span>
+              <strong className="dashboard-summary-value">{formatMoney(paidSchemesAmount)}</strong>
+              <p className="subtle">Successful schemes of work income only.</p>
+            </article>
+
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Paid one-time materials total</span>
+              <strong className="dashboard-summary-value">{formatMoney(paidResourcesAmount)}</strong>
+              <p className="subtle">Successful notes and assessment income only.</p>
+            </article>
+          </div>
+
+          <article className="dashboard-card" style={{ marginTop: 18 }}>
+            <div className="section-head section-head--compact">
+              <div>
+                <h3>Export payments report</h3>
+                <p className="subtle">
+                  Download a CSV with both the summary totals and the detailed payment rows.
+                </p>
+              </div>
+              <div className="hero-actions">
+                <a href="/api/admin/payments/report" className="button">
+                  Download CSV report
+                </a>
+              </div>
+            </div>
+          </article>
+
           <article className="dashboard-card">
+            <h3>All payment activity</h3>
             {payments.length > 0 ? (
               <table className="mini-table">
                 <thead>
