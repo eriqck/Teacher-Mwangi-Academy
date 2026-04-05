@@ -693,6 +693,7 @@ main {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.38), transparent 32%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.76));
+  text-align: left;
 }
 
 .admin-search-field input {
@@ -705,10 +706,11 @@ main {
   border-radius: 22px;
   border: 1px solid rgba(19, 42, 28, 0.08);
   background: rgba(255, 255, 255, 0.46);
+  padding-bottom: 4px;
 }
 
 .admin-table {
-  min-width: 980px;
+  min-width: 1180px;
 }
 
 .admin-table thead th {
@@ -727,6 +729,11 @@ main {
   background: rgba(31, 111, 95, 0.08);
 }
 
+.admin-table th:last-child,
+.admin-table td:last-child {
+  min-width: 220px;
+}
+
 .admin-user-cell {
   display: grid;
   gap: 4px;
@@ -737,7 +744,7 @@ main {
 }
 
 .admin-plan-select {
-  min-width: 190px;
+  min-width: 170px;
   min-height: 42px;
   border-radius: 12px;
   border: 1px solid rgba(19, 42, 28, 0.12);
@@ -1125,6 +1132,7 @@ main {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .dashboard-stat {
@@ -1265,6 +1273,22 @@ main {
   .resource-admin-card,
   .cta-box {
     text-align: center;
+  }
+
+  .admin-panel-card,
+  .admin-panel-card .field,
+  .admin-panel-card .field label,
+  .admin-panel-card .subtle,
+  .admin-panel-card .message,
+  .admin-panel-card .resource-edit-actions,
+  .admin-panel-card .admin-user-cell,
+  .admin-panel-card .mini-table th,
+  .admin-panel-card .mini-table td {
+    text-align: left;
+  }
+
+  .admin-panel-card .resource-edit-actions {
+    justify-content: flex-start;
   }
 
   .site-footer-copy {
