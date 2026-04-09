@@ -330,26 +330,30 @@ export async function clearSession() {
 }
 
 export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const raw = cookieStore.get(sessionCookieName)?.value;
-  const token = decodeSessionToken(raw);
+  try {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(sessionCookieName)?.value;
+    const token = decodeSessionToken(raw);
 
-  if (!token) {
+    if (!token) {
+      return null;
+    }
+
+    const session = await findSessionByToken(token);
+
+    if (!session) {
+      return null;
+    }
+
+    if (new Date(session.expiresAt).getTime() < Date.now()) {
+      await clearSession();
+      return null;
+    }
+
+    return findUserById(session.userId);
+  } catch {
     return null;
   }
-
-  const session = await findSessionByToken(token);
-
-  if (!session) {
-    return null;
-  }
-
-  if (new Date(session.expiresAt).getTime() < Date.now()) {
-    await clearSession();
-    return null;
-  }
-
-  return findUserById(session.userId);
 }
 
 export async function requireUser() {

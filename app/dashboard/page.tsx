@@ -13,20 +13,42 @@ function formatMoney(amount: number) {
   return `KSh ${amount}`;
 }
 
+function getPlanDetails(plan: string | null | undefined) {
+  if (!plan) {
+    return null;
+  }
+
+  return plan in subscriptionPlans
+    ? subscriptionPlans[plan as keyof typeof subscriptionPlans]
+    : null;
+}
+
 function formatDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
   return new Intl.DateTimeFormat("en-KE", {
     dateStyle: "medium",
     timeZone: "Africa/Nairobi"
-  }).format(new Date(value));
+  }).format(date);
 }
 
 function formatTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
   return new Intl.DateTimeFormat("en-KE", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
     timeZone: "Africa/Nairobi"
-  }).format(new Date(value));
+  }).format(date);
 }
 
 export default async function DashboardPage() {
@@ -48,6 +70,7 @@ export default async function DashboardPage() {
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const adminSubscriptionRows = allSubscriptions.map((subscription) => {
     const subscriber = usersById.get(subscription.userId);
+    const planDetails = getPlanDetails(subscription.plan);
 
     return {
       id: subscription.id,
@@ -55,7 +78,7 @@ export default async function DashboardPage() {
       fullName: subscriber?.fullName ?? subscription.userId,
       email: subscriber?.email ?? "-",
       phoneNumber: subscriber?.phoneNumber ?? "-",
-      planName: subscriptionPlans[subscription.plan].name,
+      planName: planDetails?.name ?? subscription.plan ?? "Unknown plan",
       status: subscription.status,
       amountLabel: formatMoney(subscription.amount),
       endDateLabel: subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment",
@@ -73,9 +96,11 @@ export default async function DashboardPage() {
     .sort((left, right) => left.fullName.localeCompare(right.fullName))
     .map((entry) => {
       const latestSubscription = latestSubscriptionByUserId.get(entry.id);
+      const latestPlanDetails = getPlanDetails(latestSubscription?.plan);
       const selectedPlan =
-        latestSubscription?.plan ??
+        (latestPlanDetails ? latestSubscription?.plan : null) ??
         (entry.role === "teacher" ? "teacher-monthly" : entry.role === "parent" ? "parent-monthly" : null);
+      const selectedPlanDetails = getPlanDetails(selectedPlan);
 
       return {
         id: entry.id,
@@ -84,7 +109,7 @@ export default async function DashboardPage() {
         phoneNumber: entry.phoneNumber,
         role: entry.role,
         selectedPlan,
-        planLabel: selectedPlan ? subscriptionPlans[selectedPlan].name : "No membership yet",
+        planLabel: selectedPlanDetails?.name ?? "No membership yet",
         subscriptionStatus: latestSubscription?.status ?? "none",
         accessEnds: latestSubscription?.endDate ? latestSubscription.endDate.slice(0, 10) : "Not granted",
         canManageMembership: entry.role !== "admin"
@@ -94,7 +119,7 @@ export default async function DashboardPage() {
     subscriptions.find((item) => item.status === "active") ??
     subscriptions.find((item) => item.status === "pending") ??
     subscriptions[0];
-  const activePlan = activeSubscription ? subscriptionPlans[activeSubscription.plan] : null;
+  const activePlan = getPlanDetails(activeSubscription?.plan);
   const accessibleLevels =
     user.role === "teacher"
       ? levels
@@ -141,7 +166,7 @@ export default async function DashboardPage() {
               <div className="panel-stack">
                 <div className="dashboard-stat">
                   <span className="subtle">Plan</span>
-                  <strong>{subscriptionPlans[activeSubscription.plan].name}</strong>
+                  <strong>{activePlan?.name ?? activeSubscription.plan ?? "Unknown plan"}</strong>
                 </div>
                 <div className="dashboard-stat">
                   <span className="subtle">Status</span>
