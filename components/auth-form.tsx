@@ -23,29 +23,49 @@ export function AuthForm({ mode }: AuthFormProps) {
     setSuccess("");
     setLoading(true);
 
-    const formData = new FormData(event.currentTarget);
-    const payload = Object.fromEntries(formData.entries());
-    const endpoint = mode === "signup" ? "/api/auth/signup" : "/api/auth/login";
+    try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+      const formData = new FormData(event.currentTarget);
+      const payload = Object.fromEntries(formData.entries());
+      const endpoint = mode === "signup" ? "/api/auth/signup" : "/api/auth/login";
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
 
-    const data = (await response.json()) as { ok?: boolean; error?: string; message?: string };
+      window.clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      setError(data.error ?? "Something went wrong.");
+      let data: { ok?: boolean; error?: string; message?: string } = {};
+
+      try {
+        data = (await response.json()) as { ok?: boolean; error?: string; message?: string };
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        setError(data.error ?? "Unable to complete this request right now.");
+        return;
+      }
+
+      setSuccess(data.message ?? "Success");
+      router.push("/dashboard");
+      router.refresh();
+    } catch (error) {
+      setError(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "The request took too long. Please try again."
+          : "Unable to complete this request right now."
+      );
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setSuccess(data.message ?? "Success");
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (
