@@ -120,7 +120,6 @@ export function AuthForm({ mode }: AuthFormProps) {
         </div>
       )}
 
-      {error ? <div className="message message-error">{error}</div> : null}
       {success ? <div className="message message-success">{success}</div> : null}
 
       <button className="button" type="submit" disabled={loading}>
