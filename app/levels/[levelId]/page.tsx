@@ -55,7 +55,7 @@ export default async function LevelPage({
     notFound();
   }
 
-  const { level, resources, user, hasLevelAccess } = pageData;
+  const { level, resources, user, hasLevelAccess, dataUnavailable } = pageData;
   const notes = resources.filter(
     (resource) => resource.category === "revision-material" && (resource.section ?? "notes") === "notes"
   );
@@ -85,6 +85,15 @@ export default async function LevelPage({
             {level.description} Click into the resources below to access files that match this level.
           </p>
         </div>
+
+        {dataUnavailable ? (
+          <article className="dashboard-card">
+            <h3>Materials are temporarily unavailable</h3>
+            <p className="subtle">
+              We could not load the files for this level right now. Please try again shortly.
+            </p>
+          </article>
+        ) : null}
 
         <div className="dashboard-grid">
           <article className="dashboard-card">
