@@ -1,3 +1,5 @@
+import { getAbsoluteUrl, getConfiguredAbsoluteUrl } from "@/lib/site-url";
+
 type InitializeTransactionInput = {
   email: string;
   amount: number;
@@ -43,10 +45,7 @@ function getRequiredEnv(name: string) {
 }
 
 export function getPaystackCallbackUrl() {
-  return (
-    process.env.PAYSTACK_CALLBACK_URL ||
-    `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3004"}/api/paystack/callback`
-  );
+  return getConfiguredAbsoluteUrl(process.env.PAYSTACK_CALLBACK_URL, "/api/paystack/callback");
 }
 
 export async function initializePaystackTransaction(input: InitializeTransactionInput) {

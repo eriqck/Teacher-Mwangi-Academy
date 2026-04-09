@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { academyName } from "@/lib/business";
+import { getSiteUrl } from "@/lib/site-url";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteWhatsAppButton } from "@/components/site-whatsapp-button";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004";
+const siteUrl = getSiteUrl();
 const siteDescription =
   "Teacher Mwangi Academy offers CBE revision materials, assessments, notes, and teacher resources for Kenyan parents, learners, and teachers.";
 
