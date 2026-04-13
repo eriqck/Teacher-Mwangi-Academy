@@ -25,15 +25,6 @@ export const siteUpdates: SiteUpdate[] = [
     badge: "Coverage",
     date: "2026-04-08",
     href: "/levels/grade-6"
-  },
-  {
-    id: "update-google-otp",
-    title: "Easier account access for members",
-    summary:
-      "Google sign-in and OTP password reset are now available to help parents and teachers return to their accounts faster.",
-    badge: "Accounts",
-    date: "2026-03-29",
-    href: "/login"
   }
 ];
 

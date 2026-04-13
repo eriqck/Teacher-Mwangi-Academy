@@ -202,7 +202,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <SiteUpdatesFeed updates={latestUpdates} />
+        <SiteUpdatesFeed updates={latestUpdates} marquee />
       </section>
 
       <section className="page-shell home-problem-grid" id="why">
