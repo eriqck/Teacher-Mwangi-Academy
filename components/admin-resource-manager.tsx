@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { assessmentSets, getAssessmentSetLabel } from "@/lib/assessment-sets";
 import { levels } from "@/lib/catalog";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
@@ -55,7 +56,7 @@ function getResourceTypeLabel(resource: ResourceRecord) {
     return `${getSchemeTermLabel(resource.term)} scheme of work`;
   }
 
-  return resource.section === "assessment" ? "Assessment" : "Notes";
+  return resource.section === "assessment" ? getAssessmentSetLabel(resource.assessmentSet) : "Notes";
 }
 
 export function AdminResourceManager({ initialResources }: ResourceManagerProps) {
@@ -363,12 +364,14 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                                       assessmentSet: event.target.value as AssessmentSet
                                     }
                                   : current
-                              )
+                                )
                             }
                           >
-                            <option value="set-1">Set 1</option>
-                            <option value="set-2">Set 2</option>
-                            <option value="set-3">Set 3</option>
+                            {assessmentSets.map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.label}
+                              </option>
+                            ))}
                           </select>
                           <small>
                             {showAssessmentFields

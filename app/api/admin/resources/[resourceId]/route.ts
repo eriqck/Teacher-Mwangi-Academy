@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isAssessmentSet } from "@/lib/assessment-sets";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteResourceFile, deleteResourceRecord, readAppData, updateResourceRecord } from "@/lib/repository";
 import { isSchemeTerm } from "@/lib/scheme-terms";
@@ -14,10 +15,6 @@ function isCategory(value: string): value is ResourceCategory {
 
 function isSection(value: string): value is ResourceSection {
   return value === "notes" || value === "assessment";
-}
-
-function isAssessmentSet(value: string): value is AssessmentSet {
-  return value === "set-1" || value === "set-2" || value === "set-3";
 }
 
 async function requireAdminUser() {
@@ -110,7 +107,7 @@ export async function PATCH(
     }
 
     if (section === "assessment" && (!assessmentSet || !isAssessmentSet(assessmentSet))) {
-      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, or Set 3." }, { status: 400 });
+      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, Set 3, or CEKENA Exams." }, { status: 400 });
     }
 
     const resolvedAssessmentSet: AssessmentSet | null = section === "assessment" ? (assessmentSet as AssessmentSet) : null;

@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { assessmentSets } from "@/lib/assessment-sets";
 import { SiteHeader } from "@/components/site-header";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
-
-const assessmentSets = [
-  { id: "set-1", label: "Set 1" },
-  { id: "set-2", label: "Set 2" },
-  { id: "set-3", label: "Set 3" }
-] as const;
 
 export async function generateMetadata({
   params
@@ -198,7 +193,7 @@ export default async function LevelPage({
             <span className="eyebrow">Assessment</span>
             <h2>{level.title} assessments</h2>
           </div>
-          <p>Assessments are grouped into Set 1, Set 2, and Set 3 for easier navigation.</p>
+          <p>Assessments are grouped into Set 1, Set 2, Set 3, and CEKENA Exams for easier navigation.</p>
         </div>
 
         <div className="assessment-stack">

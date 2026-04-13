@@ -90,7 +90,7 @@ create table if not exists resources (
   subject text not null,
   category text not null check (category in ('revision-material', 'scheme-of-work')),
   section text check (section in ('notes', 'assessment')),
-  assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3')),
+  assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3', 'cekena-exams')),
   term text check (term in ('term-1', 'term-2', 'term-3')),
   audience text not null check (audience in ('parent', 'teacher', 'both')),
   price integer,
@@ -111,7 +111,7 @@ create table if not exists resource_purchases (
   level text not null,
   subject text not null,
   section text not null check (section in ('notes', 'assessment')),
-  assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3')),
+  assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3', 'cekena-exams')),
   amount integer not null,
   status text not null check (status in ('pending', 'paid', 'failed')),
   payment_id text not null references payments(id) on delete cascade,
@@ -155,7 +155,7 @@ alter table resources
 
 alter table resources
   add constraint resources_assessment_set_check
-  check (assessment_set in ('set-1', 'set-2', 'set-3') or assessment_set is null);
+  check (assessment_set in ('set-1', 'set-2', 'set-3', 'cekena-exams') or assessment_set is null);
 
 alter table resources
   drop constraint if exists resources_term_check;
@@ -190,7 +190,7 @@ alter table resource_purchases
 
 alter table resource_purchases
   add constraint resource_purchases_assessment_set_check
-  check (assessment_set in ('set-1', 'set-2', 'set-3') or assessment_set is null);
+  check (assessment_set in ('set-1', 'set-2', 'set-3', 'cekena-exams') or assessment_set is null);
 
 update resources
 set section = 'notes'

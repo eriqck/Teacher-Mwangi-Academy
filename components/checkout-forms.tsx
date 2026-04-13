@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getAssessmentSetLabel } from "@/lib/assessment-sets";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceSection, SchemeTerm } from "@/lib/store";
@@ -359,7 +360,7 @@ type SelectedResource = {
 
 function getResourceLabel(resource: SelectedResource) {
   return resource.section === "assessment"
-    ? `${resource.title} (${resource.assessmentSet ? resource.assessmentSet.replace("set-", "Set ") : "Assessment"})`
+    ? `${resource.title} (${getAssessmentSetLabel(resource.assessmentSet)})`
     : `${resource.title} (Notes)`;
 }
 
