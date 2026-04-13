@@ -2,12 +2,14 @@ import { AdminSubscriptionsTable } from "@/components/admin-subscriptions-table"
 import { AdminUserManager } from "@/components/admin-user-manager";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { featuredResources, levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
 import { subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
 import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
 import { readAppData } from "@/lib/repository";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
+import { getLatestSiteUpdates } from "@/lib/site-updates";
 
 function formatMoney(amount: number) {
   return `KSh ${amount}`;
@@ -54,6 +56,7 @@ function formatTime(value: string) {
 export default async function DashboardPage() {
   const user = await requireUser();
   await reconcilePaidPaystackPaymentsForUser(user.id);
+  const latestUpdates = getLatestSiteUpdates(3);
 
   const store = await readAppData();
   const usersById = new Map(store.users.map((entry) => [entry.id, entry]));
@@ -218,6 +221,18 @@ export default async function DashboardPage() {
             ) : null}
           </article>
         </div>
+
+        <article className="dashboard-card dashboard-updates-card">
+          <div className="section-head section-head--compact">
+            <div>
+              <span className="eyebrow">Latest updates</span>
+              <h3>What is new on the site</h3>
+            </div>
+            <p>Members can quickly see newly added content and feature improvements here.</p>
+          </div>
+
+          <SiteUpdatesFeed updates={latestUpdates} compact />
+        </article>
       </section>
 
       <section className="page-shell section">

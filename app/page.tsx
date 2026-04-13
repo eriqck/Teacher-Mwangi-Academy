@@ -2,9 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { access } from "fs/promises";
 import path from "path";
+import { HomeMetrics } from "@/components/home-metrics";
+import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { getCurrentUser } from "@/lib/auth";
 import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { levels, membershipPlans } from "@/lib/catalog";
+import { getLatestSiteUpdates } from "@/lib/site-updates";
 
 const testimonials = [
   {
@@ -47,6 +50,7 @@ const solutions = [
 
 export default async function HomePage() {
   const user = await getCurrentUser();
+  const latestUpdates = getLatestSiteUpdates(3);
   const founderImagePath = "/teacher-mwangi-profile.png";
   const founderImageAvailable = await access(
     path.join(process.cwd(), "public", "teacher-mwangi-profile.png")
@@ -139,14 +143,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="home-metric-grid">
-              {metrics.map((item) => (
-                <div key={item.label} className="home-metric-card">
-                  <strong className="home-metric-value">{item.value}</strong>
-                  <span className="home-metric-label">{item.label}</span>
-                </div>
-              ))}
-            </div>
+            <HomeMetrics metrics={metrics} />
           </div>
         </article>
 
@@ -192,6 +189,20 @@ export default async function HomePage() {
             </Link>
           </article>
         </aside>
+      </section>
+
+      <section className="page-shell home-section home-updates-section">
+        <div className="home-section-head">
+          <div>
+            <span className="home-section-kicker">Latest updates</span>
+            <h2 className="home-section-title">Fresh improvements inside the academy.</h2>
+          </div>
+          <p className="home-section-copy">
+            New features, added assessment series, and coverage updates appear here so parents and teachers always know what has changed.
+          </p>
+        </div>
+
+        <SiteUpdatesFeed updates={latestUpdates} />
       </section>
 
       <section className="page-shell home-problem-grid" id="why">
