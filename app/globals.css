@@ -2214,13 +2214,13 @@ main {
   display: block;
   flex: 0 0 380px;
   border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid #fdba74;
   background:
-    radial-gradient(circle at top right, rgba(16, 185, 129, 0.1), transparent 38%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.8));
+    radial-gradient(circle at top right, rgba(251, 146, 60, 0.22), transparent 38%),
+    linear-gradient(145deg, #fff7ed, #ffedd5);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.45),
-    0 18px 48px -34px rgba(15, 23, 42, 0.32);
+    0 0 0 1px rgba(255, 237, 213, 0.72),
+    0 18px 48px -34px rgba(194, 65, 12, 0.28);
   padding: 22px;
   color: inherit;
   transition: transform 220ms ease, box-shadow 220ms ease;
@@ -2229,8 +2229,8 @@ main {
 .site-update-card:hover {
   transform: translateY(-4px);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.5),
-    0 22px 56px -30px rgba(15, 23, 42, 0.36);
+    0 0 0 1px rgba(255, 237, 213, 0.8),
+    0 22px 56px -30px rgba(194, 65, 12, 0.34);
 }
 
 .site-updates-head {
@@ -2246,8 +2246,8 @@ main {
   justify-content: center;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(220, 252, 231, 0.95);
-  color: #047857;
+  background: rgba(249, 115, 22, 0.14);
+  color: #c2410c;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -2268,7 +2268,7 @@ main {
 
 .site-update-card p {
   margin: 10px 0 0;
-  color: #475569;
+  color: #7c2d12;
   line-height: 1.72;
   font-size: 0.93rem;
 }
