@@ -1,19 +1,13 @@
 import { redirect } from "next/navigation";
-import { ResourceCheckoutForm, SchemeCheckoutForm, SubscriptionCheckoutForm } from "@/components/checkout-forms";
+import Link from "next/link";
+import { SubscriptionCheckoutForm } from "@/components/checkout-forms";
 import { SiteHeader } from "@/components/site-header";
 import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getCurrentUser } from "@/lib/auth";
 import { membershipPlans } from "@/lib/catalog";
-import { readAppData } from "@/lib/repository";
-import { schemeTerms } from "@/lib/scheme-terms";
 
-export default async function SubscribePage({
-  searchParams
-}: {
-  searchParams: Promise<{ resourceId?: string; schemeId?: string }>;
-}) {
+export default async function SubscribePage() {
   const user = await getCurrentUser();
-  const { resourceId, schemeId } = await searchParams;
 
   if (!user) {
     redirect("/signup");
@@ -22,74 +16,6 @@ export default async function SubscribePage({
   if (user.role === "admin") {
     redirect("/admin");
   }
-
-  const store = resourceId || schemeId || user.role === "teacher" ? await readAppData() : null;
-  const selectedResource = resourceId
-    ? (() => {
-        const resource = store?.resources.find(
-        (resource) =>
-          resource.id === resourceId &&
-          resource.category === "revision-material" &&
-          resource.audience !== "parent"
-      );
-
-        return resource
-          ? {
-              id: resource.id,
-              title: resource.title,
-              level: resource.level,
-              subject: resource.subject,
-              section: resource.section ?? "notes",
-              assessmentSet: resource.assessmentSet ?? null
-            }
-          : null;
-      })()
-    : null;
-  const availableSchemes =
-    user.role === "teacher"
-      ? (store?.resources ?? [])
-          .flatMap((resource) =>
-            resource.category === "scheme-of-work" &&
-            resource.term &&
-            schemeTerms.some((term) => term.id === resource.term)
-              ? [
-                  {
-                    id: resource.id,
-                    title: resource.title,
-                    level: resource.level,
-                    subject: resource.subject,
-                    term: resource.term
-                  }
-                ]
-              : []
-          )
-          .sort((left, right) => {
-            const byLevel = left.level.localeCompare(right.level);
-            if (byLevel !== 0) return byLevel;
-            const bySubject = left.subject.localeCompare(right.subject);
-            if (bySubject !== 0) return bySubject;
-            const byTerm = left.term.localeCompare(right.term);
-            if (byTerm !== 0) return byTerm;
-            return left.title.localeCompare(right.title);
-          })
-      : [];
-  const selectedScheme = schemeId
-    ? (() => {
-        const resource = store?.resources.find(
-          (resource) => resource.id === schemeId && resource.category === "scheme-of-work"
-        );
-
-        return resource
-          ? {
-              id: resource.id,
-              title: resource.title,
-              level: resource.level,
-              subject: resource.subject,
-              term: resource.term ?? null
-            }
-          : null;
-      })()
-    : null;
 
   return (
     <main>
@@ -132,32 +58,22 @@ export default async function SubscribePage({
           </article>
 
           <article className="dashboard-card">
-            <h3>Teacher scheme purchase</h3>
+            <h3>Teacher one-time purchases</h3>
             <p className="subtle">
-              Teachers can buy exact uploaded schemes of work at KSh {schemeOfWorkPrice} each. Only
-              levels, subjects, and terms with uploaded schemes appear here.
+              One-time teacher purchases now have their own dedicated checkout pages for a clearer flow.
             </p>
             {user.role === "teacher" ? (
-              <SchemeCheckoutForm schemes={availableSchemes} selectedScheme={selectedScheme} />
+              <div className="hero-actions">
+                <Link href="/dashboard" className="button-secondary">
+                  Go to dashboard
+                </Link>
+                <Link href="/levels/grade-6" className="button">
+                  Browse materials to buy
+                </Link>
+              </div>
             ) : (
               <p className="subtle">
-                Create or use a teacher account to buy one-time schemes of work.
-              </p>
-            )}
-          </article>
-        </div>
-
-        <div className="dashboard-grid" style={{ marginTop: 18 }}>
-          <article className="dashboard-card">
-            <h3>Teacher single material purchase</h3>
-            <p className="subtle">
-              Teachers can also buy one-time notes or assessments at KSh {teacherMaterialPrice} per material.
-            </p>
-            {user.role === "teacher" ? (
-              <ResourceCheckoutForm resource={selectedResource} />
-            ) : (
-              <p className="subtle">
-                Create or use a teacher account to buy one-time notes and assessments.
+                Create or use a teacher account to buy one-time schemes, notes, and assessments.
               </p>
             )}
           </article>
