@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getAssessmentSetLabel } from "@/lib/assessment-sets";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceSection, SchemeTerm } from "@/lib/store";
@@ -355,15 +356,22 @@ type SelectedResource = {
   subject: string;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
+  audience: "parent" | "teacher" | "both";
 };
 
 function getResourceLabel(resource: SelectedResource) {
   return resource.section === "assessment"
-    ? `${resource.title} (${resource.assessmentSet ? resource.assessmentSet.replace("set-", "Set ") : "Assessment"})`
+    ? `${resource.title} (${getAssessmentSetLabel(resource.assessmentSet)})`
     : `${resource.title} (Notes)`;
 }
 
-export function ResourceCheckoutForm({ resource }: { resource: SelectedResource | null }) {
+export function ResourceCheckoutForm({
+  resource,
+  buyerRole
+}: {
+  resource: SelectedResource | null;
+  buyerRole: "parent" | "teacher" | "admin";
+}) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -405,7 +413,7 @@ export function ResourceCheckoutForm({ resource }: { resource: SelectedResource 
   if (!resource) {
     return (
       <p className="subtle">
-        Choose a note or assessment from a level page to buy it one time at KSh {teacherMaterialPrice}.
+        Choose an eligible note or assessment from a level page to buy it one time at KSh {teacherMaterialPrice}.
       </p>
     );
   }
@@ -420,7 +428,9 @@ export function ResourceCheckoutForm({ resource }: { resource: SelectedResource 
           <span>{resource.level}</span>
           <span>{resource.subject}</span>
         </div>
-        <p className="subtle">One-time teacher purchase at KSh {teacherMaterialPrice} per material.</p>
+        <p className="subtle">
+          One-time {buyerRole === "parent" ? "parent" : "teacher"} purchase at KSh {teacherMaterialPrice} per material.
+        </p>
       </div>
 
       <div className="field">
@@ -428,7 +438,7 @@ export function ResourceCheckoutForm({ resource }: { resource: SelectedResource 
         <input
           id="material-accountReference"
           name="accountReference"
-          placeholder="Teacher name or school"
+          placeholder={buyerRole === "parent" ? "Parent name or learner name" : "Teacher name or school"}
           required
         />
       </div>

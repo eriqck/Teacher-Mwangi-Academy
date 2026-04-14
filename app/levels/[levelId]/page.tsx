@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { assessmentSets } from "@/lib/assessment-sets";
 import { SiteHeader } from "@/components/site-header";
 import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
-
-const assessmentSets = [
-  { id: "set-1", label: "Set 1" },
-  { id: "set-2", label: "Set 2" },
-  { id: "set-3", label: "Set 3" }
-] as const;
 
 export async function generateMetadata({
   params
@@ -122,6 +117,11 @@ export default async function LevelPage({
                 Teachers can unlock all revision materials with a monthly subscription or buy
                 specific notes and assessments one time.
               </p>
+            ) : user.role === "parent" ? (
+              <p className="subtle">
+                Parents can unlock all revision materials with a monthly subscription or buy
+                specific notes one time.
+              </p>
             ) : (
               <p className="subtle">
                 Your current account does not yet have access to this level. Start or update a
@@ -171,8 +171,8 @@ export default async function LevelPage({
                     <Link href={resource.fileUrl} target="_blank" className="button">
                       Open material
                     </Link>
-                  ) : user?.role === "teacher" && resource.canPurchase ? (
-                    <Link href={`/subscribe?resourceId=${resource.id}`} className="button-secondary button-buy">
+                  ) : resource.canPurchase ? (
+                    <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
                       Buy for KSh {teacherMaterialPrice}
                     </Link>
                   ) : (
@@ -198,7 +198,7 @@ export default async function LevelPage({
             <span className="eyebrow">Assessment</span>
             <h2>{level.title} assessments</h2>
           </div>
-          <p>Assessments are grouped into Set 1, Set 2, and Set 3 for easier navigation.</p>
+          <p>Assessments are grouped into Set 1, Set 2, Set 3, and CEKENA Exams for easier navigation.</p>
         </div>
 
         <div className="assessment-stack">
@@ -233,8 +233,8 @@ export default async function LevelPage({
                             <Link href={resource.fileUrl} target="_blank" className="button">
                               Open assessment
                             </Link>
-                          ) : user?.role === "teacher" && resource.canPurchase ? (
-                            <Link href={`/subscribe?resourceId=${resource.id}`} className="button-secondary button-buy">
+                          ) : resource.canPurchase ? (
+                            <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
                               Buy for KSh {teacherMaterialPrice}
                             </Link>
                           ) : (
@@ -292,7 +292,7 @@ export default async function LevelPage({
                                 Open scheme
                               </Link>
                             ) : user?.role === "teacher" ? (
-                              <Link href={`/subscribe?schemeId=${resource.id}`} className="button-secondary button-buy">
+                              <Link href={`/purchases/schemes/${resource.id}`} className="button-secondary button-buy">
                                 Buy exact scheme
                               </Link>
                             ) : !user ? (
@@ -331,7 +331,7 @@ export default async function LevelPage({
                             Open scheme
                           </Link>
                         ) : user?.role === "teacher" ? (
-                          <Link href={`/subscribe?schemeId=${resource.id}`} className="button-secondary button-buy">
+                          <Link href={`/purchases/schemes/${resource.id}`} className="button-secondary button-buy">
                             Buy exact scheme
                           </Link>
                         ) : !user ? (

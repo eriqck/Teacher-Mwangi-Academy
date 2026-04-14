@@ -366,6 +366,16 @@ export async function requireUser() {
   return user;
 }
 
+export async function requireTeacherUser() {
+  const user = await requireUser();
+
+  if (user.role !== "teacher" && user.role !== "admin") {
+    redirect("/teacher-tools");
+  }
+
+  return user;
+}
+
 export async function requireAdmin() {
   const user = await requireUser();
 

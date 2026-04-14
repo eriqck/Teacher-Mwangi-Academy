@@ -48,7 +48,13 @@ export type SubscriptionRecord = {
   paymentId: string;
 };
 
-export type PaymentKind = "subscription" | "scheme" | "resource";
+export type PaymentKind =
+  | "subscription"
+  | "scheme"
+  | "resource"
+  | "tool-access"
+  | "generated-scheme"
+  | "generated-lesson-plan";
 export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {
@@ -109,7 +115,116 @@ export type ResourcePurchaseRecord = {
 
 export type ResourceCategory = "revision-material" | "scheme-of-work";
 export type ResourceSection = "notes" | "assessment";
-export type AssessmentSet = "set-1" | "set-2" | "set-3";
+export type AssessmentSet = "set-1" | "set-2" | "set-3" | "cekena-exams";
+
+export type GeneratedSchemeWeekRecord = {
+  weekNumber: number;
+  lessonRange: string;
+  focus: string;
+  learningOutcome: string;
+  learnerActivities: string[];
+  resources: string[];
+  assessment: string;
+  remarks: string;
+};
+
+export type GeneratedSchemeRecord = {
+  id: string;
+  userId: string;
+  title: string;
+  level: string;
+  stage: string;
+  subject: string;
+  term: SchemeTerm;
+  schoolName: string;
+  className: string;
+  strand: string;
+  subStrand: string;
+  weeksCount: number;
+  lessonsPerWeek: number;
+  learningOutcomes: string[];
+  keyInquiryQuestions: string[];
+  coreCompetencies: string[];
+  values: string[];
+  pertinentIssues: string[];
+  resources: string[];
+  assessmentMethods: string[];
+  notes: string;
+  weeklyPlan: GeneratedSchemeWeekRecord[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GeneratedSchemeRequestPayload = {
+  schoolName: string;
+  className: string;
+  level: string;
+  subject: string;
+  term: SchemeTerm;
+  strand: string;
+  subStrand: string;
+  weeksCount: number;
+  lessonsPerWeek: number;
+  learningOutcomes: string[];
+  keyInquiryQuestions: string[];
+  coreCompetencies: string[];
+  values: string[];
+  pertinentIssues: string[];
+  resources: string[];
+  assessmentMethods: string[];
+  notes: string;
+};
+
+export type GeneratedSchemeRequestRecord = {
+  id: string;
+  userId: string;
+  paymentId: string;
+  status: "pending" | "paid" | "failed" | "completed";
+  payload: GeneratedSchemeRequestPayload;
+  generatedSchemeId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GeneratedLessonPlanRecord = {
+  id: string;
+  userId: string;
+  title: string;
+  level: string;
+  stage: string;
+  subject: string;
+  unitTitle: string;
+  subStrands: string[];
+  selectedCount: number;
+  learningObjectives: string[];
+  keyQuestions: string[];
+  learnerActivities: string[];
+  resources: string[];
+  assessmentMethods: string[];
+  reflection: string;
+  homework: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GeneratedLessonPlanRequestPayload = {
+  level: string;
+  subject: string;
+  unitTitle: string;
+  subStrands: string[];
+  selectedCount: number;
+};
+
+export type GeneratedLessonPlanRequestRecord = {
+  id: string;
+  userId: string;
+  paymentId: string;
+  status: "pending" | "paid" | "failed" | "completed";
+  payload: GeneratedLessonPlanRequestPayload;
+  generatedLessonPlanId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type ResourceRecord = {
   id: string;
@@ -132,6 +247,36 @@ export type ResourceRecord = {
   updatedAt: string;
 };
 
+export type PropertyStatus = "Completed" | "Selling fast" | "Now booking";
+export type PropertyCategory = "Villa" | "Maisonette" | "Apartment" | "Townhouse";
+
+export type PropertyRecord = {
+  id: string;
+  slug: string;
+  title: string;
+  location: string;
+  county: string;
+  status: PropertyStatus;
+  category: PropertyCategory;
+  price: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: string;
+  plotSize: string;
+  completion: string;
+  financing: string;
+  heroImage: string;
+  gallery: string[];
+  summary: string;
+  description: string;
+  features: string[];
+  nearby: string[];
+  tags: string[];
+  uploadedByUserId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type DataStore = {
   users: UserRecord[];
   sessions: SessionRecord[];
@@ -140,7 +285,12 @@ export type DataStore = {
   payments: PaymentRecord[];
   schemePurchases: SchemePurchaseRecord[];
   resourcePurchases: ResourcePurchaseRecord[];
+  generatedSchemeRequests: GeneratedSchemeRequestRecord[];
+  generatedSchemes: GeneratedSchemeRecord[];
+  generatedLessonPlanRequests: GeneratedLessonPlanRequestRecord[];
+  generatedLessonPlans: GeneratedLessonPlanRecord[];
   resources: ResourceRecord[];
+  properties: PropertyRecord[];
 };
 
 const storePath = path.join(process.cwd(), "data", "store.json");
@@ -163,7 +313,12 @@ async function ensureStoreFile() {
           payments: [],
           schemePurchases: [],
           resourcePurchases: [],
-          resources: []
+          generatedSchemeRequests: [],
+          generatedSchemes: [],
+          generatedLessonPlanRequests: [],
+          generatedLessonPlans: [],
+          resources: [],
+          properties: []
         } satisfies DataStore,
         null,
         2
@@ -185,7 +340,12 @@ export async function readStore(): Promise<DataStore> {
     payments: parsed.payments ?? [],
     schemePurchases: parsed.schemePurchases ?? [],
     resourcePurchases: parsed.resourcePurchases ?? [],
-    resources: parsed.resources ?? []
+    generatedSchemeRequests: parsed.generatedSchemeRequests ?? [],
+    generatedSchemes: parsed.generatedSchemes ?? [],
+    generatedLessonPlanRequests: parsed.generatedLessonPlanRequests ?? [],
+    generatedLessonPlans: parsed.generatedLessonPlans ?? [],
+    resources: parsed.resources ?? [],
+    properties: parsed.properties ?? []
   };
 }
 

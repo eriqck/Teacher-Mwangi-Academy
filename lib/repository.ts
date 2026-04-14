@@ -2,8 +2,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import type {
   DataStore,
+  GeneratedLessonPlanRecord,
+  GeneratedLessonPlanRequestRecord,
+  GeneratedSchemeRecord,
+  GeneratedSchemeRequestRecord,
   PaymentRecord,
   PasswordResetTokenRecord,
+  PropertyRecord,
   ResourceRecord,
   ResourcePurchaseRecord,
   SchemePurchaseRecord,
@@ -150,23 +155,153 @@ function mapResource(row: Record<string, unknown>): ResourceRecord {
   };
 }
 
+function mapGeneratedScheme(row: Record<string, unknown>): GeneratedSchemeRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    title: `${row.title}`,
+    level: `${row.level}`,
+    stage: `${row.stage}`,
+    subject: `${row.subject}`,
+    term: row.term as GeneratedSchemeRecord["term"],
+    schoolName: `${row.school_name ?? ""}`,
+    className: `${row.class_name ?? ""}`,
+    strand: `${row.strand}`,
+    subStrand: `${row.sub_strand}`,
+    weeksCount: Number(row.weeks_count),
+    lessonsPerWeek: Number(row.lessons_per_week),
+    learningOutcomes: Array.isArray(row.learning_outcomes) ? (row.learning_outcomes as string[]) : [],
+    keyInquiryQuestions: Array.isArray(row.key_inquiry_questions) ? (row.key_inquiry_questions as string[]) : [],
+    coreCompetencies: Array.isArray(row.core_competencies) ? (row.core_competencies as string[]) : [],
+    values: Array.isArray(row.values) ? (row.values as string[]) : [],
+    pertinentIssues: Array.isArray(row.pertinent_issues) ? (row.pertinent_issues as string[]) : [],
+    resources: Array.isArray(row.resources) ? (row.resources as string[]) : [],
+    assessmentMethods: Array.isArray(row.assessment_methods) ? (row.assessment_methods as string[]) : [],
+    notes: `${row.notes ?? ""}`,
+    weeklyPlan: Array.isArray(row.weekly_plan)
+      ? (row.weekly_plan as GeneratedSchemeRecord["weeklyPlan"])
+      : [],
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function mapGeneratedSchemeRequest(row: Record<string, unknown>): GeneratedSchemeRequestRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    paymentId: `${row.payment_id}`,
+    status: row.status as GeneratedSchemeRequestRecord["status"],
+    payload: row.payload as GeneratedSchemeRequestRecord["payload"],
+    generatedSchemeId: (row.generated_scheme_id as string | null) ?? null,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function mapGeneratedLessonPlan(row: Record<string, unknown>): GeneratedLessonPlanRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    title: `${row.title}`,
+    level: `${row.level}`,
+    stage: `${row.stage}`,
+    subject: `${row.subject}`,
+    unitTitle: `${row.unit_title}`,
+    subStrands: Array.isArray(row.sub_strands) ? (row.sub_strands as string[]) : [],
+    selectedCount: Number(row.selected_count ?? 0),
+    learningObjectives: Array.isArray(row.learning_objectives) ? (row.learning_objectives as string[]) : [],
+    keyQuestions: Array.isArray(row.key_questions) ? (row.key_questions as string[]) : [],
+    learnerActivities: Array.isArray(row.learner_activities) ? (row.learner_activities as string[]) : [],
+    resources: Array.isArray(row.resources) ? (row.resources as string[]) : [],
+    assessmentMethods: Array.isArray(row.assessment_methods) ? (row.assessment_methods as string[]) : [],
+    reflection: `${row.reflection ?? ""}`,
+    homework: `${row.homework ?? ""}`,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function mapGeneratedLessonPlanRequest(row: Record<string, unknown>): GeneratedLessonPlanRequestRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    paymentId: `${row.payment_id}`,
+    status: row.status as GeneratedLessonPlanRequestRecord["status"],
+    payload: row.payload as GeneratedLessonPlanRequestRecord["payload"],
+    generatedLessonPlanId: (row.generated_lesson_plan_id as string | null) ?? null,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function isMissingSupabaseTable(
+  error: { message?: string | null; code?: string | null } | null,
+  tableName: string
+) {
+  if (!error) {
+    return false;
+  }
+
+  const message = `${error.message ?? ""}`.toLowerCase();
+  return (
+    error.code === "42P01" ||
+    message.includes(tableName) &&
+      (message.includes("schema cache") ||
+        message.includes("does not exist") ||
+        message.includes("could not find the table"))
+  );
+}
+
 export async function readAppData(): Promise<DataStore> {
   if (!isSupabaseConfigured()) {
     return readStore();
   }
 
+  const localStore = await readStore();
+
   const supabase = getSupabaseAdmin();
-  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources] = await Promise.all([
+  const [
+    users,
+    sessions,
+    subscriptions,
+    payments,
+    schemePurchases,
+    resourcePurchases,
+    resources,
+    generatedSchemes,
+    generatedSchemeRequests,
+    generatedLessonPlans,
+    generatedLessonPlanRequests
+  ] = await Promise.all([
     supabase.from("users").select("*"),
     supabase.from("sessions").select("*"),
     supabase.from("subscriptions").select("*"),
     supabase.from("payments").select("*"),
     supabase.from("scheme_purchases").select("*"),
     supabase.from("resource_purchases").select("*"),
-    supabase.from("resources").select("*")
+    supabase.from("resources").select("*"),
+    supabase.from("generated_schemes").select("*"),
+    supabase.from("generated_scheme_requests").select("*"),
+    supabase.from("generated_lesson_plans").select("*"),
+    supabase.from("generated_lesson_plan_requests").select("*")
   ]);
 
-  if (users.error || sessions.error || subscriptions.error || payments.error || schemePurchases.error || resourcePurchases.error || resources.error) {
+  if (
+    users.error ||
+    sessions.error ||
+    subscriptions.error ||
+    payments.error ||
+    schemePurchases.error ||
+    resourcePurchases.error ||
+    resources.error ||
+    (generatedSchemes.error && !isMissingSupabaseTable(generatedSchemes.error, "generated_schemes")) ||
+    (generatedSchemeRequests.error &&
+      !isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")) ||
+    (generatedLessonPlans.error && !isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")) ||
+    (generatedLessonPlanRequests.error &&
+      !isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests"))
+  ) {
     throw new Error(
       users.error?.message ||
         sessions.error?.message ||
@@ -175,6 +310,16 @@ export async function readAppData(): Promise<DataStore> {
         schemePurchases.error?.message ||
         resourcePurchases.error?.message ||
         resources.error?.message ||
+        (isMissingSupabaseTable(generatedSchemes.error, "generated_schemes") ? null : generatedSchemes.error?.message) ||
+        (isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")
+          ? null
+          : generatedSchemeRequests.error?.message) ||
+        (isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")
+          ? null
+          : generatedLessonPlans.error?.message) ||
+        (isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests")
+          ? null
+          : generatedLessonPlanRequests.error?.message) ||
         "Failed to read Supabase data."
     );
   }
@@ -187,8 +332,25 @@ export async function readAppData(): Promise<DataStore> {
     payments: (payments.data ?? []).map((row: Record<string, unknown>) => mapPayment(row)),
     schemePurchases: (schemePurchases.data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row)),
     resourcePurchases: (resourcePurchases.data ?? []).map((row: Record<string, unknown>) => mapResourcePurchase(row)),
+    generatedSchemeRequests: isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")
+      ? localStore.generatedSchemeRequests ?? []
+      : (generatedSchemeRequests.data ?? []).map((row: Record<string, unknown>) => mapGeneratedSchemeRequest(row)),
+    generatedSchemes: isMissingSupabaseTable(generatedSchemes.error, "generated_schemes")
+      ? localStore.generatedSchemes ?? []
+      : (generatedSchemes.data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row)),
+    generatedLessonPlanRequests: isMissingSupabaseTable(
+      generatedLessonPlanRequests.error,
+      "generated_lesson_plan_requests"
+    )
+      ? localStore.generatedLessonPlanRequests ?? []
+      : (generatedLessonPlanRequests.data ?? []).map((row: Record<string, unknown>) =>
+          mapGeneratedLessonPlanRequest(row)
+        ),
+    generatedLessonPlans: isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")
+      ? localStore.generatedLessonPlans ?? []
+      : (generatedLessonPlans.data ?? []).map((row: Record<string, unknown>) => mapGeneratedLessonPlan(row)),
     resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row)),
-    properties: []
+    properties: localStore.properties ?? []
   };
 }
 
@@ -531,6 +693,21 @@ export async function updatePaymentById(paymentId: string, changes: Partial<Paym
   if (error) throw new Error(error.message);
 }
 
+export async function savePaymentRecord(payment: PaymentRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      payments: [...current.payments, payment]
+    }));
+    return payment;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("payments").insert(toPaymentRow(payment));
+  if (error) throw new Error(error.message);
+  return payment;
+}
+
 export async function findPaymentByReference(reference: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
@@ -630,6 +807,199 @@ export async function saveResourceRecord(resource: ResourceRecord) {
   return resource;
 }
 
+export async function saveGeneratedSchemeRecord(scheme: GeneratedSchemeRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemes: [scheme, ...current.generatedSchemes]
+    }));
+    return scheme;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("generated_schemes").insert(toGeneratedSchemeRow(scheme));
+  if (error) throw new Error(error.message);
+  return scheme;
+}
+
+export async function saveGeneratedSchemeRequestRecord(request: GeneratedSchemeRequestRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemeRequests: [request, ...current.generatedSchemeRequests]
+    }));
+    return request;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("generated_scheme_requests").insert(toGeneratedSchemeRequestRow(request));
+  if (error) throw new Error(error.message);
+  return request;
+}
+
+export async function saveGeneratedLessonPlanRecord(plan: GeneratedLessonPlanRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedLessonPlans: [plan, ...current.generatedLessonPlans]
+    }));
+    return plan;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("generated_lesson_plans").insert(toGeneratedLessonPlanRow(plan));
+  if (error) throw new Error(error.message);
+  return plan;
+}
+
+export async function saveGeneratedLessonPlanRequestRecord(request: GeneratedLessonPlanRequestRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedLessonPlanRequests: [request, ...current.generatedLessonPlanRequests]
+    }));
+    return request;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("generated_lesson_plan_requests")
+    .insert(toGeneratedLessonPlanRequestRow(request));
+  if (error) throw new Error(error.message);
+  return request;
+}
+
+export async function findGeneratedSchemeRequestByPaymentId(paymentId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedSchemeRequests.find((request) => request.paymentId === paymentId) ?? null;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_scheme_requests")
+    .select("*")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedSchemeRequest(data) : null;
+}
+
+export async function findGeneratedLessonPlanRequestByPaymentId(paymentId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedLessonPlanRequests.find((request) => request.paymentId === paymentId) ?? null;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_lesson_plan_requests")
+    .select("*")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedLessonPlanRequest(data) : null;
+}
+
+export async function updateGeneratedSchemeRequestRecord(
+  requestId: string,
+  changes: Partial<GeneratedSchemeRequestRecord>
+) {
+  if (!isSupabaseConfigured()) {
+    let updatedRequest: GeneratedSchemeRequestRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemeRequests: current.generatedSchemeRequests.map((request) => {
+        if (request.id !== requestId) {
+          return request;
+        }
+        updatedRequest = {
+          ...request,
+          ...changes,
+          id: request.id
+        };
+        return updatedRequest;
+      })
+    }));
+    return updatedRequest;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_scheme_requests")
+    .update(toGeneratedSchemeRequestRow(changes))
+    .eq("id", requestId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedSchemeRequest(data) : null;
+}
+
+export async function updateGeneratedLessonPlanRequestRecord(
+  requestId: string,
+  changes: Partial<GeneratedLessonPlanRequestRecord>
+) {
+  if (!isSupabaseConfigured()) {
+    let updatedRequest: GeneratedLessonPlanRequestRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      generatedLessonPlanRequests: current.generatedLessonPlanRequests.map((request) => {
+        if (request.id !== requestId) {
+          return request;
+        }
+        updatedRequest = {
+          ...request,
+          ...changes,
+          id: request.id
+        };
+        return updatedRequest;
+      })
+    }));
+    return updatedRequest;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_lesson_plan_requests")
+    .update(toGeneratedLessonPlanRequestRow(changes))
+    .eq("id", requestId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedLessonPlanRequest(data) : null;
+}
+
+export async function deleteGeneratedSchemeRecord(schemeId: string) {
+  if (!isSupabaseConfigured()) {
+    let deletedScheme: GeneratedSchemeRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemes: current.generatedSchemes.filter((scheme) => {
+        if (scheme.id === schemeId) {
+          deletedScheme = scheme;
+          return false;
+        }
+        return true;
+      })
+    }));
+    return deletedScheme;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_schemes")
+    .delete()
+    .eq("id", schemeId)
+    .select("*")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedScheme(data) : null;
+}
+
 export async function updateResourceRecord(resourceId: string, changes: Partial<ResourceRecord>) {
   if (!isSupabaseConfigured()) {
     let updatedResource: ResourceRecord | null = null;
@@ -697,6 +1067,56 @@ export async function deleteResourceRecord(resourceId: string) {
   const { data, error } = await supabase.from("resources").delete().eq("id", resourceId).select("*").maybeSingle();
   if (error) throw new Error(error.message);
   return data ? mapResource(data) : null;
+}
+
+export async function savePropertyRecord(property: PropertyRecord) {
+  await updateStore((current) => ({
+    ...current,
+    properties: [property, ...current.properties]
+  }));
+
+  return property;
+}
+
+export async function updatePropertyRecord(propertyId: string, changes: Partial<PropertyRecord>) {
+  let updatedProperty: PropertyRecord | null = null;
+
+  await updateStore((current) => ({
+    ...current,
+    properties: current.properties.map((property) => {
+      if (property.id !== propertyId) {
+        return property;
+      }
+
+      updatedProperty = {
+        ...property,
+        ...changes,
+        id: property.id
+      };
+
+      return updatedProperty;
+    })
+  }));
+
+  return updatedProperty;
+}
+
+export async function deletePropertyRecord(propertyId: string) {
+  let deletedProperty: PropertyRecord | null = null;
+
+  await updateStore((current) => ({
+    ...current,
+    properties: current.properties.filter((property) => {
+      if (property.id === propertyId) {
+        deletedProperty = property;
+        return false;
+      }
+
+      return true;
+    })
+  }));
+
+  return deletedProperty;
 }
 
 export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, mimeType: string) {
@@ -836,5 +1256,85 @@ function toResourcePurchaseRow(purchase: Partial<ResourcePurchaseRecord>) {
     ...(purchase.paymentId ? { payment_id: purchase.paymentId } : {}),
     ...(purchase.createdAt ? { created_at: purchase.createdAt } : {}),
     ...(purchase.updatedAt ? { updated_at: purchase.updatedAt } : {})
+  };
+}
+
+function toGeneratedSchemeRow(scheme: Partial<GeneratedSchemeRecord>) {
+  return {
+    ...(scheme.id ? { id: scheme.id } : {}),
+    ...(scheme.userId ? { user_id: scheme.userId } : {}),
+    ...(scheme.title ? { title: scheme.title } : {}),
+    ...(scheme.level ? { level: scheme.level } : {}),
+    ...(scheme.stage ? { stage: scheme.stage } : {}),
+    ...(scheme.subject ? { subject: scheme.subject } : {}),
+    ...(scheme.term ? { term: scheme.term } : {}),
+    ...(scheme.schoolName !== undefined ? { school_name: scheme.schoolName } : {}),
+    ...(scheme.className !== undefined ? { class_name: scheme.className } : {}),
+    ...(scheme.strand ? { strand: scheme.strand } : {}),
+    ...(scheme.subStrand ? { sub_strand: scheme.subStrand } : {}),
+    ...(typeof scheme.weeksCount === "number" ? { weeks_count: scheme.weeksCount } : {}),
+    ...(typeof scheme.lessonsPerWeek === "number" ? { lessons_per_week: scheme.lessonsPerWeek } : {}),
+    ...(scheme.learningOutcomes ? { learning_outcomes: scheme.learningOutcomes } : {}),
+    ...(scheme.keyInquiryQuestions ? { key_inquiry_questions: scheme.keyInquiryQuestions } : {}),
+    ...(scheme.coreCompetencies ? { core_competencies: scheme.coreCompetencies } : {}),
+    ...(scheme.values ? { values: scheme.values } : {}),
+    ...(scheme.pertinentIssues ? { pertinent_issues: scheme.pertinentIssues } : {}),
+    ...(scheme.resources ? { resources: scheme.resources } : {}),
+    ...(scheme.assessmentMethods ? { assessment_methods: scheme.assessmentMethods } : {}),
+    ...(scheme.notes !== undefined ? { notes: scheme.notes } : {}),
+    ...(scheme.weeklyPlan ? { weekly_plan: scheme.weeklyPlan } : {}),
+    ...(scheme.createdAt ? { created_at: scheme.createdAt } : {}),
+    ...(scheme.updatedAt ? { updated_at: scheme.updatedAt } : {})
+  };
+}
+
+function toGeneratedSchemeRequestRow(request: Partial<GeneratedSchemeRequestRecord>) {
+  return {
+    ...(request.id ? { id: request.id } : {}),
+    ...(request.userId ? { user_id: request.userId } : {}),
+    ...(request.paymentId ? { payment_id: request.paymentId } : {}),
+    ...(request.status ? { status: request.status } : {}),
+    ...(request.payload ? { payload: request.payload } : {}),
+    ...(request.generatedSchemeId !== undefined ? { generated_scheme_id: request.generatedSchemeId } : {}),
+    ...(request.createdAt ? { created_at: request.createdAt } : {}),
+    ...(request.updatedAt ? { updated_at: request.updatedAt } : {})
+  };
+}
+
+function toGeneratedLessonPlanRow(plan: Partial<GeneratedLessonPlanRecord>) {
+  return {
+    ...(plan.id ? { id: plan.id } : {}),
+    ...(plan.userId ? { user_id: plan.userId } : {}),
+    ...(plan.title ? { title: plan.title } : {}),
+    ...(plan.level ? { level: plan.level } : {}),
+    ...(plan.stage ? { stage: plan.stage } : {}),
+    ...(plan.subject ? { subject: plan.subject } : {}),
+    ...(plan.unitTitle ? { unit_title: plan.unitTitle } : {}),
+    ...(plan.subStrands ? { sub_strands: plan.subStrands } : {}),
+    ...(typeof plan.selectedCount === "number" ? { selected_count: plan.selectedCount } : {}),
+    ...(plan.learningObjectives ? { learning_objectives: plan.learningObjectives } : {}),
+    ...(plan.keyQuestions ? { key_questions: plan.keyQuestions } : {}),
+    ...(plan.learnerActivities ? { learner_activities: plan.learnerActivities } : {}),
+    ...(plan.resources ? { resources: plan.resources } : {}),
+    ...(plan.assessmentMethods ? { assessment_methods: plan.assessmentMethods } : {}),
+    ...(plan.reflection !== undefined ? { reflection: plan.reflection } : {}),
+    ...(plan.homework !== undefined ? { homework: plan.homework } : {}),
+    ...(plan.createdAt ? { created_at: plan.createdAt } : {}),
+    ...(plan.updatedAt ? { updated_at: plan.updatedAt } : {})
+  };
+}
+
+function toGeneratedLessonPlanRequestRow(request: Partial<GeneratedLessonPlanRequestRecord>) {
+  return {
+    ...(request.id ? { id: request.id } : {}),
+    ...(request.userId ? { user_id: request.userId } : {}),
+    ...(request.paymentId ? { payment_id: request.paymentId } : {}),
+    ...(request.status ? { status: request.status } : {}),
+    ...(request.payload ? { payload: request.payload } : {}),
+    ...(request.generatedLessonPlanId !== undefined
+      ? { generated_lesson_plan_id: request.generatedLessonPlanId }
+      : {}),
+    ...(request.createdAt ? { created_at: request.createdAt } : {}),
+    ...(request.updatedAt ? { updated_at: request.updatedAt } : {})
   };
 }

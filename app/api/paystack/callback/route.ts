@@ -10,8 +10,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await verifyAndApplyPaystackPayment(reference);
-    const status = result.status === "success" ? "success" : "failed";
-    return NextResponse.redirect(new URL(`/dashboard?payment=${status}`, request.url));
+    return NextResponse.redirect(new URL(result.redirectPath, request.url));
   } catch {
     return NextResponse.redirect(new URL("/dashboard?payment=verify-error", request.url));
   }

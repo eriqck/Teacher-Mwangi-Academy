@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isAssessmentSet } from "@/lib/assessment-sets";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteResourceFile, getResourceFilePublicUrl } from "@/lib/repository";
 import { saveUploadedResource, saveUploadedResourceMetadata } from "@/lib/resources";
@@ -16,10 +17,6 @@ function isCategory(value: string): value is ResourceCategory {
 
 function isSection(value: string): value is ResourceSection {
   return value === "notes" || value === "assessment";
-}
-
-function isAssessmentSet(value: string): value is AssessmentSet {
-  return value === "set-1" || value === "set-2" || value === "set-3";
 }
 
 export async function POST(request: NextRequest) {
@@ -74,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (category === "revision-material" && section === "assessment" && !isAssessmentSet(assessmentSet)) {
-      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, or Set 3." }, { status: 400 });
+      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, Set 3, or CEKENA Exams." }, { status: 400 });
     }
 
     if (category === "scheme-of-work" && !isSchemeTerm(term)) {

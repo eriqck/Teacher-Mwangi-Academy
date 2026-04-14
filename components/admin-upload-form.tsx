@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { assessmentSets } from "@/lib/assessment-sets";
 import { schemeOfWorkPrice } from "@/lib/business";
 import { levels } from "@/lib/catalog";
 import { schemeTerms } from "@/lib/scheme-terms";
@@ -284,9 +285,11 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
               defaultValue="set-1"
               disabled={!showAssessmentSet}
             >
-              <option value="set-1">Set 1</option>
-              <option value="set-2">Set 2</option>
-              <option value="set-3">Set 3</option>
+              {assessmentSets.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
             </select>
             <small>{showAssessmentSet ? "Choose where the assessment should appear." : "Used only when the content category is Assessment."}</small>
           </div>
