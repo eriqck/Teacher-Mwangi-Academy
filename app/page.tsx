@@ -76,9 +76,6 @@ export default async function HomePage() {
   const teacherPlan =
     membershipPlans.find((plan) => plan.name === "Teacher Subscription") ?? membershipPlans[1];
 
-  const teacherBotHref =
-    user && (user.role === "teacher" || user.role === "admin") ? "/teacher-tools" : "/login";
-
   return (
     <main className="home-landing">
       <section className="page-shell home-nav-wrap">
@@ -352,7 +349,7 @@ export default async function HomePage() {
               and create lesson plans at KSh {teacherLessonPlanPrice} each without leaving the academy platform.
             </p>
             <div className="home-bot-actions">
-              <Link href={teacherBotHref} className="home-pricing-button home-bot-primary">
+              <Link href="/teacher-tools" className="home-pricing-button home-bot-primary">
                 Open teacher bot
               </Link>
               <Link href="/login" className="home-one-time-button">
