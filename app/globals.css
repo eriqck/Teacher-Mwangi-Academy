@@ -2946,6 +2946,76 @@ main {
   font-size: 0.94rem;
 }
 
+.home-bot-card {
+  margin-top: 22px;
+  border-radius: 34px;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  background:
+    linear-gradient(135deg, rgba(236, 253, 245, 0.96), rgba(255, 247, 237, 0.92));
+  box-shadow: 0 30px 80px -30px rgba(15, 23, 42, 0.18);
+  padding: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 22px;
+  align-items: center;
+}
+
+.home-bot-copy {
+  display: grid;
+  gap: 14px;
+}
+
+.home-bot-copy h3 {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.18;
+  color: #0f172a;
+}
+
+.home-bot-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.home-bot-primary {
+  background: #047857;
+  box-shadow: 0 16px 28px rgba(209, 250, 229, 0.95);
+}
+
+.home-bot-panel {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 28px;
+  background: #0f172a;
+  color: white;
+}
+
+.home-bot-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #86efac;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.home-bot-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 0.94rem;
+}
+
 .home-testimonial-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -3153,8 +3223,13 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .home-bot-card {
+    grid-template-columns: 1fr;
+  }
+
   .home-section-head,
-  .home-one-time-card {
+  .home-one-time-card,
+  .home-bot-card {
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -3200,7 +3275,8 @@ main {
   .home-hero-actions,
   .home-pill-row,
   .home-tag-row,
-  .home-cta-actions {
+  .home-cta-actions,
+  .home-bot-actions {
     justify-content: center;
   }
 
@@ -3249,6 +3325,7 @@ main {
   .home-dark-card,
   .home-problem-card,
   .home-pricing-card,
+  .home-bot-card,
   .home-one-time-card,
   .home-testimonial-card,
   .home-cta-inner {

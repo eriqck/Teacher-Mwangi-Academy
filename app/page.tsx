@@ -5,7 +5,12 @@ import path from "path";
 import { HomeMetrics } from "@/components/home-metrics";
 import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { getCurrentUser } from "@/lib/auth";
-import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
+import {
+  academyName,
+  schemeOfWorkPrice,
+  teacherLessonPlanPrice,
+  teacherMaterialPrice
+} from "@/lib/business";
 import { levels, membershipPlans } from "@/lib/catalog";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
 
@@ -70,6 +75,9 @@ export default async function HomePage() {
     membershipPlans.find((plan) => plan.name === "Parent Subscription") ?? membershipPlans[0];
   const teacherPlan =
     membershipPlans.find((plan) => plan.name === "Teacher Subscription") ?? membershipPlans[1];
+
+  const teacherBotHref =
+    user && (user.role === "teacher" || user.role === "admin") ? "/teacher-tools" : "/login";
 
   return (
     <main className="home-landing">
@@ -333,6 +341,34 @@ export default async function HomePage() {
           <Link href="/subscribe" className="home-one-time-button">
             Browse one-time resources
           </Link>
+        </article>
+
+        <article className="home-bot-card">
+          <div className="home-bot-copy">
+            <span className="home-section-kicker home-section-kicker--emerald">Teacher bot</span>
+            <h3>Generate schemes and lesson plans from one teacher workspace.</h3>
+            <p className="home-one-time-copy">
+              Teachers can open the bot directly from the homepage, generate schemes per output,
+              and create lesson plans at KSh {teacherLessonPlanPrice} each without leaving the academy platform.
+            </p>
+            <div className="home-bot-actions">
+              <Link href={teacherBotHref} className="home-pricing-button home-bot-primary">
+                Open teacher bot
+              </Link>
+              <Link href="/login" className="home-one-time-button">
+                Teacher sign in
+              </Link>
+            </div>
+          </div>
+
+          <div className="home-bot-panel">
+            <span className="home-bot-badge">Inside the bot</span>
+            <ul className="home-bot-list">
+              <li>Guided scheme of work generator</li>
+              <li>Lesson plan generation at KSh {teacherLessonPlanPrice} each</li>
+              <li>Saved teacher outputs inside the workspace</li>
+            </ul>
+          </div>
         </article>
       </section>
 
