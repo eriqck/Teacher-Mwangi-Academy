@@ -187,7 +187,8 @@ export async function readAppData(): Promise<DataStore> {
     payments: (payments.data ?? []).map((row: Record<string, unknown>) => mapPayment(row)),
     schemePurchases: (schemePurchases.data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row)),
     resourcePurchases: (resourcePurchases.data ?? []).map((row: Record<string, unknown>) => mapResourcePurchase(row)),
-    resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row))
+    resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row)),
+    properties: []
   };
 }
 
