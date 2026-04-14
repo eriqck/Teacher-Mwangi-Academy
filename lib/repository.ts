@@ -2,8 +2,10 @@ import { promises as fs } from "fs";
 import path from "path";
 import type {
   DataStore,
+  GeneratedSchemeRecord,
   PaymentRecord,
   PasswordResetTokenRecord,
+  PropertyRecord,
   ResourceRecord,
   ResourcePurchaseRecord,
   SchemePurchaseRecord,
@@ -150,23 +152,81 @@ function mapResource(row: Record<string, unknown>): ResourceRecord {
   };
 }
 
+function mapGeneratedScheme(row: Record<string, unknown>): GeneratedSchemeRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    title: `${row.title}`,
+    level: `${row.level}`,
+    stage: `${row.stage}`,
+    subject: `${row.subject}`,
+    term: row.term as GeneratedSchemeRecord["term"],
+    schoolName: `${row.school_name ?? ""}`,
+    className: `${row.class_name ?? ""}`,
+    strand: `${row.strand}`,
+    subStrand: `${row.sub_strand}`,
+    weeksCount: Number(row.weeks_count),
+    lessonsPerWeek: Number(row.lessons_per_week),
+    learningOutcomes: Array.isArray(row.learning_outcomes) ? (row.learning_outcomes as string[]) : [],
+    keyInquiryQuestions: Array.isArray(row.key_inquiry_questions) ? (row.key_inquiry_questions as string[]) : [],
+    coreCompetencies: Array.isArray(row.core_competencies) ? (row.core_competencies as string[]) : [],
+    values: Array.isArray(row.values) ? (row.values as string[]) : [],
+    pertinentIssues: Array.isArray(row.pertinent_issues) ? (row.pertinent_issues as string[]) : [],
+    resources: Array.isArray(row.resources) ? (row.resources as string[]) : [],
+    assessmentMethods: Array.isArray(row.assessment_methods) ? (row.assessment_methods as string[]) : [],
+    notes: `${row.notes ?? ""}`,
+    weeklyPlan: Array.isArray(row.weekly_plan)
+      ? (row.weekly_plan as GeneratedSchemeRecord["weeklyPlan"])
+      : [],
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function isMissingGeneratedSchemesTable(error: { message?: string | null; code?: string | null } | null) {
+  if (!error) {
+    return false;
+  }
+
+  const message = `${error.message ?? ""}`.toLowerCase();
+  return (
+    error.code === "42P01" ||
+    message.includes("generated_schemes") &&
+      (message.includes("schema cache") ||
+        message.includes("does not exist") ||
+        message.includes("could not find the table"))
+  );
+}
+
 export async function readAppData(): Promise<DataStore> {
   if (!isSupabaseConfigured()) {
     return readStore();
   }
 
+  const localStore = await readStore();
+
   const supabase = getSupabaseAdmin();
-  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources] = await Promise.all([
+  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources, generatedSchemes] = await Promise.all([
     supabase.from("users").select("*"),
     supabase.from("sessions").select("*"),
     supabase.from("subscriptions").select("*"),
     supabase.from("payments").select("*"),
     supabase.from("scheme_purchases").select("*"),
     supabase.from("resource_purchases").select("*"),
-    supabase.from("resources").select("*")
+    supabase.from("resources").select("*"),
+    supabase.from("generated_schemes").select("*")
   ]);
 
-  if (users.error || sessions.error || subscriptions.error || payments.error || schemePurchases.error || resourcePurchases.error || resources.error) {
+  if (
+    users.error ||
+    sessions.error ||
+    subscriptions.error ||
+    payments.error ||
+    schemePurchases.error ||
+    resourcePurchases.error ||
+    resources.error ||
+    (generatedSchemes.error && !isMissingGeneratedSchemesTable(generatedSchemes.error))
+  ) {
     throw new Error(
       users.error?.message ||
         sessions.error?.message ||
@@ -175,6 +235,7 @@ export async function readAppData(): Promise<DataStore> {
         schemePurchases.error?.message ||
         resourcePurchases.error?.message ||
         resources.error?.message ||
+        (isMissingGeneratedSchemesTable(generatedSchemes.error) ? null : generatedSchemes.error?.message) ||
         "Failed to read Supabase data."
     );
   }
@@ -187,7 +248,11 @@ export async function readAppData(): Promise<DataStore> {
     payments: (payments.data ?? []).map((row: Record<string, unknown>) => mapPayment(row)),
     schemePurchases: (schemePurchases.data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row)),
     resourcePurchases: (resourcePurchases.data ?? []).map((row: Record<string, unknown>) => mapResourcePurchase(row)),
-    resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row))
+    generatedSchemes: isMissingGeneratedSchemesTable(generatedSchemes.error)
+      ? localStore.generatedSchemes ?? []
+      : (generatedSchemes.data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row)),
+    resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row)),
+    properties: localStore.properties ?? []
   };
 }
 
@@ -629,6 +694,48 @@ export async function saveResourceRecord(resource: ResourceRecord) {
   return resource;
 }
 
+export async function saveGeneratedSchemeRecord(scheme: GeneratedSchemeRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemes: [scheme, ...current.generatedSchemes]
+    }));
+    return scheme;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("generated_schemes").insert(toGeneratedSchemeRow(scheme));
+  if (error) throw new Error(error.message);
+  return scheme;
+}
+
+export async function deleteGeneratedSchemeRecord(schemeId: string) {
+  if (!isSupabaseConfigured()) {
+    let deletedScheme: GeneratedSchemeRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemes: current.generatedSchemes.filter((scheme) => {
+        if (scheme.id === schemeId) {
+          deletedScheme = scheme;
+          return false;
+        }
+        return true;
+      })
+    }));
+    return deletedScheme;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_schemes")
+    .delete()
+    .eq("id", schemeId)
+    .select("*")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedScheme(data) : null;
+}
+
 export async function updateResourceRecord(resourceId: string, changes: Partial<ResourceRecord>) {
   if (!isSupabaseConfigured()) {
     let updatedResource: ResourceRecord | null = null;
@@ -696,6 +803,56 @@ export async function deleteResourceRecord(resourceId: string) {
   const { data, error } = await supabase.from("resources").delete().eq("id", resourceId).select("*").maybeSingle();
   if (error) throw new Error(error.message);
   return data ? mapResource(data) : null;
+}
+
+export async function savePropertyRecord(property: PropertyRecord) {
+  await updateStore((current) => ({
+    ...current,
+    properties: [property, ...current.properties]
+  }));
+
+  return property;
+}
+
+export async function updatePropertyRecord(propertyId: string, changes: Partial<PropertyRecord>) {
+  let updatedProperty: PropertyRecord | null = null;
+
+  await updateStore((current) => ({
+    ...current,
+    properties: current.properties.map((property) => {
+      if (property.id !== propertyId) {
+        return property;
+      }
+
+      updatedProperty = {
+        ...property,
+        ...changes,
+        id: property.id
+      };
+
+      return updatedProperty;
+    })
+  }));
+
+  return updatedProperty;
+}
+
+export async function deletePropertyRecord(propertyId: string) {
+  let deletedProperty: PropertyRecord | null = null;
+
+  await updateStore((current) => ({
+    ...current,
+    properties: current.properties.filter((property) => {
+      if (property.id === propertyId) {
+        deletedProperty = property;
+        return false;
+      }
+
+      return true;
+    })
+  }));
+
+  return deletedProperty;
 }
 
 export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, mimeType: string) {
@@ -835,5 +992,34 @@ function toResourcePurchaseRow(purchase: Partial<ResourcePurchaseRecord>) {
     ...(purchase.paymentId ? { payment_id: purchase.paymentId } : {}),
     ...(purchase.createdAt ? { created_at: purchase.createdAt } : {}),
     ...(purchase.updatedAt ? { updated_at: purchase.updatedAt } : {})
+  };
+}
+
+function toGeneratedSchemeRow(scheme: Partial<GeneratedSchemeRecord>) {
+  return {
+    ...(scheme.id ? { id: scheme.id } : {}),
+    ...(scheme.userId ? { user_id: scheme.userId } : {}),
+    ...(scheme.title ? { title: scheme.title } : {}),
+    ...(scheme.level ? { level: scheme.level } : {}),
+    ...(scheme.stage ? { stage: scheme.stage } : {}),
+    ...(scheme.subject ? { subject: scheme.subject } : {}),
+    ...(scheme.term ? { term: scheme.term } : {}),
+    ...(scheme.schoolName !== undefined ? { school_name: scheme.schoolName } : {}),
+    ...(scheme.className !== undefined ? { class_name: scheme.className } : {}),
+    ...(scheme.strand ? { strand: scheme.strand } : {}),
+    ...(scheme.subStrand ? { sub_strand: scheme.subStrand } : {}),
+    ...(typeof scheme.weeksCount === "number" ? { weeks_count: scheme.weeksCount } : {}),
+    ...(typeof scheme.lessonsPerWeek === "number" ? { lessons_per_week: scheme.lessonsPerWeek } : {}),
+    ...(scheme.learningOutcomes ? { learning_outcomes: scheme.learningOutcomes } : {}),
+    ...(scheme.keyInquiryQuestions ? { key_inquiry_questions: scheme.keyInquiryQuestions } : {}),
+    ...(scheme.coreCompetencies ? { core_competencies: scheme.coreCompetencies } : {}),
+    ...(scheme.values ? { values: scheme.values } : {}),
+    ...(scheme.pertinentIssues ? { pertinent_issues: scheme.pertinentIssues } : {}),
+    ...(scheme.resources ? { resources: scheme.resources } : {}),
+    ...(scheme.assessmentMethods ? { assessment_methods: scheme.assessmentMethods } : {}),
+    ...(scheme.notes !== undefined ? { notes: scheme.notes } : {}),
+    ...(scheme.weeklyPlan ? { weekly_plan: scheme.weeklyPlan } : {}),
+    ...(scheme.createdAt ? { created_at: scheme.createdAt } : {}),
+    ...(scheme.updatedAt ? { updated_at: scheme.updatedAt } : {})
   };
 }

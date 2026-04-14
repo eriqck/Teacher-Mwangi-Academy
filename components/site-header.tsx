@@ -10,6 +10,9 @@ export async function SiteHeader() {
     { href: "#membership", label: "Membership" },
     { href: "#team", label: "Team" },
     { href: "/dashboard", label: "Dashboard" },
+    ...(user?.role === "teacher" || user?.role === "admin"
+      ? [{ href: "/tools/schemes", label: "Scheme Bot" }]
+      : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];
 

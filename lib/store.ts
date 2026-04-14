@@ -111,6 +111,44 @@ export type ResourceCategory = "revision-material" | "scheme-of-work";
 export type ResourceSection = "notes" | "assessment";
 export type AssessmentSet = "set-1" | "set-2" | "set-3" | "cekena-exams";
 
+export type GeneratedSchemeWeekRecord = {
+  weekNumber: number;
+  lessonRange: string;
+  focus: string;
+  learningOutcome: string;
+  learnerActivities: string[];
+  resources: string[];
+  assessment: string;
+  remarks: string;
+};
+
+export type GeneratedSchemeRecord = {
+  id: string;
+  userId: string;
+  title: string;
+  level: string;
+  stage: string;
+  subject: string;
+  term: SchemeTerm;
+  schoolName: string;
+  className: string;
+  strand: string;
+  subStrand: string;
+  weeksCount: number;
+  lessonsPerWeek: number;
+  learningOutcomes: string[];
+  keyInquiryQuestions: string[];
+  coreCompetencies: string[];
+  values: string[];
+  pertinentIssues: string[];
+  resources: string[];
+  assessmentMethods: string[];
+  notes: string;
+  weeklyPlan: GeneratedSchemeWeekRecord[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ResourceRecord = {
   id: string;
   title: string;
@@ -132,6 +170,36 @@ export type ResourceRecord = {
   updatedAt: string;
 };
 
+export type PropertyStatus = "Completed" | "Selling fast" | "Now booking";
+export type PropertyCategory = "Villa" | "Maisonette" | "Apartment" | "Townhouse";
+
+export type PropertyRecord = {
+  id: string;
+  slug: string;
+  title: string;
+  location: string;
+  county: string;
+  status: PropertyStatus;
+  category: PropertyCategory;
+  price: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: string;
+  plotSize: string;
+  completion: string;
+  financing: string;
+  heroImage: string;
+  gallery: string[];
+  summary: string;
+  description: string;
+  features: string[];
+  nearby: string[];
+  tags: string[];
+  uploadedByUserId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type DataStore = {
   users: UserRecord[];
   sessions: SessionRecord[];
@@ -140,7 +208,9 @@ export type DataStore = {
   payments: PaymentRecord[];
   schemePurchases: SchemePurchaseRecord[];
   resourcePurchases: ResourcePurchaseRecord[];
+  generatedSchemes: GeneratedSchemeRecord[];
   resources: ResourceRecord[];
+  properties: PropertyRecord[];
 };
 
 const storePath = path.join(process.cwd(), "data", "store.json");
@@ -163,7 +233,9 @@ async function ensureStoreFile() {
           payments: [],
           schemePurchases: [],
           resourcePurchases: [],
-          resources: []
+          generatedSchemes: [],
+          resources: [],
+          properties: []
         } satisfies DataStore,
         null,
         2
@@ -185,7 +257,9 @@ export async function readStore(): Promise<DataStore> {
     payments: parsed.payments ?? [],
     schemePurchases: parsed.schemePurchases ?? [],
     resourcePurchases: parsed.resourcePurchases ?? [],
-    resources: parsed.resources ?? []
+    generatedSchemes: parsed.generatedSchemes ?? [],
+    resources: parsed.resources ?? [],
+    properties: parsed.properties ?? []
   };
 }
 

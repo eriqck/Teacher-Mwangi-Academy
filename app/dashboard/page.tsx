@@ -67,6 +67,9 @@ export default async function DashboardPage() {
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
   const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
+  const generatedSchemes = store.generatedSchemes
+    .filter((item) => item.userId === user.id)
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
   const allSubscriptions = store.subscriptions
     .slice()
@@ -336,6 +339,51 @@ export default async function DashboardPage() {
               </p>
             )}
           </article>
+
+          {(user.role === "teacher" || user.role === "admin") ? (
+            <article className="dashboard-card">
+              <h3>Scheme generator bot</h3>
+              <p className="subtle">
+                Build a structured scheme of work from curriculum inputs, then save and print it from
+                your account.
+              </p>
+              <div className="hero-actions">
+                <Link href="/tools/schemes/new" className="button">
+                  Create scheme
+                </Link>
+                <Link href="/tools/schemes" className="button-secondary">
+                  View saved schemes
+                </Link>
+              </div>
+
+              {generatedSchemes.length > 0 ? (
+                <table className="mini-table" style={{ marginTop: 16 }}>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Term</th>
+                      <th>Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {generatedSchemes.slice(0, 4).map((scheme) => (
+                      <tr key={scheme.id}>
+                        <td>
+                          <Link href={`/tools/schemes/${scheme.id}`}>{scheme.title}</Link>
+                        </td>
+                        <td>{getSchemeTermLabel(scheme.term)}</td>
+                        <td>{formatDate(scheme.updatedAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="subtle" style={{ marginTop: 12 }}>
+                  No generated schemes yet. Your saved bot outputs will appear here.
+                </p>
+              )}
+            </article>
+          ) : null}
         </div>
       </section>
 
