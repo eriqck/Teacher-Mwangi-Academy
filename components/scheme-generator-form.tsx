@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { teacherSchemeGenerationPrice } from "@/lib/business";
 import {
@@ -113,10 +114,19 @@ function makeBreakId(index: number) {
   return `break-${Date.now()}-${index}`;
 }
 
-export function SchemeGeneratorForm() {
+type SchemeGeneratorFormProps = {
+  canGenerate?: boolean;
+  authRedirectPath?: string;
+};
+
+export function SchemeGeneratorForm({
+  canGenerate = false,
+  authRedirectPath = "/teacher-tools/schemes/new"
+}: SchemeGeneratorFormProps) {
   const [step, setStep] = useState<WizardStep>(1);
   const [formState, setFormState] = useState(initialState);
   const [error, setError] = useState<string | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [isPending, startTransition] = useTransition();
   const initialTopicSelection = useMemo(
     () => getTopicSelection(initialState.subject, initialState.term),
@@ -169,6 +179,7 @@ export function SchemeGeneratorForm() {
   }
 
   function handleStageChange(nextStage: "Junior School" | "Senior School" | "") {
+    setShowAuthPrompt(false);
     if (!nextStage) {
       setFormState((current) => ({
         ...current,
@@ -197,6 +208,7 @@ export function SchemeGeneratorForm() {
   }
 
   function handleLevelChange(nextLevel: string) {
+    setShowAuthPrompt(false);
     const nextSubject = levels.find((entry) => entry.id === nextLevel)?.subjects[0] ?? "";
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";
 
@@ -210,6 +222,7 @@ export function SchemeGeneratorForm() {
   }
 
   function handleSubjectChange(nextSubject: string) {
+    setShowAuthPrompt(false);
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";
 
     setFormState((current) => ({
@@ -221,6 +234,7 @@ export function SchemeGeneratorForm() {
   }
 
   function handleTermChange(nextTerm: SchemeTerm | "") {
+    setShowAuthPrompt(false);
     setFormState((current) => ({ ...current, term: nextTerm }));
     if (!nextTerm) {
       setSelectedSubtopicIds([]);
@@ -341,6 +355,7 @@ export function SchemeGeneratorForm() {
 
   function goBack() {
     setError(null);
+    setShowAuthPrompt(false);
     setStep((current) => (current > 1 ? ((current - 1) as WizardStep) : current));
   }
 
@@ -348,6 +363,12 @@ export function SchemeGeneratorForm() {
     event.preventDefault();
 
     if (!validateCurrentStep()) {
+      return;
+    }
+
+    if (!canGenerate) {
+      setShowAuthPrompt(true);
+      setError("Sign in or create a teacher account to generate this scheme.");
       return;
     }
 
@@ -446,6 +467,21 @@ export function SchemeGeneratorForm() {
       </div>
 
       {error ? <p className="message message-error">{error}</p> : null}
+      {showAuthPrompt ? (
+        <div className="teacher-tools-unlock-box">
+          <p className="subtle">
+            You can explore the bot freely, but signing in is required before generation starts.
+          </p>
+          <div className="hero-actions">
+            <Link href={`/login?next=${encodeURIComponent(authRedirectPath)}`} className="button">
+              Sign in to generate
+            </Link>
+            <Link href={`/signup?next=${encodeURIComponent(authRedirectPath)}`} className="button-secondary">
+              Create teacher account
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       {step === 1 ? (
         <section className="scheme-wizard-card">

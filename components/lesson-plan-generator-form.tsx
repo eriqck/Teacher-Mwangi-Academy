@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { teacherLessonPlanPrice } from "@/lib/business";
 import type { LessonPlanUnit } from "@/lib/lesson-plan-curriculum";
@@ -9,6 +10,8 @@ type LessonPlanGeneratorFormProps = {
   levelTitle: string;
   subject: string;
   units: LessonPlanUnit[];
+  canGenerate?: boolean;
+  authRedirectPath?: string;
 };
 
 function getSubStrandId(unitId: string, subStrand: string) {
@@ -19,10 +22,13 @@ export function LessonPlanGeneratorForm({
   levelId,
   levelTitle,
   subject,
-  units
+  units,
+  canGenerate = false,
+  authRedirectPath = "/teacher-tools/lesson-plans"
 }: LessonPlanGeneratorFormProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const totalSelected = selectedIds.length;
@@ -36,6 +42,7 @@ export function LessonPlanGeneratorForm({
   }, [selectedIds, units]);
 
   function toggleUnit(unit: LessonPlanUnit, checked: boolean) {
+    setShowAuthPrompt(false);
     const unitIds = unit.subStrands.map((subStrand) => getSubStrandId(unit.id, subStrand));
     setSelectedIds((current) => {
       if (checked) {
@@ -46,6 +53,7 @@ export function LessonPlanGeneratorForm({
   }
 
   function toggleSubStrand(unitId: string, subStrand: string, checked: boolean) {
+    setShowAuthPrompt(false);
     const id = getSubStrandId(unitId, subStrand);
     setSelectedIds((current) =>
       checked ? Array.from(new Set([...current, id])) : current.filter((entry) => entry !== id)
@@ -55,6 +63,12 @@ export function LessonPlanGeneratorForm({
   async function handleSubmit() {
     if (selectedIds.length === 0) {
       setError("Select at least one strand or substrand first.");
+      return;
+    }
+
+    if (!canGenerate) {
+      setShowAuthPrompt(true);
+      setError("Sign in or create a teacher account to generate this lesson plan.");
       return;
     }
 
@@ -150,6 +164,21 @@ export function LessonPlanGeneratorForm({
       </div>
 
       {error ? <p className="message message-error">{error}</p> : null}
+      {showAuthPrompt ? (
+        <div className="teacher-tools-unlock-box">
+          <p className="subtle">
+            You can explore the lesson-plan flow freely, but signing in is required before generation starts.
+          </p>
+          <div className="hero-actions">
+            <Link href={`/login?next=${encodeURIComponent(authRedirectPath)}`} className="button">
+              Sign in to generate
+            </Link>
+            <Link href={`/signup?next=${encodeURIComponent(authRedirectPath)}`} className="button-secondary">
+              Create teacher account
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       <div className="scheme-step-actions">
         <button

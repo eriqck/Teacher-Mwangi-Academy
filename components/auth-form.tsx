@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/google-auth-button";
 
 type Mode = "login" | "signup";
@@ -13,6 +13,7 @@ type AuthFormProps = {
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,8 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
 
       setSuccess(data.message ?? "Success");
-      router.push("/dashboard");
+      const nextPath = searchParams.get("next") || "/dashboard";
+      router.push(nextPath);
       router.refresh();
     } catch (error) {
       setError(

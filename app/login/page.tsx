@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
@@ -30,7 +31,9 @@ export default async function LoginPage() {
         <div className="dashboard-grid">
           <article className="dashboard-card">
             <h3>Member login</h3>
-            <AuthForm mode="login" />
+            <Suspense fallback={<p className="subtle">Loading sign-in form...</p>}>
+              <AuthForm mode="login" />
+            </Suspense>
           </article>
 
           <article className="dashboard-card">

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/lib/auth";
@@ -69,7 +70,9 @@ export default async function TeacherToolsDashboardPage({
                 <h2>Sign in to generate</h2>
               </div>
             </div>
-            <AuthForm mode="login" />
+            <Suspense fallback={<p className="subtle">Loading sign-in form...</p>}>
+              <AuthForm mode="login" />
+            </Suspense>
           </article>
         </div>
       </section>

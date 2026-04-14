@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { SchemeGeneratorForm } from "@/components/scheme-generator-form";
-import { requireTeacherUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { teacherSchemeGenerationPrice } from "@/lib/business";
 
 export default async function TeacherToolNewSchemePage() {
-  await requireTeacherUser();
+  const user = await getCurrentUser();
+  const canGenerate = user?.role === "teacher" || user?.role === "admin";
 
   return (
     <section className="teacher-tools-content">
@@ -33,7 +34,10 @@ export default async function TeacherToolNewSchemePage() {
           Complete each step below, then continue to M-Pesa. Every generated scheme is charged
           independently at KSh {teacherSchemeGenerationPrice}.
         </p>
-        <SchemeGeneratorForm />
+        <SchemeGeneratorForm
+          canGenerate={canGenerate}
+          authRedirectPath="/teacher-tools/schemes/new"
+        />
       </article>
     </section>
   );

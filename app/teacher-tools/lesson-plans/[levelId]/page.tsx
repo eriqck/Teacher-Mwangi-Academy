@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireTeacherUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { getLessonPlanSubjects, getLessonPlanLevels } from "@/lib/lesson-plan-curriculum";
 
 function encodeSubject(subject: string) {
@@ -12,7 +12,7 @@ export default async function TeacherToolLessonPlanSubjectsPage({
 }: {
   params: Promise<{ levelId: string }>;
 }) {
-  await requireTeacherUser();
+  await getCurrentUser();
   const { levelId } = await params;
   const level = getLessonPlanLevels().find((entry) => entry.id === levelId);
 
