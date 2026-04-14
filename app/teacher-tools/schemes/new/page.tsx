@@ -8,10 +8,18 @@ export default async function TeacherToolNewSchemePage() {
 
   return (
     <section className="teacher-tools-content">
+      <nav className="teacher-tools-breadcrumbs" aria-label="Breadcrumb">
+        <Link href="/teacher-tools">Home</Link>
+        <span>/</span>
+        <Link href="/teacher-tools/schemes">Schemes</Link>
+        <span>/</span>
+        <span>Create Scheme</span>
+      </nav>
+
       <div className="teacher-tools-section-head">
         <div>
           <span className="eyebrow">Create scheme</span>
-          <h2>Generate a structured scheme of work</h2>
+          <h2>Create a Scheme of Work</h2>
         </div>
         <div className="hero-actions">
           <Link href="/teacher-tools/schemes" className="button-secondary">
@@ -22,8 +30,8 @@ export default async function TeacherToolNewSchemePage() {
 
       <article className="teacher-tools-card scheme-generator-card">
         <p className="subtle">
-          Use curriculum inputs to generate a clean weekly scheme you can review, save, and print.
-          Payment is taken per generated scheme at KSh {teacherSchemeGenerationPrice}.
+          Complete each step below, then continue to M-Pesa. Every generated scheme is charged
+          independently at KSh {teacherSchemeGenerationPrice}.
         </p>
         <SchemeGeneratorForm />
       </article>
