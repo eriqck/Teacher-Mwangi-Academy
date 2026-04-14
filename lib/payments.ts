@@ -15,16 +15,21 @@ import {
   createSchemePaymentBundle,
   createSubscriptionPaymentBundle,
   findPaymentByReference,
+  findGeneratedLessonPlanRequestByPaymentId,
   findGeneratedSchemeRequestByPaymentId,
   markPaymentOutcome,
   findUserById,
   readAppData,
+  saveGeneratedLessonPlanRecord,
+  saveGeneratedLessonPlanRequestRecord,
   savePaymentRecord,
   saveGeneratedSchemeRecord,
+  updateGeneratedLessonPlanRequestRecord,
   updateGeneratedSchemeRequestRecord,
   updateUserRole,
   updatePaymentById
 } from "@/lib/repository";
+import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
 import { buildGeneratedScheme } from "@/lib/scheme-generator";
 
 function addDays(days: number) {
@@ -445,6 +450,93 @@ export async function createPendingSchemeGenerationPayment(input: {
   }
 }
 
+export async function createPendingLessonPlanGenerationPayment(input: {
+  userId: string;
+  email: string;
+  phoneNumber: string;
+  accountReference: string;
+  title: string;
+}) {
+  const paymentId = createId("pay");
+  const createdAt = new Date().toISOString();
+
+  const payment: PaymentRecord = {
+    id: paymentId,
+    userId: input.userId,
+    kind: "generated-lesson-plan",
+    status: "pending",
+    provider: "paystack",
+    currency: "KES",
+    amount: teacherLessonPlanPrice,
+    phoneNumber: input.phoneNumber,
+    accountReference: input.accountReference,
+    plan: null,
+    schemeSubject: null,
+    schemeLevel: null,
+    schemeTerm: null,
+    resourceId: null,
+    paymentReference: paymentId,
+    authorizationUrl: null,
+    checkoutRequestId: null,
+    merchantRequestId: null,
+    mpesaReceiptNumber: null,
+    resultCode: null,
+    resultDesc: null,
+    createdAt,
+    updatedAt: createdAt
+  };
+  await savePaymentRecord(payment);
+
+  try {
+    const result = await initializePaystackTransaction({
+      email: input.email,
+      amount: teacherLessonPlanPrice,
+      reference: paymentId,
+      callbackUrl: getPaystackCallbackUrl(),
+      metadata: {
+        paymentId,
+        kind: "generated-lesson-plan",
+        title: input.title,
+        accountReference: input.accountReference
+      }
+    });
+
+    await updatePaymentById(paymentId, {
+      paymentReference: result.reference,
+      authorizationUrl: result.authorization_url,
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      ok: true,
+      paymentId,
+      result: {
+        authorization_url: result.authorization_url,
+        reference: result.reference
+      }
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "M-Pesa checkout is not configured yet. Payment saved as pending.";
+
+    await updatePaymentById(paymentId, {
+      resultDesc: message,
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      ok: true,
+      paymentId,
+      result: {
+        authorization_url: null,
+        reference: paymentId,
+        mock: true,
+        message: "Lesson-plan generation payment saved. Finish the M-Pesa checkout setup to continue."
+      }
+    };
+  }
+}
+
 async function applyVerifiedPaystackPaymentOutcome(
   payment: PaymentRecord,
   result: Awaited<ReturnType<typeof verifyPaystackTransaction>>
@@ -514,6 +606,45 @@ async function applyVerifiedPaystackPaymentOutcome(
       }
     } else {
       redirectPath = `/teacher-tools?payment=${paid ? "success" : "failed"}`;
+    }
+  }
+
+  if (payment.kind === "generated-lesson-plan") {
+    const request = await findGeneratedLessonPlanRequestByPaymentId(payment.id);
+
+    if (request) {
+      if (paid) {
+        if (request.generatedLessonPlanId) {
+          await updateGeneratedLessonPlanRequestRecord(request.id, {
+            status: "completed",
+            updatedAt
+          });
+          redirectPath = `/teacher-tools/lesson-plans/generated/${request.generatedLessonPlanId}?payment=success`;
+        } else {
+          const generatedLessonPlan = buildGeneratedLessonPlan({
+            id: createId("generated_lesson_plan"),
+            userId: request.userId,
+            createdAt: updatedAt,
+            ...request.payload
+          });
+
+          await saveGeneratedLessonPlanRecord(generatedLessonPlan);
+          await updateGeneratedLessonPlanRequestRecord(request.id, {
+            status: "completed",
+            generatedLessonPlanId: generatedLessonPlan.id,
+            updatedAt
+          });
+          redirectPath = `/teacher-tools/lesson-plans/generated/${generatedLessonPlan.id}?payment=success`;
+        }
+      } else {
+        await updateGeneratedLessonPlanRequestRecord(request.id, {
+          status: "failed",
+          updatedAt
+        });
+        redirectPath = "/teacher-tools/lesson-plans?payment=failed";
+      }
+    } else {
+      redirectPath = `/teacher-tools/lesson-plans?payment=${paid ? "success" : "failed"}`;
     }
   }
 

@@ -2,6 +2,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import type {
   DataStore,
+  GeneratedLessonPlanRecord,
+  GeneratedLessonPlanRequestRecord,
   GeneratedSchemeRecord,
   GeneratedSchemeRequestRecord,
   PaymentRecord,
@@ -197,6 +199,42 @@ function mapGeneratedSchemeRequest(row: Record<string, unknown>): GeneratedSchem
   };
 }
 
+function mapGeneratedLessonPlan(row: Record<string, unknown>): GeneratedLessonPlanRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    title: `${row.title}`,
+    level: `${row.level}`,
+    stage: `${row.stage}`,
+    subject: `${row.subject}`,
+    unitTitle: `${row.unit_title}`,
+    subStrands: Array.isArray(row.sub_strands) ? (row.sub_strands as string[]) : [],
+    selectedCount: Number(row.selected_count ?? 0),
+    learningObjectives: Array.isArray(row.learning_objectives) ? (row.learning_objectives as string[]) : [],
+    keyQuestions: Array.isArray(row.key_questions) ? (row.key_questions as string[]) : [],
+    learnerActivities: Array.isArray(row.learner_activities) ? (row.learner_activities as string[]) : [],
+    resources: Array.isArray(row.resources) ? (row.resources as string[]) : [],
+    assessmentMethods: Array.isArray(row.assessment_methods) ? (row.assessment_methods as string[]) : [],
+    reflection: `${row.reflection ?? ""}`,
+    homework: `${row.homework ?? ""}`,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function mapGeneratedLessonPlanRequest(row: Record<string, unknown>): GeneratedLessonPlanRequestRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    paymentId: `${row.payment_id}`,
+    status: row.status as GeneratedLessonPlanRequestRecord["status"],
+    payload: row.payload as GeneratedLessonPlanRequestRecord["payload"],
+    generatedLessonPlanId: (row.generated_lesson_plan_id as string | null) ?? null,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
 function isMissingSupabaseTable(
   error: { message?: string | null; code?: string | null } | null,
   tableName: string
@@ -223,7 +261,19 @@ export async function readAppData(): Promise<DataStore> {
   const localStore = await readStore();
 
   const supabase = getSupabaseAdmin();
-  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources, generatedSchemes, generatedSchemeRequests] = await Promise.all([
+  const [
+    users,
+    sessions,
+    subscriptions,
+    payments,
+    schemePurchases,
+    resourcePurchases,
+    resources,
+    generatedSchemes,
+    generatedSchemeRequests,
+    generatedLessonPlans,
+    generatedLessonPlanRequests
+  ] = await Promise.all([
     supabase.from("users").select("*"),
     supabase.from("sessions").select("*"),
     supabase.from("subscriptions").select("*"),
@@ -232,7 +282,9 @@ export async function readAppData(): Promise<DataStore> {
     supabase.from("resource_purchases").select("*"),
     supabase.from("resources").select("*"),
     supabase.from("generated_schemes").select("*"),
-    supabase.from("generated_scheme_requests").select("*")
+    supabase.from("generated_scheme_requests").select("*"),
+    supabase.from("generated_lesson_plans").select("*"),
+    supabase.from("generated_lesson_plan_requests").select("*")
   ]);
 
   if (
@@ -245,7 +297,10 @@ export async function readAppData(): Promise<DataStore> {
     resources.error ||
     (generatedSchemes.error && !isMissingSupabaseTable(generatedSchemes.error, "generated_schemes")) ||
     (generatedSchemeRequests.error &&
-      !isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests"))
+      !isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")) ||
+    (generatedLessonPlans.error && !isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")) ||
+    (generatedLessonPlanRequests.error &&
+      !isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests"))
   ) {
     throw new Error(
       users.error?.message ||
@@ -259,6 +314,12 @@ export async function readAppData(): Promise<DataStore> {
         (isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")
           ? null
           : generatedSchemeRequests.error?.message) ||
+        (isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")
+          ? null
+          : generatedLessonPlans.error?.message) ||
+        (isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests")
+          ? null
+          : generatedLessonPlanRequests.error?.message) ||
         "Failed to read Supabase data."
     );
   }
@@ -277,6 +338,17 @@ export async function readAppData(): Promise<DataStore> {
     generatedSchemes: isMissingSupabaseTable(generatedSchemes.error, "generated_schemes")
       ? localStore.generatedSchemes ?? []
       : (generatedSchemes.data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row)),
+    generatedLessonPlanRequests: isMissingSupabaseTable(
+      generatedLessonPlanRequests.error,
+      "generated_lesson_plan_requests"
+    )
+      ? localStore.generatedLessonPlanRequests ?? []
+      : (generatedLessonPlanRequests.data ?? []).map((row: Record<string, unknown>) =>
+          mapGeneratedLessonPlanRequest(row)
+        ),
+    generatedLessonPlans: isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")
+      ? localStore.generatedLessonPlans ?? []
+      : (generatedLessonPlans.data ?? []).map((row: Record<string, unknown>) => mapGeneratedLessonPlan(row)),
     resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row)),
     properties: localStore.properties ?? []
   };
@@ -765,6 +837,38 @@ export async function saveGeneratedSchemeRequestRecord(request: GeneratedSchemeR
   return request;
 }
 
+export async function saveGeneratedLessonPlanRecord(plan: GeneratedLessonPlanRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedLessonPlans: [plan, ...current.generatedLessonPlans]
+    }));
+    return plan;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("generated_lesson_plans").insert(toGeneratedLessonPlanRow(plan));
+  if (error) throw new Error(error.message);
+  return plan;
+}
+
+export async function saveGeneratedLessonPlanRequestRecord(request: GeneratedLessonPlanRequestRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedLessonPlanRequests: [request, ...current.generatedLessonPlanRequests]
+    }));
+    return request;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("generated_lesson_plan_requests")
+    .insert(toGeneratedLessonPlanRequestRow(request));
+  if (error) throw new Error(error.message);
+  return request;
+}
+
 export async function findGeneratedSchemeRequestByPaymentId(paymentId: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
@@ -780,6 +884,23 @@ export async function findGeneratedSchemeRequestByPaymentId(paymentId: string) {
 
   if (error) throw new Error(error.message);
   return data ? mapGeneratedSchemeRequest(data) : null;
+}
+
+export async function findGeneratedLessonPlanRequestByPaymentId(paymentId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedLessonPlanRequests.find((request) => request.paymentId === paymentId) ?? null;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_lesson_plan_requests")
+    .select("*")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedLessonPlanRequest(data) : null;
 }
 
 export async function updateGeneratedSchemeRequestRecord(
@@ -815,6 +936,41 @@ export async function updateGeneratedSchemeRequestRecord(
 
   if (error) throw new Error(error.message);
   return data ? mapGeneratedSchemeRequest(data) : null;
+}
+
+export async function updateGeneratedLessonPlanRequestRecord(
+  requestId: string,
+  changes: Partial<GeneratedLessonPlanRequestRecord>
+) {
+  if (!isSupabaseConfigured()) {
+    let updatedRequest: GeneratedLessonPlanRequestRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      generatedLessonPlanRequests: current.generatedLessonPlanRequests.map((request) => {
+        if (request.id !== requestId) {
+          return request;
+        }
+        updatedRequest = {
+          ...request,
+          ...changes,
+          id: request.id
+        };
+        return updatedRequest;
+      })
+    }));
+    return updatedRequest;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_lesson_plan_requests")
+    .update(toGeneratedLessonPlanRequestRow(changes))
+    .eq("id", requestId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedLessonPlanRequest(data) : null;
 }
 
 export async function deleteGeneratedSchemeRecord(schemeId: string) {
@@ -1140,6 +1296,44 @@ function toGeneratedSchemeRequestRow(request: Partial<GeneratedSchemeRequestReco
     ...(request.status ? { status: request.status } : {}),
     ...(request.payload ? { payload: request.payload } : {}),
     ...(request.generatedSchemeId !== undefined ? { generated_scheme_id: request.generatedSchemeId } : {}),
+    ...(request.createdAt ? { created_at: request.createdAt } : {}),
+    ...(request.updatedAt ? { updated_at: request.updatedAt } : {})
+  };
+}
+
+function toGeneratedLessonPlanRow(plan: Partial<GeneratedLessonPlanRecord>) {
+  return {
+    ...(plan.id ? { id: plan.id } : {}),
+    ...(plan.userId ? { user_id: plan.userId } : {}),
+    ...(plan.title ? { title: plan.title } : {}),
+    ...(plan.level ? { level: plan.level } : {}),
+    ...(plan.stage ? { stage: plan.stage } : {}),
+    ...(plan.subject ? { subject: plan.subject } : {}),
+    ...(plan.unitTitle ? { unit_title: plan.unitTitle } : {}),
+    ...(plan.subStrands ? { sub_strands: plan.subStrands } : {}),
+    ...(typeof plan.selectedCount === "number" ? { selected_count: plan.selectedCount } : {}),
+    ...(plan.learningObjectives ? { learning_objectives: plan.learningObjectives } : {}),
+    ...(plan.keyQuestions ? { key_questions: plan.keyQuestions } : {}),
+    ...(plan.learnerActivities ? { learner_activities: plan.learnerActivities } : {}),
+    ...(plan.resources ? { resources: plan.resources } : {}),
+    ...(plan.assessmentMethods ? { assessment_methods: plan.assessmentMethods } : {}),
+    ...(plan.reflection !== undefined ? { reflection: plan.reflection } : {}),
+    ...(plan.homework !== undefined ? { homework: plan.homework } : {}),
+    ...(plan.createdAt ? { created_at: plan.createdAt } : {}),
+    ...(plan.updatedAt ? { updated_at: plan.updatedAt } : {})
+  };
+}
+
+function toGeneratedLessonPlanRequestRow(request: Partial<GeneratedLessonPlanRequestRecord>) {
+  return {
+    ...(request.id ? { id: request.id } : {}),
+    ...(request.userId ? { user_id: request.userId } : {}),
+    ...(request.paymentId ? { payment_id: request.paymentId } : {}),
+    ...(request.status ? { status: request.status } : {}),
+    ...(request.payload ? { payload: request.payload } : {}),
+    ...(request.generatedLessonPlanId !== undefined
+      ? { generated_lesson_plan_id: request.generatedLessonPlanId }
+      : {}),
     ...(request.createdAt ? { created_at: request.createdAt } : {}),
     ...(request.updatedAt ? { updated_at: request.updatedAt } : {})
   };

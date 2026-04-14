@@ -53,7 +53,8 @@ export type PaymentKind =
   | "scheme"
   | "resource"
   | "tool-access"
-  | "generated-scheme";
+  | "generated-scheme"
+  | "generated-lesson-plan";
 export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {
@@ -185,6 +186,46 @@ export type GeneratedSchemeRequestRecord = {
   updatedAt: string;
 };
 
+export type GeneratedLessonPlanRecord = {
+  id: string;
+  userId: string;
+  title: string;
+  level: string;
+  stage: string;
+  subject: string;
+  unitTitle: string;
+  subStrands: string[];
+  selectedCount: number;
+  learningObjectives: string[];
+  keyQuestions: string[];
+  learnerActivities: string[];
+  resources: string[];
+  assessmentMethods: string[];
+  reflection: string;
+  homework: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GeneratedLessonPlanRequestPayload = {
+  level: string;
+  subject: string;
+  unitTitle: string;
+  subStrands: string[];
+  selectedCount: number;
+};
+
+export type GeneratedLessonPlanRequestRecord = {
+  id: string;
+  userId: string;
+  paymentId: string;
+  status: "pending" | "paid" | "failed" | "completed";
+  payload: GeneratedLessonPlanRequestPayload;
+  generatedLessonPlanId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ResourceRecord = {
   id: string;
   title: string;
@@ -246,6 +287,8 @@ export type DataStore = {
   resourcePurchases: ResourcePurchaseRecord[];
   generatedSchemeRequests: GeneratedSchemeRequestRecord[];
   generatedSchemes: GeneratedSchemeRecord[];
+  generatedLessonPlanRequests: GeneratedLessonPlanRequestRecord[];
+  generatedLessonPlans: GeneratedLessonPlanRecord[];
   resources: ResourceRecord[];
   properties: PropertyRecord[];
 };
@@ -272,6 +315,8 @@ async function ensureStoreFile() {
           resourcePurchases: [],
           generatedSchemeRequests: [],
           generatedSchemes: [],
+          generatedLessonPlanRequests: [],
+          generatedLessonPlans: [],
           resources: [],
           properties: []
         } satisfies DataStore,
@@ -297,6 +342,8 @@ export async function readStore(): Promise<DataStore> {
     resourcePurchases: parsed.resourcePurchases ?? [],
     generatedSchemeRequests: parsed.generatedSchemeRequests ?? [],
     generatedSchemes: parsed.generatedSchemes ?? [],
+    generatedLessonPlanRequests: parsed.generatedLessonPlanRequests ?? [],
+    generatedLessonPlans: parsed.generatedLessonPlans ?? [],
     resources: parsed.resources ?? [],
     properties: parsed.properties ?? []
   };

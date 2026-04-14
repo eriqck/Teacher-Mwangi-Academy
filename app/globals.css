@@ -1792,6 +1792,103 @@ main {
   font-size: clamp(1.8rem, 3vw, 2.5rem);
 }
 
+.teacher-tools-grade-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.teacher-tools-level-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  color: #132a1c;
+}
+
+.teacher-tools-level-card strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.teacher-tools-level-card p {
+  margin: 4px 0 0;
+  color: #4b5d52;
+}
+
+.teacher-tools-level-card--subject .teacher-tools-level-icon {
+  background: #29a745;
+}
+
+.teacher-tools-level-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  background: #1f9fb4;
+  color: white;
+  box-shadow: 0 10px 20px rgba(31, 159, 180, 0.18);
+}
+
+.teacher-tools-level-icon--green {
+  background: #29a745;
+  box-shadow: 0 10px 20px rgba(41, 167, 69, 0.18);
+}
+
+.lesson-plan-selector-card {
+  display: grid;
+  gap: 18px;
+}
+
+.lesson-plan-cost {
+  margin: 0;
+  font-weight: 700;
+}
+
+.lesson-plan-unit-list {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-plan-unit-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d7e1ea;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.lesson-plan-unit-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.lesson-plan-substrand-list {
+  display: grid;
+  gap: 10px;
+  padding-left: 6px;
+}
+
+.lesson-plan-substrand-row {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.lesson-plan-substrand-row:last-child {
+  border-bottom: 0;
+}
+
 @media print {
   .print-hidden,
   header,
@@ -1865,6 +1962,7 @@ main {
   .generated-scheme-overview,
   .teacher-tools-overview,
   .teacher-tools-grid,
+  .teacher-tools-grade-grid,
   .scheme-wizard-grid,
   .scheme-subtopic-grid,
   .scheme-review-grid {
