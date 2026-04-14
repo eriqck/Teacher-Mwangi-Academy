@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { teacherLessonPlanPrice } from "@/lib/business";
 import type { LessonPlanUnit } from "@/lib/lesson-plan-curriculum";
 
@@ -14,8 +14,17 @@ type LessonPlanGeneratorFormProps = {
   authRedirectPath?: string;
 };
 
+type PersistedLessonPlanDraft = {
+  selectedIds: string[];
+  pendingSubmit: boolean;
+};
+
 function getSubStrandId(unitId: string, subStrand: string) {
   return `${unitId}::${subStrand}`;
+}
+
+function getLessonPlanDraftStorageKey(path: string) {
+  return `teacher-mwangi:lesson-plan-draft:${path}`;
 }
 
 export function LessonPlanGeneratorForm({
@@ -26,10 +35,14 @@ export function LessonPlanGeneratorForm({
   canGenerate = false,
   authRedirectPath = "/teacher-tools/lesson-plans"
 }: LessonPlanGeneratorFormProps) {
+  const draftStorageKey = useMemo(() => getLessonPlanDraftStorageKey(authRedirectPath), [authRedirectPath]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [pendingAuthResume, setPendingAuthResume] = useState(false);
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const hasTriggeredResumeRef = useRef(false);
 
   const totalSelected = selectedIds.length;
   const totalCost = totalSelected > 0 ? teacherLessonPlanPrice : 0;
@@ -41,8 +54,66 @@ export function LessonPlanGeneratorForm({
     return firstUnit?.title ?? "Selected unit";
   }, [selectedIds, units]);
 
+  function persistDraft(pendingSubmit: boolean) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const payload: PersistedLessonPlanDraft = {
+      selectedIds,
+      pendingSubmit
+    };
+
+    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(payload));
+  }
+
+  function clearDraft() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.sessionStorage.removeItem(draftStorageKey);
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const rawDraft = window.sessionStorage.getItem(draftStorageKey);
+
+    if (!rawDraft) {
+      setHasRestoredDraft(true);
+      return;
+    }
+
+    try {
+      const draft = JSON.parse(rawDraft) as PersistedLessonPlanDraft;
+      setSelectedIds(draft.selectedIds);
+      setPendingAuthResume(draft.pendingSubmit);
+    } catch {
+      window.sessionStorage.removeItem(draftStorageKey);
+    } finally {
+      setHasRestoredDraft(true);
+    }
+  }, [draftStorageKey]);
+
+  useEffect(() => {
+    if (!hasRestoredDraft || typeof window === "undefined") {
+      return;
+    }
+
+    const payload: PersistedLessonPlanDraft = {
+      selectedIds,
+      pendingSubmit: pendingAuthResume
+    };
+
+    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(payload));
+  }, [draftStorageKey, hasRestoredDraft, pendingAuthResume, selectedIds]);
+
   function toggleUnit(unit: LessonPlanUnit, checked: boolean) {
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     const unitIds = unit.subStrands.map((subStrand) => getSubStrandId(unit.id, subStrand));
     setSelectedIds((current) => {
       if (checked) {
@@ -54,11 +125,64 @@ export function LessonPlanGeneratorForm({
 
   function toggleSubStrand(unitId: string, subStrand: string, checked: boolean) {
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     const id = getSubStrandId(unitId, subStrand);
     setSelectedIds((current) =>
       checked ? Array.from(new Set([...current, id])) : current.filter((entry) => entry !== id)
     );
   }
+
+  async function submitLessonPlanGeneration() {
+    const selectedSubStrands = units.flatMap((unit) =>
+      unit.subStrands.filter((subStrand) => selectedIds.includes(getSubStrandId(unit.id, subStrand)))
+    );
+
+    const response = await fetch("/api/tools/lesson-plans", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        level: levelId,
+        subject,
+        unitTitle: selectedUnitTitle,
+        subStrands: selectedSubStrands
+      })
+    });
+
+    const data = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      data?: { authorization_url?: string | null; message?: string };
+    };
+
+    if (!response.ok) {
+      setError(data.error ?? "Unable to start lesson-plan generation right now.");
+      return;
+    }
+
+    if (data.data?.authorization_url) {
+      clearDraft();
+      window.location.href = data.data.authorization_url;
+      return;
+    }
+
+    setError(data.data?.message ?? "Unable to continue to M-Pesa right now.");
+  }
+
+  useEffect(() => {
+    if (!hasRestoredDraft || !canGenerate || !pendingAuthResume || hasTriggeredResumeRef.current) {
+      return;
+    }
+
+    hasTriggeredResumeRef.current = true;
+    setShowAuthPrompt(false);
+    setError(null);
+    setPendingAuthResume(false);
+
+    startTransition(async () => {
+      await submitLessonPlanGeneration();
+    });
+  }, [canGenerate, hasRestoredDraft, pendingAuthResume]);
 
   async function handleSubmit() {
     if (selectedIds.length === 0) {
@@ -67,47 +191,18 @@ export function LessonPlanGeneratorForm({
     }
 
     if (!canGenerate) {
+      setPendingAuthResume(true);
       setShowAuthPrompt(true);
       setError("Sign in or create a teacher account to generate this lesson plan.");
+      persistDraft(true);
       return;
     }
 
+    setPendingAuthResume(false);
     setError(null);
 
     startTransition(async () => {
-      const selectedSubStrands = units.flatMap((unit) =>
-        unit.subStrands.filter((subStrand) => selectedIds.includes(getSubStrandId(unit.id, subStrand)))
-      );
-
-      const response = await fetch("/api/tools/lesson-plans", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          level: levelId,
-          subject,
-          unitTitle: selectedUnitTitle,
-          subStrands: selectedSubStrands
-        })
-      });
-
-      const data = (await response.json().catch(() => ({}))) as {
-        error?: string;
-        data?: { authorization_url?: string | null; message?: string };
-      };
-
-      if (!response.ok) {
-        setError(data.error ?? "Unable to start lesson-plan generation right now.");
-        return;
-      }
-
-      if (data.data?.authorization_url) {
-        window.location.href = data.data.authorization_url;
-        return;
-      }
-
-      setError(data.data?.message ?? "Unable to continue to M-Pesa right now.");
+      await submitLessonPlanGeneration();
     });
   }
 
@@ -170,10 +265,18 @@ export function LessonPlanGeneratorForm({
             You can explore the lesson-plan flow freely, but signing in is required before generation starts.
           </p>
           <div className="hero-actions">
-            <Link href={`/login?next=${encodeURIComponent(authRedirectPath)}`} className="button">
+            <Link
+              href={`/login?next=${encodeURIComponent(authRedirectPath)}`}
+              className="button"
+              onClick={() => persistDraft(true)}
+            >
               Sign in to generate
             </Link>
-            <Link href={`/signup?next=${encodeURIComponent(authRedirectPath)}`} className="button-secondary">
+            <Link
+              href={`/signup?next=${encodeURIComponent(authRedirectPath)}`}
+              className="button-secondary"
+              onClick={() => persistDraft(true)}
+            >
               Create teacher account
             </Link>
           </div>

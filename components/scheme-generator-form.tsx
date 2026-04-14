@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { teacherSchemeGenerationPrice } from "@/lib/business";
 import {
   getLevelOptionsByStage,
@@ -119,15 +119,30 @@ type SchemeGeneratorFormProps = {
   authRedirectPath?: string;
 };
 
+type PersistedSchemeDraft = {
+  step: WizardStep;
+  formState: SchemeGeneratorFormState;
+  selectedSubtopicIds: string[];
+  pendingSubmit: boolean;
+};
+
+function getSchemeDraftStorageKey(path: string) {
+  return `teacher-mwangi:scheme-draft:${path}`;
+}
+
 export function SchemeGeneratorForm({
   canGenerate = false,
   authRedirectPath = "/teacher-tools/schemes/new"
 }: SchemeGeneratorFormProps) {
+  const draftStorageKey = useMemo(() => getSchemeDraftStorageKey(authRedirectPath), [authRedirectPath]);
   const [step, setStep] = useState<WizardStep>(1);
   const [formState, setFormState] = useState(initialState);
   const [error, setError] = useState<string | null>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [pendingAuthResume, setPendingAuthResume] = useState(false);
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const hasTriggeredResumeRef = useRef(false);
   const initialTopicSelection = useMemo(
     () => getTopicSelection(initialState.subject, initialState.term),
     []
@@ -166,6 +181,69 @@ export function SchemeGeneratorForm({
   );
   const stepPercent = step === 1 ? 25 : step === 2 ? 55 : step === 3 ? 80 : 100;
 
+  function persistDraft(pendingSubmit: boolean) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const payload: PersistedSchemeDraft = {
+      step,
+      formState,
+      selectedSubtopicIds,
+      pendingSubmit
+    };
+
+    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(payload));
+  }
+
+  function clearDraft() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.sessionStorage.removeItem(draftStorageKey);
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const rawDraft = window.sessionStorage.getItem(draftStorageKey);
+
+    if (!rawDraft) {
+      setHasRestoredDraft(true);
+      return;
+    }
+
+    try {
+      const draft = JSON.parse(rawDraft) as PersistedSchemeDraft;
+      setStep(draft.step);
+      setFormState(draft.formState);
+      setSelectedSubtopicIds(draft.selectedSubtopicIds);
+      setPendingAuthResume(draft.pendingSubmit);
+    } catch {
+      window.sessionStorage.removeItem(draftStorageKey);
+    } finally {
+      setHasRestoredDraft(true);
+    }
+  }, [draftStorageKey]);
+
+  useEffect(() => {
+    if (!hasRestoredDraft || typeof window === "undefined") {
+      return;
+    }
+
+    const payload: PersistedSchemeDraft = {
+      step,
+      formState,
+      selectedSubtopicIds,
+      pendingSubmit: pendingAuthResume
+    };
+
+    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(payload));
+  }, [draftStorageKey, formState, hasRestoredDraft, pendingAuthResume, selectedSubtopicIds, step]);
+
   function resetTopicSelection(nextSubject: string, nextTerm: SchemeTerm | "") {
     const nextSelection = getTopicSelection(nextSubject, nextTerm);
     setSelectedSubtopicIds(nextSelection.allIds);
@@ -175,11 +253,13 @@ export function SchemeGeneratorForm({
     key: K,
     value: SchemeGeneratorFormState[K]
   ) {
+    setPendingAuthResume(false);
     setFormState((current) => ({ ...current, [key]: value }));
   }
 
   function handleStageChange(nextStage: "Junior School" | "Senior School" | "") {
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     if (!nextStage) {
       setFormState((current) => ({
         ...current,
@@ -209,6 +289,7 @@ export function SchemeGeneratorForm({
 
   function handleLevelChange(nextLevel: string) {
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     const nextSubject = levels.find((entry) => entry.id === nextLevel)?.subjects[0] ?? "";
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";
 
@@ -223,6 +304,7 @@ export function SchemeGeneratorForm({
 
   function handleSubjectChange(nextSubject: string) {
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";
 
     setFormState((current) => ({
@@ -235,6 +317,7 @@ export function SchemeGeneratorForm({
 
   function handleTermChange(nextTerm: SchemeTerm | "") {
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     setFormState((current) => ({ ...current, term: nextTerm }));
     if (!nextTerm) {
       setSelectedSubtopicIds([]);
@@ -244,10 +327,12 @@ export function SchemeGeneratorForm({
   }
 
   function toggleAllTopics(checked: boolean) {
+    setPendingAuthResume(false);
     setSelectedSubtopicIds(checked ? topicSelection.allIds : []);
   }
 
   function toggleTopicGroup(topic: SchemeTopicGroup, checked: boolean) {
+    setPendingAuthResume(false);
     const groupIds = topic.subtopics.map((subtopic) => getSubtopicId(topic.id, subtopic));
     setSelectedSubtopicIds((current) => {
       if (checked) {
@@ -259,6 +344,7 @@ export function SchemeGeneratorForm({
   }
 
   function toggleSubtopic(topicId: string, subtopic: string, checked: boolean) {
+    setPendingAuthResume(false);
     const subtopicId = getSubtopicId(topicId, subtopic);
     setSelectedSubtopicIds((current) =>
       checked ? Array.from(new Set([...current, subtopicId])) : current.filter((id) => id !== subtopicId)
@@ -266,6 +352,7 @@ export function SchemeGeneratorForm({
   }
 
   function updateBreakItem(id: string, key: "title" | "durationWeeks", value: string) {
+    setPendingAuthResume(false);
     setFormState((current) => ({
       ...current,
       breaks: current.breaks.map((item) => (item.id === id ? { ...item, [key]: value } : item))
@@ -273,6 +360,7 @@ export function SchemeGeneratorForm({
   }
 
   function addBreakItem() {
+    setPendingAuthResume(false);
     setFormState((current) => ({
       ...current,
       breaks: [
@@ -287,6 +375,7 @@ export function SchemeGeneratorForm({
   }
 
   function removeBreakItem(id: string) {
+    setPendingAuthResume(false);
     setFormState((current) => ({
       ...current,
       breaks: current.breaks.length === 1
@@ -356,8 +445,105 @@ export function SchemeGeneratorForm({
   function goBack() {
     setError(null);
     setShowAuthPrompt(false);
+    setPendingAuthResume(false);
     setStep((current) => (current > 1 ? ((current - 1) as WizardStep) : current));
   }
+
+  async function submitGeneration() {
+    const weeksCount = Math.max(1, formState.lastWeek - formState.firstWeek + 1);
+    const breakSummary = formState.noBreaks
+      ? "No breaks recorded for this term."
+      : (() => {
+          const entries = formState.breaks
+            .filter((item) => item.title.trim() && item.durationWeeks)
+            .map((item) => `${item.title.trim()} (${item.durationWeeks} week${item.durationWeeks === "1" ? "" : "s"})`);
+
+          return entries.length > 0 ? entries.join("; ") : "No breaks recorded for this term.";
+        })();
+
+    const payload = {
+      schoolName: formState.schoolName.trim(),
+      className: selectedLevel?.title ?? formState.level,
+      level: formState.level,
+      subject: formState.subject.trim(),
+      term: formState.term as SchemeTerm,
+      strand: selectedTopicTitles[0] ?? `${formState.subject} term coverage`,
+      subStrand:
+        selectedSubtopics.slice(0, 3).join(", ") ||
+        "Selected subtopics",
+      weeksCount,
+      lessonsPerWeek: formState.lessonsPerWeek,
+      learningOutcomes: selectedSubtopics
+        .map((subtopic) => `Develop understanding of ${subtopic}.`)
+        .join("\n"),
+      keyInquiryQuestions: selectedSubtopics
+        .slice(0, 6)
+        .map((subtopic) => `How can learners apply ${subtopic.toLowerCase()} in ${formState.subject.toLowerCase()}?`)
+        .join("\n"),
+      coreCompetencies: defaultCoreCompetencies.join("\n"),
+      values: defaultValues.join("\n"),
+      pertinentIssues: defaultPertinentIssues.join("\n"),
+      resources: [formState.referenceBook, "Teacher guide", "Learner's book"].join("\n"),
+      assessmentMethods: [
+        "Observation",
+        "Oral questions",
+        "Short written exercise",
+        "Topic quiz"
+      ].join("\n"),
+      notes: [
+        `Academic year: ${formState.year}`,
+        `Teaching starts at week ${formState.firstWeek}, lesson ${formState.firstLesson}.`,
+        `Teaching ends at week ${formState.lastWeek}, lesson ${formState.lastLesson}.`,
+        `Double lesson: ${formState.doubleLesson || "No double lesson"}.`,
+        `Reference book: ${formState.referenceBook}.`,
+        `Breaks: ${breakSummary}`
+      ].join("\n")
+    };
+
+    const response = await fetch("/api/tools/schemes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      data?: {
+        authorization_url?: string | null;
+        message?: string;
+      };
+    };
+
+    if (!response.ok) {
+      setError(data.error ?? "Unable to generate a scheme right now.");
+      return;
+    }
+
+    if (data.data?.authorization_url) {
+      clearDraft();
+      window.location.href = data.data.authorization_url;
+      return;
+    }
+
+    setError(data.data?.message ?? "Unable to start scheme checkout right now.");
+  }
+
+  useEffect(() => {
+    if (!hasRestoredDraft || !canGenerate || !pendingAuthResume || hasTriggeredResumeRef.current) {
+      return;
+    }
+
+    hasTriggeredResumeRef.current = true;
+    setShowAuthPrompt(false);
+    setError(null);
+    setPendingAuthResume(false);
+
+    startTransition(async () => {
+      await submitGeneration();
+    });
+  }, [canGenerate, hasRestoredDraft, pendingAuthResume]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -367,89 +553,16 @@ export function SchemeGeneratorForm({
     }
 
     if (!canGenerate) {
+      setPendingAuthResume(true);
       setShowAuthPrompt(true);
       setError("Sign in or create a teacher account to generate this scheme.");
+      persistDraft(true);
       return;
     }
 
+    setPendingAuthResume(false);
     startTransition(async () => {
-      const weeksCount = Math.max(1, formState.lastWeek - formState.firstWeek + 1);
-      const breakSummary = formState.noBreaks
-        ? "No breaks recorded for this term."
-        : (() => {
-            const entries = formState.breaks
-              .filter((item) => item.title.trim() && item.durationWeeks)
-              .map((item) => `${item.title.trim()} (${item.durationWeeks} week${item.durationWeeks === "1" ? "" : "s"})`);
-
-            return entries.length > 0 ? entries.join("; ") : "No breaks recorded for this term.";
-          })();
-
-      const payload = {
-        schoolName: formState.schoolName.trim(),
-        className: selectedLevel?.title ?? formState.level,
-        level: formState.level,
-        subject: formState.subject.trim(),
-        term: formState.term as SchemeTerm,
-        strand: selectedTopicTitles[0] ?? `${formState.subject} term coverage`,
-        subStrand:
-          selectedSubtopics.slice(0, 3).join(", ") ||
-          "Selected subtopics",
-        weeksCount,
-        lessonsPerWeek: formState.lessonsPerWeek,
-        learningOutcomes: selectedSubtopics
-          .map((subtopic) => `Develop understanding of ${subtopic}.`)
-          .join("\n"),
-        keyInquiryQuestions: selectedSubtopics
-          .slice(0, 6)
-          .map((subtopic) => `How can learners apply ${subtopic.toLowerCase()} in ${formState.subject.toLowerCase()}?`)
-          .join("\n"),
-        coreCompetencies: defaultCoreCompetencies.join("\n"),
-        values: defaultValues.join("\n"),
-        pertinentIssues: defaultPertinentIssues.join("\n"),
-        resources: [formState.referenceBook, "Teacher guide", "Learner's book"].join("\n"),
-        assessmentMethods: [
-          "Observation",
-          "Oral questions",
-          "Short written exercise",
-          "Topic quiz"
-        ].join("\n"),
-        notes: [
-          `Academic year: ${formState.year}`,
-          `Teaching starts at week ${formState.firstWeek}, lesson ${formState.firstLesson}.`,
-          `Teaching ends at week ${formState.lastWeek}, lesson ${formState.lastLesson}.`,
-          `Double lesson: ${formState.doubleLesson || "No double lesson"}.`,
-          `Reference book: ${formState.referenceBook}.`,
-          `Breaks: ${breakSummary}`
-        ].join("\n")
-      };
-
-      const response = await fetch("/api/tools/schemes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = (await response.json().catch(() => ({}))) as {
-        error?: string;
-        data?: {
-          authorization_url?: string | null;
-          message?: string;
-        };
-      };
-
-      if (!response.ok) {
-        setError(data.error ?? "Unable to generate a scheme right now.");
-        return;
-      }
-
-      if (data.data?.authorization_url) {
-        window.location.href = data.data.authorization_url;
-        return;
-      }
-
-      setError(data.data?.message ?? "Unable to start scheme checkout right now.");
+      await submitGeneration();
     });
   }
 
@@ -473,10 +586,18 @@ export function SchemeGeneratorForm({
             You can explore the bot freely, but signing in is required before generation starts.
           </p>
           <div className="hero-actions">
-            <Link href={`/login?next=${encodeURIComponent(authRedirectPath)}`} className="button">
+            <Link
+              href={`/login?next=${encodeURIComponent(authRedirectPath)}`}
+              className="button"
+              onClick={() => persistDraft(true)}
+            >
               Sign in to generate
             </Link>
-            <Link href={`/signup?next=${encodeURIComponent(authRedirectPath)}`} className="button-secondary">
+            <Link
+              href={`/signup?next=${encodeURIComponent(authRedirectPath)}`}
+              className="button-secondary"
+              onClick={() => persistDraft(true)}
+            >
               Create teacher account
             </Link>
           </div>
