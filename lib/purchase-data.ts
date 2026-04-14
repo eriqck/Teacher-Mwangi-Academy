@@ -69,6 +69,7 @@ export async function getSelectedResourceForCheckout(resourceId: string) {
     level: resource.level,
     subject: resource.subject,
     section: resource.section ?? "notes",
-    assessmentSet: resource.assessmentSet ?? null
+    assessmentSet: resource.assessmentSet ?? null,
+    audience: resource.audience
   };
 }

@@ -69,10 +69,7 @@ export async function getLevelPageData(levelId: string) {
                   (purchase.term ?? null) === (resource.term ?? null))
           )
       }),
-      canPurchase:
-        user?.role === "teacher" &&
-        resource.category === "revision-material" &&
-        resource.audience !== "parent"
+      canPurchase: canPurchaseResource(resource, user?.role ?? null)
     }));
 
     return {
@@ -110,7 +107,7 @@ function canOpenResource(
     return input.userRole === "teacher" && input.hasPaidScheme;
   }
 
-  if (input.userRole === "teacher" && input.hasPaidResource) {
+  if ((input.userRole === "teacher" || input.userRole === "parent") && input.hasPaidResource) {
     return true;
   }
 
@@ -123,4 +120,23 @@ function canOpenResource(
   }
 
   return resource.audience === input.userRole;
+}
+
+function canPurchaseResource(
+  resource: ResourceRecord,
+  userRole: "parent" | "teacher" | "admin" | null
+) {
+  if (resource.category !== "revision-material") {
+    return false;
+  }
+
+  if (userRole === "teacher") {
+    return resource.audience !== "parent";
+  }
+
+  if (userRole === "parent") {
+    return (resource.section ?? "notes") === "notes" && resource.audience !== "teacher";
+  }
+
+  return false;
 }

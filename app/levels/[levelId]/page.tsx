@@ -117,6 +117,11 @@ export default async function LevelPage({
                 Teachers can unlock all revision materials with a monthly subscription or buy
                 specific notes and assessments one time.
               </p>
+            ) : user.role === "parent" ? (
+              <p className="subtle">
+                Parents can unlock all revision materials with a monthly subscription or buy
+                specific notes one time.
+              </p>
             ) : (
               <p className="subtle">
                 Your current account does not yet have access to this level. Start or update a
@@ -166,7 +171,7 @@ export default async function LevelPage({
                     <Link href={resource.fileUrl} target="_blank" className="button">
                       Open material
                     </Link>
-                  ) : user?.role === "teacher" && resource.canPurchase ? (
+                  ) : resource.canPurchase ? (
                     <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
                       Buy for KSh {teacherMaterialPrice}
                     </Link>
@@ -228,7 +233,7 @@ export default async function LevelPage({
                             <Link href={resource.fileUrl} target="_blank" className="button">
                               Open assessment
                             </Link>
-                          ) : user?.role === "teacher" && resource.canPurchase ? (
+                          ) : resource.canPurchase ? (
                             <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
                               Buy for KSh {teacherMaterialPrice}
                             </Link>
