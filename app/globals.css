@@ -1737,6 +1737,11 @@ main {
   flex-wrap: wrap;
 }
 
+.teacher-tools-quick-actions--guest .teacher-tools-action {
+  min-width: 220px;
+  justify-content: center;
+}
+
 .teacher-tools-action {
   display: inline-flex;
   align-items: center;

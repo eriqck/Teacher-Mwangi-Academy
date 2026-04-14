@@ -35,8 +35,18 @@ export default async function TeacherToolsDashboardPage({
             <span className="eyebrow">Teacher bot</span>
             <h1>Generate schemes and lesson plans from one workspace.</h1>
             <p className="subtle">
-              Teachers can come straight here from the homepage, sign in inside the bot, and then continue to generate.
+              Teachers can come straight here from the homepage, open the exact workflow they want, and only sign in
+              when they are ready to generate.
             </p>
+
+            <div className="teacher-tools-quick-actions teacher-tools-quick-actions--guest">
+              <Link href="/teacher-tools/schemes/new" className="teacher-tools-action teacher-tools-action--primary">
+                Open Scheme Generator
+              </Link>
+              <Link href="/teacher-tools/lesson-plans" className="teacher-tools-action teacher-tools-action--success">
+                Open Lesson Plans
+              </Link>
+            </div>
 
             <div className="teacher-tools-overview">
               <div>
@@ -51,11 +61,15 @@ export default async function TeacherToolsDashboardPage({
                 <h3>Need a teacher account?</h3>
                 <div className="teacher-tools-unlock-box">
                   <p className="subtle">
-                    New teachers can create an account first, then return here to start generating.
+                    New teachers can create an account first, or open a generator now and sign in only when they click
+                    the final generate button.
                   </p>
                   <div className="hero-actions">
-                    <Link href="/signup" className="button">
+                    <Link href="/signup?next=%2Fteacher-tools" className="button">
                       Create teacher account
+                    </Link>
+                    <Link href="/login?next=%2Fteacher-tools" className="button-secondary">
+                      Teacher sign in
                     </Link>
                   </div>
                 </div>
@@ -66,10 +80,13 @@ export default async function TeacherToolsDashboardPage({
           <article className="teacher-tools-card teacher-tools-auth-card">
             <div className="teacher-tools-section-head">
               <div>
-                <span className="eyebrow">Teacher sign in</span>
-                <h2>Sign in to generate</h2>
+                <span className="eyebrow">Optional sign in</span>
+                <h2>Sign in here if you want to continue now</h2>
               </div>
             </div>
+            <p className="subtle">
+              You can skip this and go straight into the scheme or lesson-plan flow first.
+            </p>
             <Suspense fallback={<p className="subtle">Loading sign-in form...</p>}>
               <AuthForm mode="login" />
             </Suspense>
