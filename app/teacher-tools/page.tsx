@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { AuthForm } from "@/components/auth-form";
+import { getCurrentUser } from "@/lib/auth";
 import { readAppData } from "@/lib/repository";
 import { teacherLessonPlanPrice, teacherSchemeGenerationPrice } from "@/lib/business";
 
@@ -8,12 +9,72 @@ export default async function TeacherToolsDashboardPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const resolvedSearchParams = await searchParams;
   const paymentState =
     typeof resolvedSearchParams.payment === "string" ? resolvedSearchParams.payment : null;
-  const store = await readAppData();
-  const schemeCount = store.generatedSchemes.filter((entry) => entry.userId === user.id).length;
+  const isTeacherWorkspaceUser = user?.role === "teacher" || user?.role === "admin";
+  const store = isTeacherWorkspaceUser ? await readAppData() : null;
+  const schemeCount = isTeacherWorkspaceUser && user
+    ? store?.generatedSchemes.filter((entry) => entry.userId === user.id).length ?? 0
+    : 0;
+
+  if (!isTeacherWorkspaceUser) {
+    return (
+      <section className="teacher-tools-content">
+        <div className="teacher-tools-banner">
+          <strong>Teacher tools workspace</strong>
+          <span>
+            Open the bot first, then sign in here to generate schemes and lesson plans from the same workspace.
+          </span>
+        </div>
+
+        <div className="teacher-tools-grid">
+          <article className="teacher-tools-card teacher-tools-public-card">
+            <span className="eyebrow">Teacher bot</span>
+            <h1>Generate schemes and lesson plans from one workspace.</h1>
+            <p className="subtle">
+              Teachers can come straight here from the homepage, sign in inside the bot, and then continue to generate.
+            </p>
+
+            <div className="teacher-tools-overview">
+              <div>
+                <h3>What you can do here</h3>
+                <ul>
+                  <li>Create schemes of work and pay per generated scheme</li>
+                  <li>Generate lesson plans at KSh {teacherLessonPlanPrice} each</li>
+                  <li>Keep saved outputs inside the teacher workspace</li>
+                </ul>
+              </div>
+              <div>
+                <h3>Need a teacher account?</h3>
+                <div className="teacher-tools-unlock-box">
+                  <p className="subtle">
+                    New teachers can create an account first, then return here to start generating.
+                  </p>
+                  <div className="hero-actions">
+                    <Link href="/signup" className="button">
+                      Create teacher account
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article className="teacher-tools-card teacher-tools-auth-card">
+            <div className="teacher-tools-section-head">
+              <div>
+                <span className="eyebrow">Teacher sign in</span>
+                <h2>Sign in to generate</h2>
+              </div>
+            </div>
+            <AuthForm mode="login" />
+          </article>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="teacher-tools-content">

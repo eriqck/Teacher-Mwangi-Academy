@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PrintSchemeButton } from "@/components/print-scheme-button";
-import { requireUser } from "@/lib/auth";
+import { requireTeacherUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { readAppData } from "@/lib/repository";
 
@@ -15,7 +15,7 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
   params: Promise<{ planId: string }>;
 }) {
   const { planId } = await params;
-  const user = await requireUser();
+  const user = await requireTeacherUser();
   const store = await readAppData();
 
   const lessonPlan = store.generatedLessonPlans.find((entry) => entry.id === planId);

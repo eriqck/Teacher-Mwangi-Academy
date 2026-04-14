@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
 
 export default async function TeacherToolsLayout({
@@ -8,21 +7,25 @@ export default async function TeacherToolsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  const isTeacherWorkspaceUser = user?.role === "teacher" || user?.role === "admin";
 
-  if (user.role !== "teacher" && user.role !== "admin") {
-    redirect("/dashboard");
-  }
-
-  if (user.role === "teacher") {
+  if (user?.role === "teacher") {
     await reconcilePaidPaystackPaymentsForUser(user.id);
   }
 
-  const links = [
+  const teacherLinks = [
     { href: "/teacher-tools", label: "Dashboard" },
     { href: "/teacher-tools/schemes", label: "My Schemes" },
     { href: "/teacher-tools/schemes/new", label: "Create Scheme" },
     { href: "/teacher-tools/lesson-plans", label: "Lesson Plans" }
+  ];
+
+  const guestLinks = [
+    { href: "/teacher-tools", label: "Bot Home" },
+    { href: "/teacher-tools/schemes/new", label: "Create Scheme" },
+    { href: "/teacher-tools/lesson-plans", label: "Lesson Plans" },
+    { href: "/login", label: "Teacher Sign In" }
   ];
 
   return (
@@ -36,16 +39,26 @@ export default async function TeacherToolsLayout({
           </div>
         </div>
 
-        <div className="teacher-tools-profile">
-          <div className="teacher-tools-avatar">{user.fullName.charAt(0)}</div>
-          <div>
-            <strong>{user.fullName}</strong>
-            <p>{user.email}</p>
+        {isTeacherWorkspaceUser && user ? (
+          <div className="teacher-tools-profile">
+            <div className="teacher-tools-avatar">{user.fullName.charAt(0)}</div>
+            <div>
+              <strong>{user.fullName}</strong>
+              <p>{user.email}</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="teacher-tools-profile teacher-tools-profile--guest">
+            <div className="teacher-tools-avatar">T</div>
+            <div>
+              <strong>Teacher access</strong>
+              <p>Open the workspace first, then sign in to generate.</p>
+            </div>
+          </div>
+        )}
 
         <nav className="teacher-tools-nav" aria-label="Teacher tools navigation">
-          {links.map((link) => (
+          {(isTeacherWorkspaceUser ? teacherLinks : guestLinks).map((link) => (
             <Link key={link.href} href={link.href} className="teacher-tools-nav-link">
               {link.label}
             </Link>
@@ -53,19 +66,30 @@ export default async function TeacherToolsLayout({
         </nav>
 
         <div className="teacher-tools-sidebar-footer">
-          <span className="teacher-tools-status is-active">
-            Per-output payment model
+          <span className={`teacher-tools-status ${isTeacherWorkspaceUser ? "is-active" : "is-pending"}`}>
+            {isTeacherWorkspaceUser ? "Per-output payment model" : "Teacher sign-in available here"}
           </span>
 
           <Link href="/" className="teacher-tools-home-link">
             Back to main site
           </Link>
 
-          <form action="/api/auth/logout" method="post">
-            <button type="submit" className="teacher-tools-logout">
-              Log out
-            </button>
-          </form>
+          {isTeacherWorkspaceUser ? (
+            <form action="/api/auth/logout" method="post">
+              <button type="submit" className="teacher-tools-logout">
+                Log out
+              </button>
+            </form>
+          ) : (
+            <div className="teacher-tools-guest-actions">
+              <Link href="/login" className="teacher-tools-home-link">
+                Sign in
+              </Link>
+              <Link href="/signup" className="teacher-tools-home-link">
+                Create teacher account
+              </Link>
+            </div>
+          )}
         </div>
       </aside>
 

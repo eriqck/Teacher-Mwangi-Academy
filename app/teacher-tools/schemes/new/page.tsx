@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { SchemeGeneratorForm } from "@/components/scheme-generator-form";
-import { requireUser } from "@/lib/auth";
+import { requireTeacherUser } from "@/lib/auth";
 import { teacherSchemeGenerationPrice } from "@/lib/business";
 
 export default async function TeacherToolNewSchemePage() {
-  await requireUser();
+  await requireTeacherUser();
 
   return (
     <section className="teacher-tools-content">

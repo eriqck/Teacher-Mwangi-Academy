@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { requireTeacherUser } from "@/lib/auth";
 import { readAppData } from "@/lib/repository";
 import { levels } from "@/lib/catalog";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
@@ -9,7 +9,7 @@ function getLevelTitle(levelId: string) {
 }
 
 export default async function TeacherToolSchemesPage() {
-  const user = await requireUser();
+  const user = await requireTeacherUser();
   const store = await readAppData();
 
   const schemes = store.generatedSchemes

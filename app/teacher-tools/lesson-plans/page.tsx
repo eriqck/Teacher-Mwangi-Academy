@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { requireTeacherUser } from "@/lib/auth";
 import { teacherLessonPlanPrice } from "@/lib/business";
 import { getLessonPlanLevels } from "@/lib/lesson-plan-curriculum";
 import { readAppData } from "@/lib/repository";
@@ -9,7 +9,7 @@ export default async function TeacherToolLessonPlansPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const user = await requireUser();
+  const user = await requireTeacherUser();
   const resolvedSearchParams = await searchParams;
   const paymentState =
     typeof resolvedSearchParams.payment === "string" ? resolvedSearchParams.payment : null;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LessonPlanGeneratorForm } from "@/components/lesson-plan-generator-form";
-import { requireUser } from "@/lib/auth";
+import { requireTeacherUser } from "@/lib/auth";
 import { getLessonPlanLevels, getLessonPlanSubjects, getLessonPlanUnits } from "@/lib/lesson-plan-curriculum";
 
 export default async function TeacherToolLessonPlanSubjectDetailPage({
@@ -9,7 +9,7 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
 }: {
   params: Promise<{ levelId: string; subjectSlug: string }>;
 }) {
-  await requireUser();
+  await requireTeacherUser();
   const { levelId, subjectSlug } = await params;
   const level = getLessonPlanLevels().find((entry) => entry.id === levelId);
 

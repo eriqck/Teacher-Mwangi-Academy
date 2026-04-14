@@ -1610,6 +1610,10 @@ main {
   gap: 12px;
 }
 
+.teacher-tools-profile--guest {
+  align-items: flex-start;
+}
+
 .teacher-tools-nav {
   display: grid;
   gap: 4px;
@@ -1631,6 +1635,11 @@ main {
 .teacher-tools-sidebar-footer {
   display: grid;
   gap: 12px;
+}
+
+.teacher-tools-guest-actions {
+  display: grid;
+  gap: 8px;
 }
 
 .teacher-tools-status {
@@ -1756,6 +1765,21 @@ main {
   display: grid;
   gap: 18px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.teacher-tools-public-card {
+  display: grid;
+  gap: 18px;
+}
+
+.teacher-tools-public-card h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+}
+
+.teacher-tools-auth-card {
+  align-self: start;
 }
 
 .teacher-tools-overview ul {
