@@ -2979,9 +2979,17 @@ main {
   flex-wrap: wrap;
 }
 
+.home-bot-actions .home-pricing-button,
+.home-bot-actions .home-one-time-button {
+  margin-top: 0;
+  min-width: 210px;
+  flex: 1 1 210px;
+}
+
 .home-bot-primary {
-  background: #047857;
-  box-shadow: 0 16px 28px rgba(209, 250, 229, 0.95);
+  color: #fff;
+  background: linear-gradient(90deg, #f97316, #f59e0b);
+  box-shadow: 0 16px 28px rgba(254, 215, 170, 0.95);
 }
 
 .home-bot-panel {
