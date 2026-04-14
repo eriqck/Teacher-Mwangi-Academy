@@ -24,27 +24,28 @@ export default async function TeacherToolsDashboardPage({
     return (
       <section className="teacher-tools-content">
         <div className="teacher-tools-banner">
-          <strong>Teacher tools workspace</strong>
+          <strong>Teacher tools</strong>
           <span>
-            Open the bot first, then sign in here to generate schemes and lesson plans from the same workspace.
+            Create schemes of work and lesson plans from one place. You can start first, then sign in only when you
+            are ready to generate.
           </span>
         </div>
 
         <div className="teacher-tools-grid">
           <article className="teacher-tools-card teacher-tools-public-card">
-            <span className="eyebrow">Teacher bot</span>
-            <h1>Generate schemes and lesson plans from one workspace.</h1>
+            <span className="eyebrow">For teachers</span>
+            <h1>Create schemes of work and lesson plans easily.</h1>
             <p className="subtle">
-              Teachers can come straight here from the homepage, open the exact workflow they want, and only sign in
-              when they are ready to generate.
+              Choose what you want to prepare, fill in the details, and continue to payment when you are ready.
+              If you are not signed in yet, the system will ask you at the final step.
             </p>
 
             <div className="teacher-tools-quick-actions teacher-tools-quick-actions--guest">
               <Link href="/teacher-tools/schemes/new" className="teacher-tools-action teacher-tools-action--primary">
-                Open Scheme Generator
+                Start a Scheme
               </Link>
               <Link href="/teacher-tools/lesson-plans" className="teacher-tools-action teacher-tools-action--success">
-                Open Lesson Plans
+                Start a Lesson Plan
               </Link>
             </div>
 
@@ -52,24 +53,24 @@ export default async function TeacherToolsDashboardPage({
               <div>
                 <h3>What you can do here</h3>
                 <ul>
-                  <li>Create schemes of work and pay per generated scheme</li>
-                  <li>Generate lesson plans at KSh {teacherLessonPlanPrice} each</li>
-                  <li>Keep saved outputs inside the teacher workspace</li>
+                  <li>Create a scheme of work and pay only for that scheme</li>
+                  <li>Generate a lesson plan at KSh {teacherLessonPlanPrice} each</li>
+                  <li>Save your generated work in your teacher account</li>
                 </ul>
               </div>
               <div>
-                <h3>Need a teacher account?</h3>
+                <h3>New here?</h3>
                 <div className="teacher-tools-unlock-box">
                   <p className="subtle">
-                    New teachers can create an account first, or open a generator now and sign in only when they click
-                    the final generate button.
+                    You can create a teacher account now, or start filling the form first and sign in when you click
+                    generate.
                   </p>
                   <div className="hero-actions">
                     <Link href="/signup?next=%2Fteacher-tools" className="button">
-                      Create teacher account
+                      Create account
                     </Link>
                     <Link href="/login?next=%2Fteacher-tools" className="button-secondary">
-                      Teacher sign in
+                      Sign in
                     </Link>
                   </div>
                 </div>
@@ -80,12 +81,13 @@ export default async function TeacherToolsDashboardPage({
           <article className="teacher-tools-card teacher-tools-auth-card">
             <div className="teacher-tools-section-head">
               <div>
-                <span className="eyebrow">Optional sign in</span>
-                <h2>Sign in here if you want to continue now</h2>
+                <span className="eyebrow">Already have an account?</span>
+                <h2>Sign in and continue</h2>
               </div>
             </div>
             <p className="subtle">
-              You can skip this and go straight into the scheme or lesson-plan flow first.
+              If you already have a teacher account, sign in here. If not, you can still start with the buttons on the
+              left and sign in later.
             </p>
             <Suspense fallback={<p className="subtle">Loading sign-in form...</p>}>
               <AuthForm mode="login" />
