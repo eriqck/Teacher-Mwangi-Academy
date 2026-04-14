@@ -1,15 +1,13 @@
 import { AdminSubscriptionsTable } from "@/components/admin-subscriptions-table";
 import { AdminUserManager } from "@/components/admin-user-manager";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { featuredResources, levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
-import { subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
+import { subscriptionPlans } from "@/lib/business";
 import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
 import { readAppData } from "@/lib/repository";
-import { getSchemeTermLabel } from "@/lib/scheme-terms";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
 
 function formatMoney(amount: number) {
@@ -60,12 +58,7 @@ export default async function DashboardPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await requireUser();
-  const resolvedSearchParams = await searchParams;
-
-  if (user.role === "teacher") {
-    const payment = typeof resolvedSearchParams.payment === "string" ? `?payment=${resolvedSearchParams.payment}` : "";
-    redirect(`/teacher-tools${payment}`);
-  }
+  await searchParams;
 
   await reconcilePaidPaystackPaymentsForUser(user.id);
   const latestUpdates = getLatestSiteUpdates(3);
@@ -77,9 +70,6 @@ export default async function DashboardPage({
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const payments = (user.role === "admin" ? store.payments : store.payments.filter((item) => item.userId === user.id))
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
-  const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
-  const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
   const allSubscriptions = store.subscriptions
     .slice()
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
@@ -155,6 +145,9 @@ export default async function DashboardPage({
     .reduce((sum, payment) => sum + payment.amount, 0);
   const paidResourcesAmount = paidPayments
     .filter((payment) => payment.kind === "resource")
+    .reduce((sum, payment) => sum + payment.amount, 0);
+  const paidGeneratedSchemesAmount = paidPayments
+    .filter((payment) => payment.kind === "generated-scheme" || payment.kind === "tool-access")
     .reduce((sum, payment) => sum + payment.amount, 0);
 
   return (
@@ -275,71 +268,23 @@ export default async function DashboardPage({
             </p>
           </article>
 
-          <article className="dashboard-card">
-            <h3>Teacher scheme purchases</h3>
-            {schemePurchases.length > 0 ? (
-              <table className="mini-table">
-                <thead>
-                  <tr>
-                    <th>Scheme</th>
-                    <th>Level</th>
-                    <th>Term</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schemePurchases.slice(0, 5).map((purchase) => (
-                    <tr key={purchase.id}>
-                      <td>
-                        {purchase.resourceId
-                          ? (resourcesById.get(purchase.resourceId)?.title ?? purchase.subject)
-                          : purchase.subject}
-                      </td>
-                      <td>{purchase.level}</td>
-                      <td>{getSchemeTermLabel(purchase.term)}</td>
-                      <td>{purchase.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
+          {user.role === "teacher" ? (
+            <article className="dashboard-card">
+              <h3>Teacher tools</h3>
               <p className="subtle">
-                Scheme purchases are available to teacher accounts only.
+                Open the scheme and lesson-plan workspace separately. Each generated scheme or lesson
+                plan is charged individually instead of unlocking everything one time.
               </p>
-            )}
-          </article>
-        </div>
-
-        <div className="dashboard-grid" style={{ marginTop: 18 }}>
-          <article className="dashboard-card">
-            <h3>Teacher material purchases</h3>
-            {resourcePurchases.length > 0 ? (
-              <table className="mini-table">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resourcePurchases.slice(0, 5).map((purchase) => (
-                    <tr key={purchase.id}>
-                      <td>{purchase.title}</td>
-                      <td>{purchase.section === "assessment" ? "Assessment" : "Notes"}</td>
-                      <td>{formatMoney(purchase.amount || teacherMaterialPrice)}</td>
-                      <td>{purchase.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="subtle">
-                One-time teacher material purchases are available to teacher accounts only.
-              </p>
-            )}
-          </article>
+              <div className="hero-actions">
+                <Link href="/teacher-tools" className="button">
+                  Open Scheme Bot
+                </Link>
+                <Link href="/subscribe" className="button-secondary">
+                  Manage teacher subscription
+                </Link>
+              </div>
+            </article>
+          ) : null}
         </div>
       </section>
 
@@ -406,6 +351,12 @@ export default async function DashboardPage({
               <span className="subtle">Paid schemes total</span>
               <strong className="dashboard-summary-value">{formatMoney(paidSchemesAmount)}</strong>
               <p className="subtle">Successful schemes of work income only.</p>
+            </article>
+
+            <article className="dashboard-card dashboard-summary-card">
+              <span className="subtle">Paid bot schemes total</span>
+              <strong className="dashboard-summary-value">{formatMoney(paidGeneratedSchemesAmount)}</strong>
+              <p className="subtle">Successful generated scheme income only.</p>
             </article>
 
             <article className="dashboard-card dashboard-summary-card">

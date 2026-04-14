@@ -46,4 +46,5 @@ export const subscriptionPlans: Record<
 
 export const schemeOfWorkPrice = 20;
 export const teacherMaterialPrice = 30;
-export const teacherToolAccessPrice = 30;
+export const teacherSchemeGenerationPrice = 30;
+export const teacherLessonPlanPrice = 30;

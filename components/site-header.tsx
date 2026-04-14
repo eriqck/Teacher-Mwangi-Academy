@@ -9,7 +9,7 @@ export async function SiteHeader() {
     { href: "#levels", label: "Levels" },
     { href: "#membership", label: "Membership" },
     { href: "#team", label: "Team" },
-    { href: user?.role === "teacher" ? "/teacher-tools" : "/dashboard", label: "Dashboard" },
+    { href: "/dashboard", label: "Dashboard" },
     ...(user?.role === "teacher" || user?.role === "admin"
       ? [{ href: "/teacher-tools", label: "Scheme Bot" }]
       : []),

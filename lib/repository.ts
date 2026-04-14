@@ -3,6 +3,7 @@ import path from "path";
 import type {
   DataStore,
   GeneratedSchemeRecord,
+  GeneratedSchemeRequestRecord,
   PaymentRecord,
   PasswordResetTokenRecord,
   PropertyRecord,
@@ -183,7 +184,23 @@ function mapGeneratedScheme(row: Record<string, unknown>): GeneratedSchemeRecord
   };
 }
 
-function isMissingGeneratedSchemesTable(error: { message?: string | null; code?: string | null } | null) {
+function mapGeneratedSchemeRequest(row: Record<string, unknown>): GeneratedSchemeRequestRecord {
+  return {
+    id: `${row.id}`,
+    userId: `${row.user_id}`,
+    paymentId: `${row.payment_id}`,
+    status: row.status as GeneratedSchemeRequestRecord["status"],
+    payload: row.payload as GeneratedSchemeRequestRecord["payload"],
+    generatedSchemeId: (row.generated_scheme_id as string | null) ?? null,
+    createdAt: `${row.created_at}`,
+    updatedAt: `${row.updated_at}`
+  };
+}
+
+function isMissingSupabaseTable(
+  error: { message?: string | null; code?: string | null } | null,
+  tableName: string
+) {
   if (!error) {
     return false;
   }
@@ -191,7 +208,7 @@ function isMissingGeneratedSchemesTable(error: { message?: string | null; code?:
   const message = `${error.message ?? ""}`.toLowerCase();
   return (
     error.code === "42P01" ||
-    message.includes("generated_schemes") &&
+    message.includes(tableName) &&
       (message.includes("schema cache") ||
         message.includes("does not exist") ||
         message.includes("could not find the table"))
@@ -206,7 +223,7 @@ export async function readAppData(): Promise<DataStore> {
   const localStore = await readStore();
 
   const supabase = getSupabaseAdmin();
-  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources, generatedSchemes] = await Promise.all([
+  const [users, sessions, subscriptions, payments, schemePurchases, resourcePurchases, resources, generatedSchemes, generatedSchemeRequests] = await Promise.all([
     supabase.from("users").select("*"),
     supabase.from("sessions").select("*"),
     supabase.from("subscriptions").select("*"),
@@ -214,7 +231,8 @@ export async function readAppData(): Promise<DataStore> {
     supabase.from("scheme_purchases").select("*"),
     supabase.from("resource_purchases").select("*"),
     supabase.from("resources").select("*"),
-    supabase.from("generated_schemes").select("*")
+    supabase.from("generated_schemes").select("*"),
+    supabase.from("generated_scheme_requests").select("*")
   ]);
 
   if (
@@ -225,7 +243,9 @@ export async function readAppData(): Promise<DataStore> {
     schemePurchases.error ||
     resourcePurchases.error ||
     resources.error ||
-    (generatedSchemes.error && !isMissingGeneratedSchemesTable(generatedSchemes.error))
+    (generatedSchemes.error && !isMissingSupabaseTable(generatedSchemes.error, "generated_schemes")) ||
+    (generatedSchemeRequests.error &&
+      !isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests"))
   ) {
     throw new Error(
       users.error?.message ||
@@ -235,7 +255,10 @@ export async function readAppData(): Promise<DataStore> {
         schemePurchases.error?.message ||
         resourcePurchases.error?.message ||
         resources.error?.message ||
-        (isMissingGeneratedSchemesTable(generatedSchemes.error) ? null : generatedSchemes.error?.message) ||
+        (isMissingSupabaseTable(generatedSchemes.error, "generated_schemes") ? null : generatedSchemes.error?.message) ||
+        (isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")
+          ? null
+          : generatedSchemeRequests.error?.message) ||
         "Failed to read Supabase data."
     );
   }
@@ -248,7 +271,10 @@ export async function readAppData(): Promise<DataStore> {
     payments: (payments.data ?? []).map((row: Record<string, unknown>) => mapPayment(row)),
     schemePurchases: (schemePurchases.data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row)),
     resourcePurchases: (resourcePurchases.data ?? []).map((row: Record<string, unknown>) => mapResourcePurchase(row)),
-    generatedSchemes: isMissingGeneratedSchemesTable(generatedSchemes.error)
+    generatedSchemeRequests: isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")
+      ? localStore.generatedSchemeRequests ?? []
+      : (generatedSchemeRequests.data ?? []).map((row: Record<string, unknown>) => mapGeneratedSchemeRequest(row)),
+    generatedSchemes: isMissingSupabaseTable(generatedSchemes.error, "generated_schemes")
       ? localStore.generatedSchemes ?? []
       : (generatedSchemes.data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row)),
     resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row)),
@@ -724,6 +750,73 @@ export async function saveGeneratedSchemeRecord(scheme: GeneratedSchemeRecord) {
   return scheme;
 }
 
+export async function saveGeneratedSchemeRequestRecord(request: GeneratedSchemeRequestRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemeRequests: [request, ...current.generatedSchemeRequests]
+    }));
+    return request;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("generated_scheme_requests").insert(toGeneratedSchemeRequestRow(request));
+  if (error) throw new Error(error.message);
+  return request;
+}
+
+export async function findGeneratedSchemeRequestByPaymentId(paymentId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedSchemeRequests.find((request) => request.paymentId === paymentId) ?? null;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_scheme_requests")
+    .select("*")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedSchemeRequest(data) : null;
+}
+
+export async function updateGeneratedSchemeRequestRecord(
+  requestId: string,
+  changes: Partial<GeneratedSchemeRequestRecord>
+) {
+  if (!isSupabaseConfigured()) {
+    let updatedRequest: GeneratedSchemeRequestRecord | null = null;
+    await updateStore((current) => ({
+      ...current,
+      generatedSchemeRequests: current.generatedSchemeRequests.map((request) => {
+        if (request.id !== requestId) {
+          return request;
+        }
+        updatedRequest = {
+          ...request,
+          ...changes,
+          id: request.id
+        };
+        return updatedRequest;
+      })
+    }));
+    return updatedRequest;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("generated_scheme_requests")
+    .update(toGeneratedSchemeRequestRow(changes))
+    .eq("id", requestId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data ? mapGeneratedSchemeRequest(data) : null;
+}
+
 export async function deleteGeneratedSchemeRecord(schemeId: string) {
   if (!isSupabaseConfigured()) {
     let deletedScheme: GeneratedSchemeRecord | null = null;
@@ -1036,5 +1129,18 @@ function toGeneratedSchemeRow(scheme: Partial<GeneratedSchemeRecord>) {
     ...(scheme.weeklyPlan ? { weekly_plan: scheme.weeklyPlan } : {}),
     ...(scheme.createdAt ? { created_at: scheme.createdAt } : {}),
     ...(scheme.updatedAt ? { updated_at: scheme.updatedAt } : {})
+  };
+}
+
+function toGeneratedSchemeRequestRow(request: Partial<GeneratedSchemeRequestRecord>) {
+  return {
+    ...(request.id ? { id: request.id } : {}),
+    ...(request.userId ? { user_id: request.userId } : {}),
+    ...(request.paymentId ? { payment_id: request.paymentId } : {}),
+    ...(request.status ? { status: request.status } : {}),
+    ...(request.payload ? { payload: request.payload } : {}),
+    ...(request.generatedSchemeId !== undefined ? { generated_scheme_id: request.generatedSchemeId } : {}),
+    ...(request.createdAt ? { created_at: request.createdAt } : {}),
+    ...(request.updatedAt ? { updated_at: request.updatedAt } : {})
   };
 }

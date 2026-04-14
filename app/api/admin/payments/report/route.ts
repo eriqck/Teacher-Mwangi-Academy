@@ -32,6 +32,7 @@ export async function GET() {
       ["Failed payments total (KES)", failedPayments.reduce((sum, payment) => sum + payment.amount, 0)],
       ["Paid subscriptions total (KES)", paidPayments.filter((payment) => payment.kind === "subscription").reduce((sum, payment) => sum + payment.amount, 0)],
       ["Paid schemes total (KES)", paidPayments.filter((payment) => payment.kind === "scheme").reduce((sum, payment) => sum + payment.amount, 0)],
+      ["Paid generated bot schemes total (KES)", paidPayments.filter((payment) => payment.kind === "generated-scheme" || payment.kind === "tool-access").reduce((sum, payment) => sum + payment.amount, 0)],
       ["Paid one-time materials total (KES)", paidPayments.filter((payment) => payment.kind === "resource").reduce((sum, payment) => sum + payment.amount, 0)]
     ];
 

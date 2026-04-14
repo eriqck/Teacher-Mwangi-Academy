@@ -48,7 +48,12 @@ export type SubscriptionRecord = {
   paymentId: string;
 };
 
-export type PaymentKind = "subscription" | "scheme" | "resource" | "tool-access";
+export type PaymentKind =
+  | "subscription"
+  | "scheme"
+  | "resource"
+  | "tool-access"
+  | "generated-scheme";
 export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {
@@ -149,6 +154,37 @@ export type GeneratedSchemeRecord = {
   updatedAt: string;
 };
 
+export type GeneratedSchemeRequestPayload = {
+  schoolName: string;
+  className: string;
+  level: string;
+  subject: string;
+  term: SchemeTerm;
+  strand: string;
+  subStrand: string;
+  weeksCount: number;
+  lessonsPerWeek: number;
+  learningOutcomes: string[];
+  keyInquiryQuestions: string[];
+  coreCompetencies: string[];
+  values: string[];
+  pertinentIssues: string[];
+  resources: string[];
+  assessmentMethods: string[];
+  notes: string;
+};
+
+export type GeneratedSchemeRequestRecord = {
+  id: string;
+  userId: string;
+  paymentId: string;
+  status: "pending" | "paid" | "failed" | "completed";
+  payload: GeneratedSchemeRequestPayload;
+  generatedSchemeId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ResourceRecord = {
   id: string;
   title: string;
@@ -208,6 +244,7 @@ export type DataStore = {
   payments: PaymentRecord[];
   schemePurchases: SchemePurchaseRecord[];
   resourcePurchases: ResourcePurchaseRecord[];
+  generatedSchemeRequests: GeneratedSchemeRequestRecord[];
   generatedSchemes: GeneratedSchemeRecord[];
   resources: ResourceRecord[];
   properties: PropertyRecord[];
@@ -233,6 +270,7 @@ async function ensureStoreFile() {
           payments: [],
           schemePurchases: [],
           resourcePurchases: [],
+          generatedSchemeRequests: [],
           generatedSchemes: [],
           resources: [],
           properties: []
@@ -257,6 +295,7 @@ export async function readStore(): Promise<DataStore> {
     payments: parsed.payments ?? [],
     schemePurchases: parsed.schemePurchases ?? [],
     resourcePurchases: parsed.resourcePurchases ?? [],
+    generatedSchemeRequests: parsed.generatedSchemeRequests ?? [],
     generatedSchemes: parsed.generatedSchemes ?? [],
     resources: parsed.resources ?? [],
     properties: parsed.properties ?? []

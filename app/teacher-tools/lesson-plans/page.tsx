@@ -1,17 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { readAppData } from "@/lib/repository";
-import { getTeacherToolAccess } from "@/lib/teacher-tools";
+import { teacherLessonPlanPrice } from "@/lib/business";
 
 export default async function TeacherToolLessonPlansPage() {
-  const user = await requireUser();
-  const store = await readAppData();
-  const access = getTeacherToolAccess(store, user);
-
-  if (!access.hasAccess && user.role !== "admin") {
-    redirect("/teacher-tools");
-  }
+  await requireUser();
 
   return (
     <section className="teacher-tools-content">
@@ -24,8 +16,8 @@ export default async function TeacherToolLessonPlansPage() {
 
       <article className="teacher-tools-card">
         <p className="subtle">
-          The one-time bot access you paid for will also cover lesson-plan generation. The dashboard
-          and access flow are ready, and the lesson-plan builder is the next feature to wire in.
+          Lesson-plan generation is the next feature to wire in, and it will follow the same model as
+          schemes: KSh {teacherLessonPlanPrice} per generated lesson plan, not a one-time unlock.
         </p>
 
         <div className="hero-actions">

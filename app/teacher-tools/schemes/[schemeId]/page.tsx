@@ -5,7 +5,6 @@ import { requireUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { readAppData } from "@/lib/repository";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
-import { getTeacherToolAccess } from "@/lib/teacher-tools";
 
 function getLevelTitle(levelId: string) {
   return levels.find((level) => level.id === levelId)?.title ?? levelId;
@@ -19,11 +18,6 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
   const { schemeId } = await params;
   const user = await requireUser();
   const store = await readAppData();
-  const access = getTeacherToolAccess(store, user);
-
-  if (!access.hasAccess && user.role !== "admin") {
-    redirect("/teacher-tools");
-  }
 
   const scheme = store.generatedSchemes.find((entry) => entry.id === schemeId);
 
@@ -55,7 +49,7 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
           <div>
             <h3>{scheme.title}</h3>
             <p className="subtle">
-              {getLevelTitle(scheme.level)} · {scheme.subject} · {getSchemeTermLabel(scheme.term)}
+              {[getLevelTitle(scheme.level), scheme.subject, getSchemeTermLabel(scheme.term)].join(" · ")}
             </p>
           </div>
           <div className="generated-scheme-meta-grid">
@@ -90,9 +84,9 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
           <div>
             <h4>Key inquiry questions</h4>
             <ul>
-              {scheme.keyInquiryQuestions.length > 0 ? scheme.keyInquiryQuestions.map((item) => (
-                <li key={item}>{item}</li>
-              )) : <li>Use guided discussion questions during delivery.</li>}
+              {scheme.keyInquiryQuestions.length > 0
+                ? scheme.keyInquiryQuestions.map((item) => <li key={item}>{item}</li>)
+                : <li>Use guided discussion questions during delivery.</li>}
             </ul>
           </div>
           <div>
@@ -128,12 +122,16 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
                   <td>{week.learningOutcome}</td>
                   <td>
                     <ul className="generated-scheme-list-inline">
-                      {week.learnerActivities.map((item) => <li key={item}>{item}</li>)}
+                      {week.learnerActivities.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                   </td>
                   <td>
                     <ul className="generated-scheme-list-inline">
-                      {week.resources.map((item) => <li key={item}>{item}</li>)}
+                      {week.resources.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                   </td>
                   <td>{week.assessment}</td>

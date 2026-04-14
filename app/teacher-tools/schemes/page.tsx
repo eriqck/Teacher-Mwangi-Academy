@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { readAppData } from "@/lib/repository";
 import { levels } from "@/lib/catalog";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
-import { getTeacherToolAccess } from "@/lib/teacher-tools";
 
 function getLevelTitle(levelId: string) {
   return levels.find((level) => level.id === levelId)?.title ?? levelId;
@@ -13,11 +11,6 @@ function getLevelTitle(levelId: string) {
 export default async function TeacherToolSchemesPage() {
   const user = await requireUser();
   const store = await readAppData();
-  const access = getTeacherToolAccess(store, user);
-
-  if (!access.hasAccess && user.role !== "admin") {
-    redirect("/teacher-tools");
-  }
 
   const schemes = store.generatedSchemes
     .filter((scheme) => scheme.userId === user.id || user.role === "admin")

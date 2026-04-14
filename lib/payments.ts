@@ -1,7 +1,7 @@
 import { createId } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { getPaystackCallbackUrl, initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
-import { schemeOfWorkPrice, subscriptionPlans, teacherMaterialPrice, teacherToolAccessPrice } from "@/lib/business";
+import { schemeOfWorkPrice, subscriptionPlans, teacherMaterialPrice, teacherLessonPlanPrice, teacherSchemeGenerationPrice } from "@/lib/business";
 import type {
   PaymentRecord,
   ResourcePurchaseRecord,
@@ -15,13 +15,17 @@ import {
   createSchemePaymentBundle,
   createSubscriptionPaymentBundle,
   findPaymentByReference,
+  findGeneratedSchemeRequestByPaymentId,
   markPaymentOutcome,
   findUserById,
   readAppData,
   savePaymentRecord,
+  saveGeneratedSchemeRecord,
+  updateGeneratedSchemeRequestRecord,
   updateUserRole,
   updatePaymentById
 } from "@/lib/repository";
+import { buildGeneratedScheme } from "@/lib/scheme-generator";
 
 function addDays(days: number) {
   const now = new Date();
@@ -215,6 +219,7 @@ export async function createPendingSchemePayment(input: {
 
     return {
       ok: true,
+      paymentId,
       result: {
         authorization_url: result.authorization_url,
         reference: result.reference
@@ -231,6 +236,7 @@ export async function createPendingSchemePayment(input: {
 
     return {
       ok: true,
+      paymentId,
       result: {
         authorization_url: null,
         reference: paymentId,
@@ -324,6 +330,7 @@ export async function createPendingResourcePayment(input: {
 
     return {
       ok: true,
+      paymentId,
       result: {
         authorization_url: result.authorization_url,
         reference: result.reference
@@ -340,6 +347,7 @@ export async function createPendingResourcePayment(input: {
 
     return {
       ok: true,
+      paymentId,
       result: {
         authorization_url: null,
         reference: paymentId,
@@ -350,11 +358,12 @@ export async function createPendingResourcePayment(input: {
   }
 }
 
-export async function createPendingTeacherToolAccessPayment(input: {
+export async function createPendingSchemeGenerationPayment(input: {
   userId: string;
   email: string;
   phoneNumber: string;
   accountReference: string;
+  title: string;
 }) {
   const paymentId = createId("pay");
   const createdAt = new Date().toISOString();
@@ -362,11 +371,11 @@ export async function createPendingTeacherToolAccessPayment(input: {
   const payment: PaymentRecord = {
     id: paymentId,
     userId: input.userId,
-    kind: "tool-access",
+    kind: "generated-scheme",
     status: "pending",
     provider: "paystack",
     currency: "KES",
-    amount: teacherToolAccessPrice,
+    amount: teacherSchemeGenerationPrice,
     phoneNumber: input.phoneNumber,
     accountReference: input.accountReference,
     plan: null,
@@ -389,12 +398,13 @@ export async function createPendingTeacherToolAccessPayment(input: {
   try {
     const result = await initializePaystackTransaction({
       email: input.email,
-      amount: teacherToolAccessPrice,
+      amount: teacherSchemeGenerationPrice,
       reference: paymentId,
       callbackUrl: getPaystackCallbackUrl(),
       metadata: {
         paymentId,
-        kind: "tool-access",
+        kind: "generated-scheme",
+        title: input.title,
         accountReference: input.accountReference
       }
     });
@@ -407,6 +417,7 @@ export async function createPendingTeacherToolAccessPayment(input: {
 
     return {
       ok: true,
+      paymentId,
       result: {
         authorization_url: result.authorization_url,
         reference: result.reference
@@ -423,25 +434,24 @@ export async function createPendingTeacherToolAccessPayment(input: {
 
     return {
       ok: true,
+      paymentId,
       result: {
         authorization_url: null,
         reference: paymentId,
         mock: true,
-        message: "Teacher tools payment saved. Finish the M-Pesa checkout setup to continue."
+        message: "Scheme generation payment saved. Finish the M-Pesa checkout setup to continue."
       }
     };
   }
 }
 
-export async function verifyAndApplyPaystackPayment(reference: string) {
-  const result = await verifyPaystackTransaction(reference);
+async function applyVerifiedPaystackPaymentOutcome(
+  payment: PaymentRecord,
+  result: Awaited<ReturnType<typeof verifyPaystackTransaction>>
+) {
   const paid = result.status === "success";
   const updatedAt = new Date().toISOString();
 
-  const payment = await findPaymentByReference(reference);
-  if (!payment) {
-    throw new Error("Payment not found for Paystack reference.");
-  }
   await markPaymentOutcome(payment.id, {
     paymentChanges: {
       status: paid ? "paid" : "failed",
@@ -466,7 +476,66 @@ export async function verifyAndApplyPaystackPayment(reference: string) {
     }
   });
 
-  return result;
+  let redirectPath = `/dashboard?payment=${paid ? "success" : "failed"}`;
+
+  if (payment.kind === "generated-scheme" || payment.kind === "tool-access") {
+    const request = await findGeneratedSchemeRequestByPaymentId(payment.id);
+
+    if (request) {
+      if (paid) {
+        if (request.generatedSchemeId) {
+          await updateGeneratedSchemeRequestRecord(request.id, {
+            status: "completed",
+            updatedAt
+          });
+          redirectPath = `/teacher-tools/schemes/${request.generatedSchemeId}?payment=success`;
+        } else {
+          const generatedScheme = buildGeneratedScheme({
+            id: createId("generated_scheme"),
+            userId: request.userId,
+            createdAt: updatedAt,
+            ...request.payload
+          });
+
+          await saveGeneratedSchemeRecord(generatedScheme);
+          await updateGeneratedSchemeRequestRecord(request.id, {
+            status: "completed",
+            generatedSchemeId: generatedScheme.id,
+            updatedAt
+          });
+          redirectPath = `/teacher-tools/schemes/${generatedScheme.id}?payment=success`;
+        }
+      } else {
+        await updateGeneratedSchemeRequestRecord(request.id, {
+          status: "failed",
+          updatedAt
+        });
+        redirectPath = "/teacher-tools/schemes/new?payment=failed";
+      }
+    } else {
+      redirectPath = `/teacher-tools?payment=${paid ? "success" : "failed"}`;
+    }
+  }
+
+  return {
+    paid,
+    redirectPath
+  };
+}
+
+export async function verifyAndApplyPaystackPayment(reference: string) {
+  const result = await verifyPaystackTransaction(reference);
+
+  const payment = await findPaymentByReference(reference);
+  if (!payment) {
+    throw new Error("Payment not found for Paystack reference.");
+  }
+  const { redirectPath } = await applyVerifiedPaystackPaymentOutcome(payment, result);
+
+  return {
+    ...result,
+    redirectPath
+  };
 }
 
 export async function reconcilePaidPaystackPaymentsForUser(userId: string) {
@@ -487,29 +556,7 @@ export async function reconcilePaidPaystackPaymentsForUser(userId: string) {
       const result = await verifyPaystackTransaction(payment.paymentReference ?? payment.id);
 
       if (result.status === "success") {
-        await markPaymentOutcome(payment.id, {
-          paymentChanges: {
-            status: "paid",
-            currency: result.currency,
-            paymentReference: result.reference,
-            resultDesc: result.gateway_response,
-            updatedAt: new Date().toISOString()
-          },
-          subscriptionStatus: {
-            status: "active",
-            startDate: new Date().toISOString(),
-            endDate: addDays(30),
-            updatedAt: new Date().toISOString()
-          },
-          schemeStatus: {
-            status: "paid",
-            updatedAt: new Date().toISOString()
-          },
-          resourceStatus: {
-            status: "paid",
-            updatedAt: new Date().toISOString()
-          }
-        });
+        await applyVerifiedPaystackPaymentOutcome(payment, result);
       }
     } catch {
       // Ignore reconciliation errors so the dashboard still loads.

@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { levels } from "@/lib/catalog";
+import { teacherSchemeGenerationPrice } from "@/lib/business";
 import { schemeTerms } from "@/lib/scheme-terms";
 
 const defaultLevel = levels[0]?.id ?? "grade-6";
@@ -77,16 +78,23 @@ export function SchemeGeneratorForm() {
 
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
-        schemeId?: string;
+        data?: {
+          authorization_url?: string | null;
+          message?: string;
+        };
       };
 
-      if (!response.ok || !data.schemeId) {
+      if (!response.ok) {
         setError(data.error ?? "Unable to generate a scheme right now.");
         return;
       }
 
-      router.push(`/tools/schemes/${data.schemeId}`);
-      router.refresh();
+      if (data.data?.authorization_url) {
+        window.location.href = data.data.authorization_url;
+        return;
+      }
+
+      setError(data.data?.message ?? "Unable to start scheme checkout right now.");
     });
   }
 
@@ -297,7 +305,7 @@ export function SchemeGeneratorForm() {
 
       <div className="scheme-generator-actions">
         <button type="submit" className="button" disabled={isPending}>
-          {isPending ? "Generating scheme..." : "Generate and save scheme"}
+          {isPending ? "Redirecting to M-Pesa..." : `Pay KSh ${teacherSchemeGenerationPrice} and generate scheme`}
         </button>
       </div>
     </form>

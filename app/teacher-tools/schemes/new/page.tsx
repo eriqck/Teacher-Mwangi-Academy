@@ -1,18 +1,10 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { SchemeGeneratorForm } from "@/components/scheme-generator-form";
 import { requireUser } from "@/lib/auth";
-import { readAppData } from "@/lib/repository";
-import { getTeacherToolAccess } from "@/lib/teacher-tools";
+import { teacherSchemeGenerationPrice } from "@/lib/business";
 
 export default async function TeacherToolNewSchemePage() {
-  const user = await requireUser();
-  const store = await readAppData();
-  const access = getTeacherToolAccess(store, user);
-
-  if (!access.hasAccess && user.role !== "admin") {
-    redirect("/teacher-tools");
-  }
+  await requireUser();
 
   return (
     <section className="teacher-tools-content">
@@ -31,6 +23,7 @@ export default async function TeacherToolNewSchemePage() {
       <article className="teacher-tools-card scheme-generator-card">
         <p className="subtle">
           Use curriculum inputs to generate a clean weekly scheme you can review, save, and print.
+          Payment is taken per generated scheme at KSh {teacherSchemeGenerationPrice}.
         </p>
         <SchemeGeneratorForm />
       </article>

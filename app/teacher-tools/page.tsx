@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { readAppData } from "@/lib/repository";
-import { getTeacherToolAccess } from "@/lib/teacher-tools";
-import { teacherToolAccessPrice } from "@/lib/business";
-import { TeacherToolsAccessForm } from "@/components/teacher-tools-access-form";
+import { teacherLessonPlanPrice, teacherSchemeGenerationPrice } from "@/lib/business";
 
 export default async function TeacherToolsDashboardPage({
   searchParams
@@ -15,45 +13,33 @@ export default async function TeacherToolsDashboardPage({
   const paymentState =
     typeof resolvedSearchParams.payment === "string" ? resolvedSearchParams.payment : null;
   const store = await readAppData();
-  const access = getTeacherToolAccess(store, user);
   const schemeCount = store.generatedSchemes.filter((entry) => entry.userId === user.id).length;
-  const toolPayments = store.payments
-    .filter((entry) => entry.userId === user.id && entry.kind === "tool-access")
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 
   return (
     <section className="teacher-tools-content">
       <div className="teacher-tools-banner">
         <strong>Teacher tools workspace</strong>
         <span>
-          Create schemes and lesson plans from one dedicated workspace without relying on the normal
-          subscription dashboard.
+          Create schemes and lesson plans from one dedicated workspace while still keeping your normal
+          subscription dashboard for notes, assessments, and materials.
         </span>
       </div>
 
       <article className="teacher-tools-card teacher-tools-welcome">
         <div className="teacher-tools-welcome-bar">
           <h1>Welcome, {user.fullName}</h1>
-          <span className="teacher-tools-balance">
-            {access.hasAccess ? "Bot access active" : `One-time access KSh ${teacherToolAccessPrice}`}
-          </span>
+          <span className="teacher-tools-balance">KSh {teacherSchemeGenerationPrice} per scheme</span>
         </div>
 
         <div className="teacher-tools-quick-actions">
-          <Link
-            href={access.hasAccess ? "/teacher-tools/schemes/new" : "/teacher-tools#unlock"}
-            className="teacher-tools-action teacher-tools-action--primary"
-          >
+          <Link href="/teacher-tools/schemes/new" className="teacher-tools-action teacher-tools-action--primary">
             Create Scheme
           </Link>
-          <Link
-            href={access.hasAccess ? "/teacher-tools/lesson-plans" : "/teacher-tools#unlock"}
-            className="teacher-tools-action teacher-tools-action--primary"
-          >
+          <Link href="/teacher-tools/lesson-plans" className="teacher-tools-action teacher-tools-action--primary">
             Create Lesson Plan
           </Link>
-          <Link href="/teacher-tools/transactions" className="teacher-tools-action teacher-tools-action--success">
-            Transactions
+          <Link href="/dashboard" className="teacher-tools-action teacher-tools-action--success">
+            Member Dashboard
           </Link>
           <Link href="/teacher-tools/schemes" className="teacher-tools-action teacher-tools-action--info">
             My Schemes
@@ -63,9 +49,9 @@ export default async function TeacherToolsDashboardPage({
         {paymentState ? (
           <p className={`message ${paymentState === "success" ? "message-success" : "message-error"}`}>
             {paymentState === "success"
-              ? "Your payment was confirmed. Teacher tools are ready."
+              ? "Your payment was confirmed and the scheme has been generated."
               : paymentState === "failed"
-                ? "Payment was not completed. You can try again below."
+                ? "Payment was not completed. You can start the generation again."
                 : "We could not confirm that payment yet."}
           </p>
         ) : null}
@@ -75,77 +61,53 @@ export default async function TeacherToolsDashboardPage({
             <h3>Workspace overview</h3>
             <ul>
               <li>{schemeCount} saved generated scheme{schemeCount === 1 ? "" : "s"}</li>
-              <li>Lesson plan generator panel ready for the next phase</li>
-              <li>One-time teacher bot access keeps this separate from subscriptions</li>
+              <li>Each generated scheme is charged at KSh {teacherSchemeGenerationPrice}</li>
+              <li>Each lesson plan will be charged at KSh {teacherLessonPlanPrice}</li>
             </ul>
           </div>
 
-          <div id="unlock">
-            <h3>{access.hasAccess ? "Access confirmed" : "Unlock the bot workspace"}</h3>
-            {access.hasAccess ? (
+          <div>
+            <h3>How payment works now</h3>
+            <div className="teacher-tools-unlock-box">
               <p className="subtle">
-                You have already paid the one-time KSh {teacherToolAccessPrice} bot access fee, so
-                you can generate schemes and lesson plans anytime.
+                The bot workspace is billed separately from subscriptions. When you create a scheme,
+                the app takes you to checkout for that exact generation instead of unlocking everything.
               </p>
-            ) : access.pendingAccess ? (
-              <div className="teacher-tools-unlock-box">
-                <p className="subtle">
-                  Your payment is still marked pending. Once Paystack confirms it, the workspace will
-                  unlock automatically.
-                </p>
-                <TeacherToolsAccessForm />
-              </div>
-            ) : (
-              <div className="teacher-tools-unlock-box">
-                <p className="subtle">
-                  Pay KSh {teacherToolAccessPrice} once to unlock scheme and lesson-plan generation for
-                  this teacher account.
-                </p>
-                <TeacherToolsAccessForm />
-              </div>
-            )}
+              <p className="subtle">
+                Your normal teacher subscription still stays on the main dashboard for notes, assessments,
+                and material access.
+              </p>
+            </div>
           </div>
         </div>
       </article>
 
       <div className="teacher-tools-grid">
         <article className="teacher-tools-card">
-          <h3>Recent bot access payments</h3>
-          {toolPayments.length > 0 ? (
-            <table className="mini-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Reference</th>
-                </tr>
-              </thead>
-              <tbody>
-                {toolPayments.slice(0, 5).map((payment) => (
-                  <tr key={payment.id}>
-                    <td>{payment.createdAt.slice(0, 10)}</td>
-                    <td>KSh {payment.amount}</td>
-                    <td>{payment.status}</td>
-                    <td>{payment.accountReference}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="subtle">No teacher-tools payment has been started yet.</p>
-          )}
+          <h3>Scheme generation</h3>
+          <p className="subtle">
+            Fill in the curriculum inputs, go through checkout, and the scheme is generated after payment
+            confirmation.
+          </p>
+          <div className="hero-actions">
+            <Link href="/teacher-tools/schemes/new" className="button">
+              Start scheme generation
+            </Link>
+          </div>
         </article>
 
         <article className="teacher-tools-card">
-          <h3>Saved output</h3>
+          <h3>Normal member access</h3>
           <p className="subtle">
-            Open your generated schemes, print them to PDF, and keep building your teaching library
-            from one place.
+            Teachers can still use the main member dashboard for subscriptions, notes, assessments,
+            and normal learning-material access.
           </p>
           <div className="hero-actions">
-            <Link href="/teacher-tools/schemes" className="button-secondary">
-              Open My Schemes
+            <Link href="/dashboard" className="button-secondary">
+              Open member dashboard
+            </Link>
+            <Link href="/subscribe" className="button-secondary">
+              Open subscription page
             </Link>
           </div>
         </article>
