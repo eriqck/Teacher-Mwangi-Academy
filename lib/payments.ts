@@ -1,7 +1,7 @@
 import { createId } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { getPaystackCallbackUrl, initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
-import { schemeOfWorkPrice, subscriptionPlans, teacherMaterialPrice } from "@/lib/business";
+import { schemeOfWorkPrice, subscriptionPlans, teacherMaterialPrice, teacherToolAccessPrice } from "@/lib/business";
 import type {
   PaymentRecord,
   ResourcePurchaseRecord,
@@ -18,6 +18,7 @@ import {
   markPaymentOutcome,
   findUserById,
   readAppData,
+  savePaymentRecord,
   updateUserRole,
   updatePaymentById
 } from "@/lib/repository";
@@ -344,6 +345,89 @@ export async function createPendingResourcePayment(input: {
         reference: paymentId,
         mock: true,
         message: "Material purchase saved. Finish the M-Pesa checkout setup to continue."
+      }
+    };
+  }
+}
+
+export async function createPendingTeacherToolAccessPayment(input: {
+  userId: string;
+  email: string;
+  phoneNumber: string;
+  accountReference: string;
+}) {
+  const paymentId = createId("pay");
+  const createdAt = new Date().toISOString();
+
+  const payment: PaymentRecord = {
+    id: paymentId,
+    userId: input.userId,
+    kind: "tool-access",
+    status: "pending",
+    provider: "paystack",
+    currency: "KES",
+    amount: teacherToolAccessPrice,
+    phoneNumber: input.phoneNumber,
+    accountReference: input.accountReference,
+    plan: null,
+    schemeSubject: null,
+    schemeLevel: null,
+    schemeTerm: null,
+    resourceId: null,
+    paymentReference: paymentId,
+    authorizationUrl: null,
+    checkoutRequestId: null,
+    merchantRequestId: null,
+    mpesaReceiptNumber: null,
+    resultCode: null,
+    resultDesc: null,
+    createdAt,
+    updatedAt: createdAt
+  };
+  await savePaymentRecord(payment);
+
+  try {
+    const result = await initializePaystackTransaction({
+      email: input.email,
+      amount: teacherToolAccessPrice,
+      reference: paymentId,
+      callbackUrl: getPaystackCallbackUrl(),
+      metadata: {
+        paymentId,
+        kind: "tool-access",
+        accountReference: input.accountReference
+      }
+    });
+
+    await updatePaymentById(paymentId, {
+      paymentReference: result.reference,
+      authorizationUrl: result.authorization_url,
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      ok: true,
+      result: {
+        authorization_url: result.authorization_url,
+        reference: result.reference
+      }
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "M-Pesa checkout is not configured yet. Payment saved as pending.";
+
+    await updatePaymentById(paymentId, {
+      resultDesc: message,
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      ok: true,
+      result: {
+        authorization_url: null,
+        reference: paymentId,
+        mock: true,
+        message: "Teacher tools payment saved. Finish the M-Pesa checkout setup to continue."
       }
     };
   }

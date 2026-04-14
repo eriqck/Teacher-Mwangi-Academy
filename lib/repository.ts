@@ -595,6 +595,21 @@ export async function updatePaymentById(paymentId: string, changes: Partial<Paym
   if (error) throw new Error(error.message);
 }
 
+export async function savePaymentRecord(payment: PaymentRecord) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      payments: [...current.payments, payment]
+    }));
+    return payment;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("payments").insert(toPaymentRow(payment));
+  if (error) throw new Error(error.message);
+  return payment;
+}
+
 export async function findPaymentByReference(reference: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();

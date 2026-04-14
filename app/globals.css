@@ -1283,11 +1283,259 @@ main {
   border: 1px dashed rgba(19, 42, 28, 0.16);
 }
 
+.teacher-tools-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  background: #eef1f5;
+}
+
+.teacher-tools-sidebar {
+  background: #2f363d;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 18px 0 22px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.teacher-tools-brand,
+.teacher-tools-profile,
+.teacher-tools-sidebar-footer {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.teacher-tools-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.teacher-tools-brand strong,
+.teacher-tools-profile strong {
+  display: block;
+}
+
+.teacher-tools-brand p,
+.teacher-tools-profile p {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.86rem;
+}
+
+.teacher-tools-brand-mark,
+.teacher-tools-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1f9fb4, #15803d);
+  color: white;
+}
+
+.teacher-tools-profile {
+  margin-top: 18px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.teacher-tools-nav {
+  display: grid;
+  gap: 4px;
+  padding: 18px 12px;
+}
+
+.teacher-tools-nav-link {
+  color: rgba(255, 255, 255, 0.84);
+  padding: 12px 14px;
+  border-radius: 12px;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.teacher-tools-nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.teacher-tools-sidebar-footer {
+  display: grid;
+  gap: 12px;
+}
+
+.teacher-tools-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+}
+
+.teacher-tools-status.is-active {
+  background: rgba(34, 197, 94, 0.18);
+  color: #b7ffcf;
+}
+
+.teacher-tools-status.is-pending {
+  background: rgba(245, 158, 11, 0.18);
+  color: #ffe4a3;
+}
+
+.teacher-tools-home-link,
+.teacher-tools-logout {
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.teacher-tools-main {
+  padding: 18px;
+}
+
+.teacher-tools-content {
+  display: grid;
+  gap: 18px;
+}
+
+.teacher-tools-banner {
+  background: #1f9fb4;
+  color: white;
+  border-radius: 6px;
+  padding: 18px 22px;
+  display: grid;
+  gap: 6px;
+  box-shadow: 0 12px 28px rgba(31, 159, 180, 0.18);
+}
+
+.teacher-tools-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.teacher-tools-welcome {
+  display: grid;
+  gap: 18px;
+}
+
+.teacher-tools-welcome-bar {
+  margin: -22px -22px 4px;
+  background: #21a53f;
+  color: white;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 8px 8px 0 0;
+}
+
+.teacher-tools-welcome-bar h1 {
+  margin: 0;
+  font-size: 1.9rem;
+}
+
+.teacher-tools-balance {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.18);
+  font-weight: 700;
+}
+
+.teacher-tools-quick-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.teacher-tools-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 700;
+}
+
+.teacher-tools-action--primary {
+  background: #1877f2;
+}
+
+.teacher-tools-action--success {
+  background: #17a34a;
+}
+
+.teacher-tools-action--info {
+  background: #1f9fb4;
+}
+
+.teacher-tools-overview,
+.teacher-tools-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.teacher-tools-overview ul {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.teacher-tools-unlock-box {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 10px;
+  background: rgba(24, 119, 242, 0.06);
+  border: 1px solid rgba(24, 119, 242, 0.12);
+}
+
+.teacher-tools-access-form {
+  display: grid;
+  gap: 14px;
+  max-width: 420px;
+}
+
+.teacher-tools-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.teacher-tools-section-head h2 {
+  margin: 8px 0 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
 @media print {
   .print-hidden,
   header,
   .site-footer,
-  .whatsapp-fab {
+  .whatsapp-fab,
+  .teacher-tools-sidebar,
+  .teacher-tools-banner {
     display: none !important;
   }
 
@@ -1303,6 +1551,15 @@ main {
     box-shadow: none;
     border: 0;
     background: white;
+  }
+
+  .teacher-tools-shell {
+    display: block;
+    background: white;
+  }
+
+  .teacher-tools-main {
+    padding: 0;
   }
 }
 
@@ -1342,7 +1599,9 @@ main {
   }
 
   .generated-scheme-meta-grid,
-  .generated-scheme-overview {
+  .generated-scheme-overview,
+  .teacher-tools-overview,
+  .teacher-tools-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1383,7 +1642,8 @@ main {
   .tag-row,
   .resource-admin-actions,
   .scheme-generator-actions,
-  .generated-scheme-meta {
+  .generated-scheme-meta,
+  .teacher-tools-quick-actions {
     justify-content: center;
   }
 
@@ -1430,7 +1690,8 @@ main {
   }
 
   .generated-scheme-card,
-  .generated-scheme-sheet {
+  .generated-scheme-sheet,
+  .teacher-tools-card {
     text-align: left;
   }
 
@@ -1440,6 +1701,25 @@ main {
 }
 
 @media (max-width: 640px) {
+  .teacher-tools-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-tools-sidebar {
+    grid-template-rows: auto;
+    gap: 16px;
+  }
+
+  .teacher-tools-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .teacher-tools-welcome-bar,
+  .teacher-tools-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .page-shell {
     width: min(calc(100% - 20px), var(--content));
   }

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireUser, createId } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
-import { saveGeneratedSchemeRecord } from "@/lib/repository";
+import { readAppData, saveGeneratedSchemeRecord } from "@/lib/repository";
 import { buildGeneratedScheme, normalizeLineList } from "@/lib/scheme-generator";
+import { getTeacherToolAccess } from "@/lib/teacher-tools";
 
 function isSchemeTerm(value: string): value is "term-1" | "term-2" | "term-3" {
   return value === "term-1" || value === "term-2" || value === "term-3";
@@ -15,6 +16,16 @@ export async function POST(request: Request) {
     if (user.role !== "teacher" && user.role !== "admin") {
       return NextResponse.json(
         { error: "Only teacher and admin accounts can generate schemes." },
+        { status: 403 }
+      );
+    }
+
+    const store = await readAppData();
+    const access = getTeacherToolAccess(store, user);
+
+    if (!access.hasAccess && user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Unlock the teacher bot workspace first before generating schemes." },
         { status: 403 }
       );
     }

@@ -1,6 +1,7 @@
 import { AdminSubscriptionsTable } from "@/components/admin-subscriptions-table";
 import { AdminUserManager } from "@/components/admin-user-manager";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { featuredResources, levels } from "@/lib/catalog";
@@ -53,8 +54,19 @@ function formatTime(value: string) {
   }).format(date);
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await requireUser();
+  const resolvedSearchParams = await searchParams;
+
+  if (user.role === "teacher") {
+    const payment = typeof resolvedSearchParams.payment === "string" ? `?payment=${resolvedSearchParams.payment}` : "";
+    redirect(`/teacher-tools${payment}`);
+  }
+
   await reconcilePaidPaystackPaymentsForUser(user.id);
   const latestUpdates = getLatestSiteUpdates(3);
 
@@ -67,9 +79,6 @@ export default async function DashboardPage() {
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const schemePurchases = store.schemePurchases.filter((item) => item.userId === user.id);
   const resourcePurchases = store.resourcePurchases.filter((item) => item.userId === user.id);
-  const generatedSchemes = store.generatedSchemes
-    .filter((item) => item.userId === user.id)
-    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   const resourcesById = new Map(store.resources.map((resource) => [resource.id, resource]));
   const allSubscriptions = store.subscriptions
     .slice()
@@ -127,13 +136,11 @@ export default async function DashboardPage() {
     subscriptions[0];
   const activePlan = getPlanDetails(activeSubscription?.plan);
   const accessibleLevels =
-    user.role === "teacher"
-      ? levels
-      : user.role === "admin"
-        ? []
-        : activePlan?.levelAccessMode === "all"
-          ? levels
-          : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
+    user.role === "admin"
+      ? []
+      : activePlan?.levelAccessMode === "all"
+        ? levels
+        : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
   const paidPayments = payments.filter((payment) => payment.status === "paid");
   const pendingPayments = payments.filter((payment) => payment.status === "pending");
   const failedPayments = payments.filter((payment) => payment.status === "failed");
@@ -264,15 +271,13 @@ export default async function DashboardPage() {
             <p className="subtle">
               {user.role === "admin"
                 ? "Use the admin workspace to upload and manage materials."
-                : user.role === "teacher"
-                ? "Teacher subscriptions unlock all revision levels."
                 : "Parent subscriptions now unlock all revision levels."}
             </p>
           </article>
 
           <article className="dashboard-card">
             <h3>Teacher scheme purchases</h3>
-            {user.role === "teacher" && schemePurchases.length > 0 ? (
+            {schemePurchases.length > 0 ? (
               <table className="mini-table">
                 <thead>
                   <tr>
@@ -299,9 +304,7 @@ export default async function DashboardPage() {
               </table>
             ) : (
               <p className="subtle">
-                {user.role === "teacher"
-                  ? "No scheme purchases yet."
-                  : "Scheme purchases are available to teacher accounts only."}
+                Scheme purchases are available to teacher accounts only.
               </p>
             )}
           </article>
@@ -310,7 +313,7 @@ export default async function DashboardPage() {
         <div className="dashboard-grid" style={{ marginTop: 18 }}>
           <article className="dashboard-card">
             <h3>Teacher material purchases</h3>
-            {user.role === "teacher" && resourcePurchases.length > 0 ? (
+            {resourcePurchases.length > 0 ? (
               <table className="mini-table">
                 <thead>
                   <tr>
@@ -333,57 +336,10 @@ export default async function DashboardPage() {
               </table>
             ) : (
               <p className="subtle">
-                {user.role === "teacher"
-                  ? "No one-time note or assessment purchases yet."
-                  : "One-time teacher material purchases are available to teacher accounts only."}
+                One-time teacher material purchases are available to teacher accounts only.
               </p>
             )}
           </article>
-
-          {(user.role === "teacher" || user.role === "admin") ? (
-            <article className="dashboard-card">
-              <h3>Scheme generator bot</h3>
-              <p className="subtle">
-                Build a structured scheme of work from curriculum inputs, then save and print it from
-                your account.
-              </p>
-              <div className="hero-actions">
-                <Link href="/tools/schemes/new" className="button">
-                  Create scheme
-                </Link>
-                <Link href="/tools/schemes" className="button-secondary">
-                  View saved schemes
-                </Link>
-              </div>
-
-              {generatedSchemes.length > 0 ? (
-                <table className="mini-table" style={{ marginTop: 16 }}>
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Term</th>
-                      <th>Updated</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {generatedSchemes.slice(0, 4).map((scheme) => (
-                      <tr key={scheme.id}>
-                        <td>
-                          <Link href={`/tools/schemes/${scheme.id}`}>{scheme.title}</Link>
-                        </td>
-                        <td>{getSchemeTermLabel(scheme.term)}</td>
-                        <td>{formatDate(scheme.updatedAt)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="subtle" style={{ marginTop: 12 }}>
-                  No generated schemes yet. Your saved bot outputs will appear here.
-                </p>
-              )}
-            </article>
-          ) : null}
         </div>
       </section>
 

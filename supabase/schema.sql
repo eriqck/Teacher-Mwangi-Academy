@@ -31,7 +31,7 @@ create table if not exists password_reset_tokens (
 create table if not exists payments (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
-  kind text not null check (kind in ('subscription', 'scheme', 'resource')),
+  kind text not null check (kind in ('subscription', 'scheme', 'resource', 'tool-access')),
   status text not null check (status in ('pending', 'paid', 'failed')),
   provider text,
   currency text,
@@ -162,7 +162,7 @@ alter table payments
 
 alter table payments
   add constraint payments_kind_check
-  check (kind in ('subscription', 'scheme', 'resource'));
+  check (kind in ('subscription', 'scheme', 'resource', 'tool-access'));
 
 alter table scheme_purchases
   add column if not exists term text;

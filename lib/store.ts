@@ -48,7 +48,7 @@ export type SubscriptionRecord = {
   paymentId: string;
 };
 
-export type PaymentKind = "subscription" | "scheme" | "resource";
+export type PaymentKind = "subscription" | "scheme" | "resource" | "tool-access";
 export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {

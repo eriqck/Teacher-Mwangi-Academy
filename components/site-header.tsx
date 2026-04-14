@@ -9,9 +9,9 @@ export async function SiteHeader() {
     { href: "#levels", label: "Levels" },
     { href: "#membership", label: "Membership" },
     { href: "#team", label: "Team" },
-    { href: "/dashboard", label: "Dashboard" },
+    { href: user?.role === "teacher" ? "/teacher-tools" : "/dashboard", label: "Dashboard" },
     ...(user?.role === "teacher" || user?.role === "admin"
-      ? [{ href: "/tools/schemes", label: "Scheme Bot" }]
+      ? [{ href: "/teacher-tools", label: "Scheme Bot" }]
       : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];
