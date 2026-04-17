@@ -1,0 +1,12 @@
+{
+  "mode": "apply",
+  "totalProducts": 82,
+  "totalCategoriesBefore": 93,
+  "skuChangesApplied": 41,
+  "categoryChangesApplied": 82,
+  "deletedEmptyCategories": 0,
+  "skippedEmptyCategories": 71,
+  "planOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-sku-category-plan-20260415-hsp-simplify.csv",
+  "resultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-sku-category-results-20260415-hsp-simplify.csv",
+  "categoryResultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-category-cleanup-results-20260415-hsp-simplify.csv"
+}

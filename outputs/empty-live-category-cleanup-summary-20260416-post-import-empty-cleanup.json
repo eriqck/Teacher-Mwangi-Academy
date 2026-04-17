@@ -1,0 +1,12 @@
+{
+  "beforeCategories": 70,
+  "targetedEmptyBranches": 43,
+  "deleted": 0,
+  "skipped": 43,
+  "afterCategories": 28,
+  "remainingEmptyBranches": 1,
+  "remainingEmptyNames": [
+    "Todelete"
+  ],
+  "resultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\empty-live-category-cleanup-results-20260416-post-import-empty-cleanup.csv"
+}

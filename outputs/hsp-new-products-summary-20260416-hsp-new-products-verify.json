@@ -1,0 +1,9 @@
+{
+  "mode": "verify",
+  "expectedRows": 30,
+  "foundProducts": 30,
+  "missingProducts": 0,
+  "missingShortDescriptions": 0,
+  "missingLongDescriptions": 0,
+  "resultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-new-products-results-20260416-hsp-new-products-verify.csv"
+}

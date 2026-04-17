@@ -1,0 +1,115 @@
+{
+  "id": 677,
+  "date": "2022-05-23T14:53:50",
+  "date_gmt": "2022-05-23T14:53:50",
+  "guid": {
+    "rendered": "http://dummy.xtemos.com/woodmart2/megamarket-elementor/?post_type=cms_block&#038;p=677",
+    "raw": "http://dummy.xtemos.com/woodmart2/megamarket-elementor/?post_type=cms_block&#038;p=677"
+  },
+  "modified": "2026-04-17T12:09:28",
+  "modified_gmt": "2026-04-17T12:09:28",
+  "password": "",
+  "slug": "promo-popup-megamarket",
+  "status": "draft",
+  "type": "cms_block",
+  "link": "https://homeskitspro.com/?post_type=cms_block&p=677",
+  "title": {
+    "raw": "Promo popup Megamarket",
+    "rendered": "Promo popup Megamarket"
+  },
+  "content": {
+    "raw": "<p>Popup disabled.</p>",
+    "rendered": "\t\t<div data-elementor-type=\"wp-post\" data-elementor-id=\"677\" class=\"elementor elementor-677\">\n\t\t\t\t<div class=\"wd-negative-gap elementor-element elementor-element-hsp-disabled-popup e-flex e-con-boxed e-con e-parent\" data-id=\"hsp-disabled-popup\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t\t\t<div class=\"elementor-element elementor-element-hsp-disabled-popup-text elementor-widget elementor-widget-wd_text_block\" data-id=\"hsp-disabled-popup-text\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_text_block.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"wd-text-block reset-last-child text-left\">\n\t\t\t\n\t\t\t<p>Popup disabled.</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t",
+    "protected": false,
+    "block_version": 0
+  },
+  "template": "",
+  "meta": {
+    "advanced_seo_description": "",
+    "jetpack_seo_html_title": "",
+    "jetpack_seo_noindex": false,
+    "_elementor_edit_mode": "builder",
+    "_elementor_template_type": "wp-post",
+    "_elementor_data": "[{\"id\":\"hsp-disabled-popup\",\"elType\":\"container\",\"settings\":{},\"elements\":[{\"id\":\"hsp-disabled-popup-text\",\"elType\":\"widget\",\"settings\":{\"text\":\"<p>Popup disabled.</p>\"},\"elements\":[],\"widgetType\":\"wd_text_block\"}],\"isInner\":false}]",
+    "_elementor_page_settings": null
+  },
+  "cms_block_cat": [],
+  "jetpack_sharing_enabled": true,
+  "_links": {
+    "self": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677",
+        "targetHints": {
+          "allow": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+        }
+      }
+    ],
+    "collection": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block"
+      }
+    ],
+    "about": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/types/cms_block"
+      }
+    ],
+    "version-history": [
+      {
+        "count": 2,
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677/revisions"
+      }
+    ],
+    "predecessor-version": [
+      {
+        "id": 46627,
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677/revisions/46627"
+      }
+    ],
+    "wp:attachment": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/media?parent=677"
+      }
+    ],
+    "wp:term": [
+      {
+        "taxonomy": "cms_block_cat",
+        "embeddable": true,
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block_cat?post=677"
+      }
+    ],
+    "wp:action-publish": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677"
+      }
+    ],
+    "wp:action-unfiltered-html": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677"
+      }
+    ],
+    "wp:action-create-cms_block_cat": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677"
+      }
+    ],
+    "wp:action-assign-cms_block_cat": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/677"
+      }
+    ],
+    "curies": [
+      {
+        "name": "wp",
+        "href": "https://api.w.org/{rel}",
+        "templated": true
+      }
+    ]
+  }
+}

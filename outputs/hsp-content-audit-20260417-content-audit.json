@@ -1,0 +1,204 @@
+{
+  "generatedAt": "2026-04-17T11:58:46.302Z",
+  "settings": {
+    "show_on_front": "page",
+    "page_on_front": 15,
+    "front_page_title": "Home"
+  },
+  "frontPage": {
+    "id": 15,
+    "status": "publish",
+    "flags": {
+      "lorem": false,
+      "fakeUsPhone": false,
+      "utcHours": false,
+      "emailAdressTypo": false,
+      "tileWoodLaminate": false,
+      "roseYost": false,
+      "eastGenefort": false
+    },
+    "excerpt": "Smart Electronics & Home Appliances at the Best Prices Shop TVs, Kitchen Appliances, Power Solutions & Smart Devices — Delivered Fast Across Kenya Shop Now Our Services Discover all the ways to get your product. View More Shipping country wide We deliver nationwide fast and reliable shipping anywhere in Kenya. Popular Categories Water Pumps (30) 30 products Water Filters & Purifiers (1) 1 product Water & Plumbing (31) 31 products Personal Care (1) 1 product Ladders & Scaffolding (1) 1 product Featured Products New FEATURED TOP SELLERS Array 500+ Brands View our benefits Fast Shipping Carrier information Ready-made solutions Track or cancel orders Secure Payments Payment methods Projects & Ideas Similar Products OUR SERVICES Here's what we can do With us you will build a house from scratch, perform the necessary finishing work and fully complete. Must-have Products and more Everything you need for repairs in one place Hand instruments Lighting Flooring Plumbing pipe Accessories Array Expert Advice"
+  },
+  "pages": {
+    "track-order": {
+      "id": 289,
+      "status": "publish",
+      "title": "Track Order",
+      "public": {
+        "status": 200,
+        "effectiveUrl": "https://homeskitspro.com/track-order/"
+      },
+      "flags": {
+        "lorem": false,
+        "fakeUsPhone": false,
+        "utcHours": false,
+        "emailAdressTypo": false,
+        "tileWoodLaminate": false,
+        "roseYost": false,
+        "eastGenefort": false
+      },
+      "excerpt": "Order Tracking [woocommerce_order_tracking] Ship package 7 Days Return Period Not satisfied? Return eligible items within 7 days of delivery. Unused and in original packaging only. Nationwide Shipping We deliver to all major towns and counties across Kenya via trusted courier partners. Secure Payments Pay via M-Pesa, Visa, Mastercard, or bank transfer. All transactions secured through Paystack. We Deliver Across Kenya — Fast and Reliably Once your order is confirmed and payment received, we process and dispatch within 24 hours. You will receive a notification when your order is on its way. Major towns typically receive orders within 1 to 3 business days. For updates, use the tracking form above or contact us directly. View more Got Questions About Your Order? We are here to help. If your tracking shows no update after 3 business days, or if you received the wrong item or a damaged product, please reach out to us and we will sort it out promptly. Our team is available Monday to Saturday"
+    },
+    "services": {
+      "id": 287,
+      "status": "publish",
+      "title": "Services",
+      "public": {
+        "status": 200,
+        "effectiveUrl": "https://homeskitspro.com/services/"
+      },
+      "flags": {
+        "lorem": false,
+        "fakeUsPhone": false,
+        "utcHours": false,
+        "emailAdressTypo": false,
+        "tileWoodLaminate": false,
+        "roseYost": false,
+        "eastGenefort": false
+      },
+      "excerpt": "All Home Services HomesKitsPro is your one-stop shop for household appliances, electronics, water & plumbing solutions, and home improvement products. Based in Nairobi CBD, we serve customers across Kenya with fast, reliable nationwide shipping. From water pumps and plumbing fittings to smart TVs, security cameras, and power tools — we stock everything you need to outfit, repair, and upgrade your home. 500+ Brands Shop top-quality brands across appliances, electronics and hardware Fast Shipping Nationwide delivery across Kenya — fast and reliable Your Home, Fully Equippedr We supply quality home solutions — from water pumps and plumbing to appliances and electronics. Get expert advice and the right products for every job. Call Now Our Services Water Pumps Water Filters & Purifiers Plumbing & Fittings Tools & Hardware Home Appliances TVs & Home Entertainment InstallinSecurity & CCTV Irrigation Systems Nationwide Shipping"
+    },
+    "privacy-policy": {
+      "id": 3,
+      "status": "publish",
+      "title": "Privacy Policy",
+      "public": {
+        "status": 200,
+        "effectiveUrl": "https://homeskitspro.com/privacy-policy/"
+      },
+      "flags": {
+        "lorem": false,
+        "fakeUsPhone": false,
+        "utcHours": false,
+        "emailAdressTypo": false,
+        "tileWoodLaminate": false,
+        "roseYost": false,
+        "eastGenefort": false
+      },
+      "excerpt": "Who we are Our website address is: https://homeskitspro.com . We are dedicated to providing high-quality household appliances, tools, and home improvement solutions. Information We Collect for Orders In addition to site interaction data, we collect personal information necessary to process your orders, including your name, shipping address, billing address, and phone number. We do not store your full credit card information; payments are processed through secure, encrypted third-party gateways. Comments When visitors leave comments on the site we collect the data shown in the comments form, and also the visitor’s IP address and browser user agent string to help spam detection. An anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the"
+    },
+    "returns-and-refunds": {
+      "id": null,
+      "status": null,
+      "title": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/returns-and-refunds/"
+      },
+      "flags": {
+        "lorem": false,
+        "fakeUsPhone": false,
+        "utcHours": false,
+        "emailAdressTypo": false,
+        "tileWoodLaminate": false,
+        "roseYost": false,
+        "eastGenefort": false
+      },
+      "excerpt": ""
+    },
+    "contact-us": {
+      "id": 279,
+      "status": "publish",
+      "title": "Contact Us",
+      "public": {
+        "status": 200,
+        "effectiveUrl": "https://homeskitspro.com/contact-us/"
+      },
+      "flags": {
+        "lorem": false,
+        "fakeUsPhone": false,
+        "utcHours": false,
+        "emailAdressTypo": false,
+        "tileWoodLaminate": false,
+        "roseYost": false,
+        "eastGenefort": false
+      },
+      "excerpt": "Store Locator \",\"selector\":\"wd-map-id-69da4ab4e8059\",\"markers\":null,\"center\":\"\"}'> Nairobi CBD Tel (254)-746-334-492 Whatsapp (254)-746-334-492 Email; support@homeskitspro.com Store Hours: Mon. – Sat: 9:00am - 8 :00pm"
+    },
+    "about-us": {
+      "id": 275,
+      "status": "publish",
+      "title": "About us",
+      "public": {
+        "status": 200,
+        "effectiveUrl": "https://homeskitspro.com/about-us/"
+      },
+      "flags": {
+        "lorem": false,
+        "fakeUsPhone": false,
+        "utcHours": false,
+        "emailAdressTypo": false,
+        "tileWoodLaminate": true,
+        "roseYost": false,
+        "eastGenefort": false
+      },
+      "excerpt": "Get to Know HomesKitsPro HomesKitsPro is Kenya's trusted online home store, built to give every household access to quality appliances, electronics, bathroom fittings, tools, flooring, and smart home products — all in one place, at fair prices. We believe that equipping and upgrading your home should be simple, affordable, and stress-free. Whether you are setting up a new home, renovating a bathroom, or replacing a kitchen appliance, we stock what you need and deliver it to your door. What People Say About Us Peter Kingsley Client-Bathroom & Plumbing The bathroom sink I ordered looks exactly as described and fits perfectly. Customer service responded quickly when I had a question. Good experience overall — I would happily recommend HomesKitsPro. James M. Client-Kitchen Appliances Ordered a Sonar kettle and a TV wall bracket on Monday and both arrived by Wednesday. Packaging was solid and the prices were better than what I found in town. Will definitely be shopping here again. Amina Wak"
+    }
+  },
+  "posts": {
+    "minimalist-japanese-inspired-furniture": {
+      "id": null,
+      "status": null,
+      "title": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/minimalist-japanese-inspired-furniture/"
+      }
+    },
+    "new-home-decor-from-john-doerson": {
+      "id": null,
+      "status": null,
+      "title": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/new-home-decor-from-john-doerson/"
+      }
+    }
+  },
+  "categories": {
+    "headphones-earbuds": {
+      "id": null,
+      "name": "",
+      "slug": "",
+      "count": null,
+      "image": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/product-category/headphones-earbuds/"
+      }
+    },
+    "fittings-supply-lines-water-plumbing": {
+      "id": null,
+      "name": "",
+      "slug": "",
+      "count": null,
+      "image": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/product-category/fittings-supply-lines-water-plumbing/"
+      }
+    },
+    "drippers": {
+      "id": null,
+      "name": "",
+      "slug": "",
+      "count": null,
+      "image": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/product-category/drippers/"
+      }
+    },
+    "cctv-smart-cameras": {
+      "id": null,
+      "name": "",
+      "slug": "",
+      "count": null,
+      "image": "",
+      "public": {
+        "status": 404,
+        "effectiveUrl": "https://homeskitspro.com/product-category/cctv-smart-cameras/"
+      }
+    }
+  }
+}

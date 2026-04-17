@@ -1,0 +1,6 @@
+"sku","product_id","media_id","detached_images","media_delete","reason"
+"HSP-044","47044","47113","0","delete_requested","mpn,tokens:load|6000,image_ext"
+"HSP-045","47055","47114","0","delete_requested","brand,tokens:double|door|refrigerator|vart,image_ext"
+"HSP-053","47048","47116","0","delete_requested","mpn,tokens:ac20,image_ext"
+"HSP-057","47049","47117","0","delete_requested","brand,tokens:solarmax|monocrystalline|solar|panel,image_ext"
+"HSP-058","47068","47118","0","delete_requested","brand,tokens:solarmax|pure|sine|wave|inverter,image_ext"

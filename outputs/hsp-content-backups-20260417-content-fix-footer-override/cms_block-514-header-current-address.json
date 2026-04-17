@@ -1,0 +1,115 @@
+{
+  "id": 514,
+  "date": "2022-05-23T12:53:59",
+  "date_gmt": "2022-05-23T12:53:59",
+  "guid": {
+    "rendered": "http://dummy.xtemos.com/woodmart2/megamarket-elementor/?post_type=cms_block&#038;p=514",
+    "raw": "http://dummy.xtemos.com/woodmart2/megamarket-elementor/?post_type=cms_block&#038;p=514"
+  },
+  "modified": "2026-04-17T12:20:42",
+  "modified_gmt": "2026-04-17T12:20:42",
+  "password": "",
+  "slug": "header-current-address",
+  "status": "publish",
+  "type": "cms_block",
+  "link": "https://homeskitspro.com/?cms_block=header-current-address",
+  "title": {
+    "raw": "Header current address",
+    "rendered": "Header current address"
+  },
+  "content": {
+    "raw": "<img width=\"140\" height=\"40\" src=\"https://homeskitspro.com/wp-content/uploads/2022/05/Homekitspro-logo-140x40.png\" alt=\"\" decoding=\"async\" />\t\t\t\t\t\n\t\t\t\t\t\t\t\t<link rel=\"stylesheet\" id=\"wd-text-block-css\" href=\"https://homeskitspro.com/wp-content/themes/woodmart/css/parts/el-text-block.min.css?ver=58.0.0\" type=\"text/css\" media=\"all\" /> \t\t\t\t\t\n\t\t\t<p>Nairobi CBD</p>\n\t\t\t\t\t\t\t\t<link rel=\"stylesheet\" id=\"wd-button-css\" href=\"https://homeskitspro.com/wp-content/themes/woodmart/css/parts/el-button.min.css?ver=58.0.0\" type=\"text/css\" media=\"all\" /> \t\t\t\t\t\n\t\t\t<a  href=\"https://homeskitspro.com/contact-us/\">\n\t\t\t\t\tStore Details\t\t\t\t\n\t\t\t\t\t\t\t</a>\n\t\t\t<p>Mon. - Sat:<br /><strong>9:00am - </strong><strong>9:00pm</strong></p>\n\t\t\t\t\t\t\t\t<link rel=\"stylesheet\" id=\"wd-list-css\" href=\"https://homeskitspro.com/wp-content/themes/woodmart/css/parts/el-list.min.css?ver=58.0.0\" type=\"text/css\" media=\"all\" /> \t\t\t\t\t\t<link rel=\"stylesheet\" id=\"wd-el-list-css\" href=\"https://homeskitspro.com/wp-content/themes/woodmart/css/parts/el-list-wpb-elem.min.css?ver=58.0.0\" type=\"text/css\" media=\"all\" /> \t\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t\t\t\t\t<img  src=\"https://homeskitspro.com/wp-content/uploads/2022/05/wd-phone-megamarket.svg\" title=\"wd-phone-megamarket\" width=\"14\" height=\"14\">\t\t\t\t\t\n\t\t\t\t\t\t+254 746 334 492\t\t\t\t\t\n\t\t\t\t\t\t<a  href=\"tel:(406)%20555-0120\" aria-label=\"List item link\"></a>\n\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t\t\t\t\t<img  src=\"https://homeskitspro.com/wp-content/uploads/2022/05/wd-cursor-megamarket.svg\" title=\"wd-cursor-megamarket\" width=\"14\" height=\"14\">\t\t\t\t\t\n\t\t\t\t\t\tNairobi CBD\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t<a  href=\"https://homeskitspro.com/contact-us/\">\n\t\t\t\t\tFind More Stores\t\t\t\t\n\t\t\t\t\t\t\t</a>",
+    "rendered": "\t\t<div data-elementor-type=\"wp-post\" data-elementor-id=\"514\" class=\"elementor elementor-514\">\n\t\t\t\t<div class=\"wd-negative-gap elementor-element elementor-element-c5dc380 e-flex e-con-boxed e-con e-parent\" data-id=\"c5dc380\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t<div class=\"elementor-element elementor-element-6b08c14 e-con-full e-flex e-con e-child\" data-id=\"6b08c14\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-5996ebe elementor-widget elementor-widget-wd_image_or_svg\" data-id=\"5996ebe\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_image_or_svg.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\n\t\t<div class=\"wd-image text-left\">\n\t\t\t\t\t\t\t\t<img decoding=\"async\" width=\"140\" height=\"40\" src=\"https://homeskitspro.com/wp-content/uploads/2022/05/Homekitspro-logo-140x40.png\" class=\"attachment-140x40 size-140x40\" alt=\"\" />\t\t\t\t\t</div>\n\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-a3e1c72 elementor-widget elementor-widget-wd_text_block\" data-id=\"a3e1c72\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_text_block.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"wd-text-block reset-last-child text-left\">\n\t\t\t\n\t\t\t<p>Nairobi CBD</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-01966ff elementor-widget elementor-widget-wd_button\" data-id=\"01966ff\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_button.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"wd-button-wrapper text-left\" >\n\t\t\t<a class=\"btn btn-style-bordered btn-shape-rectangle btn-size-small btn-icon-pos-right\"  href=\"https://homeskitspro.com/contact-us/\">\n\t\t\t\t<span class=\"wd-btn-text\" data-elementor-setting-key=\"text\">\n\t\t\t\t\tStore Details\t\t\t\t</span>\n\n\t\t\t\t\t\t\t</a>\n\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-05d1c54 e-con-full e-flex e-con e-child\" data-id=\"05d1c54\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-1ce3f43 elementor-widget elementor-widget-wd_text_block\" data-id=\"1ce3f43\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_text_block.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"wd-text-block reset-last-child text-left\">\n\t\t\t\n\t\t\t<p>Mon. - Sat:<br /><span style=\"color: #1246ab;\"><strong>9:00am - </strong></span><span style=\"color: #1246ab;\"><strong>9:00pm</strong></span></p>\n\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-ab295b6 elementor-widget elementor-widget-wd_list\" data-id=\"ab295b6\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_list.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<ul class=\"wd-list color-scheme- wd-fontsize-xs wd-type-icon wd-style-default text-left\">\n\t\t\t\t\t\t\t\t\t\t\t<li class=\"elementor-repeater-item-5c09d81\">\n\t\t\t\t\t\t\t\t\t\t\t<span class=\"wd-icon\"><img decoding=\"async\"  src=\"https://homeskitspro.com/wp-content/uploads/2022/05/wd-phone-megamarket.svg\" title=\"wd-phone-megamarket\" width=\"14\" height=\"14\"></span>\t\t\t\t\t\n\t\t\t\t\t<span class=\"wd-list-content list-content\">\n\t\t\t\t\t\t+254 746 334 492\t\t\t\t\t</span>\n\n\t\t\t\t\t\n\t\t\t\t\t\t<a  href=\"tel:+254746334492\" class=\"wd-fill\" aria-label=\"List item link\"></a>\n\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t\t\t<li class=\"elementor-repeater-item-be7274e\">\n\t\t\t\t\t\t\t\t\t\t\t<span class=\"wd-icon\"><img decoding=\"async\"  src=\"https://homeskitspro.com/wp-content/uploads/2022/05/wd-cursor-megamarket.svg\" title=\"wd-cursor-megamarket\" width=\"14\" height=\"14\"></span>\t\t\t\t\t\n\t\t\t\t\t<span class=\"wd-list-content list-content\">\n\t\t\t\t\t\tNairobi CBD\t\t\t\t\t</span>\n\n\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"wd-negative-gap elementor-element elementor-element-a65a7a6 e-flex e-con-boxed e-con e-parent\" data-id=\"a65a7a6\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t\t\t<div class=\"elementor-element elementor-element-66aa8b2 elementor-widget-divider--view-line elementor-widget elementor-widget-divider\" data-id=\"66aa8b2\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"divider.default\">\n\t\t\t\t\t\t\t<div class=\"elementor-divider\">\n\t\t\t<span class=\"elementor-divider-separator\">\n\t\t\t\t\t\t</span>\n\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-171892f e-flex e-con-boxed e-con e-parent\" data-id=\"171892f\" data-element_type=\"container\" data-e-type=\"container\" data-settings=\"{&quot;background_background&quot;:&quot;classic&quot;}\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t\t\t<div class=\"elementor-element elementor-element-79b908d elementor-widget elementor-widget-wd_button\" data-id=\"79b908d\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"wd_button.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"wd-button-wrapper text-center\" >\n\t\t\t<a class=\"btn btn-style-link btn-shape- btn-size-default btn-color-primary btn-icon-pos-right\"  href=\"https://homeskitspro.com/contact-us/\">\n\t\t\t\t<span class=\"wd-btn-text\" data-elementor-setting-key=\"text\">\n\t\t\t\t\tFind More Stores\t\t\t\t</span>\n\n\t\t\t\t\t\t\t</a>\n\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t",
+    "protected": false,
+    "block_version": 0
+  },
+  "template": "",
+  "meta": {
+    "advanced_seo_description": "",
+    "jetpack_seo_html_title": "",
+    "jetpack_seo_noindex": false,
+    "_elementor_edit_mode": "builder",
+    "_elementor_template_type": "wp-post",
+    "_elementor_data": "[{\"id\":\"c5dc380\",\"elType\":\"container\",\"settings\":{\"flex_gap\":{\"size\":15,\"column\":\"15\",\"row\":\"15\",\"unit\":\"px\",\"isLinked\":true},\"structure\":\"20\",\"padding\":{\"unit\":\"px\",\"top\":\"30\",\"right\":\"35\",\"bottom\":\"30\",\"left\":\"35\",\"isLinked\":false},\"flex_direction\":\"row\",\"flex_align_items\":\"stretch\",\"scroll_y\":-80,\"container_sticky_offset\":50},\"elements\":[{\"id\":\"6b08c14\",\"elType\":\"container\",\"settings\":{\"_column_size\":50,\"width\":{\"size\":58,\"unit\":\"%\"},\"column_sticky_offset\":50,\"scroll_y\":-80,\"content_width\":\"full\",\"flex_gap\":{\"column\":\"0\",\"row\":\"0\",\"isLinked\":true,\"unit\":\"px\",\"size\":0},\"min_height\":{\"unit\":\"px\",\"size\":0,\"sizes\":[]},\"flex_justify_content\":\"flex-start\",\"container_sticky_offset\":50},\"elements\":[{\"id\":\"5996ebe\",\"elType\":\"widget\",\"settings\":{\"image\":{\"url\":\"https://homeskitspro.com/wp-content/uploads/2022/05/Homekitspro-logo.png\",\"id\":36545,\"alt\":\"\",\"source\":\"library\",\"size\":\"\"},\"image_size\":\"custom\",\"image_custom_dimension\":{\"width\":\"140\",\"height\":\"40\"},\"_margin\":{\"unit\":\"px\",\"top\":\"0\",\"right\":\"0\",\"bottom\":\"10\",\"left\":\"0\",\"isLinked\":false},\"scroll_y\":-80},\"elements\":[],\"widgetType\":\"wd_image_or_svg\"},{\"id\":\"a3e1c72\",\"elType\":\"widget\",\"settings\":{\"text\":\"<p>Nairobi CBD</p>\",\"typography_typography\":\"custom\",\"typography_font_size\":{\"unit\":\"px\",\"size\":14,\"sizes\":[]},\"scroll_y\":-80,\"_margin\":{\"unit\":\"px\",\"top\":\"0\",\"right\":\"0\",\"bottom\":\"20\",\"left\":\"0\",\"isLinked\":false}},\"elements\":[],\"widgetType\":\"wd_text_block\"},{\"id\":\"01966ff\",\"elType\":\"widget\",\"settings\":{\"text\":\"Store Details\",\"style\":\"bordered\",\"size\":\"small\",\"align\":\"left\",\"scroll_y\":-80,\"link\":{\"url\":\"https://homeskitspro.com/contact-us/\",\"is_external\":false,\"nofollow\":false,\"custom_attributes\":\"\"}},\"elements\":[],\"widgetType\":\"wd_button\"}],\"isInner\":true},{\"id\":\"05d1c54\",\"elType\":\"container\",\"settings\":{\"_column_size\":50,\"width\":{\"size\":42,\"unit\":\"%\"},\"padding\":{\"unit\":\"px\",\"top\":\"16\",\"right\":\"0\",\"bottom\":\"0\",\"left\":\"0\",\"isLinked\":false},\"column_sticky_offset\":50,\"scroll_y\":-80,\"content_width\":\"full\",\"flex_gap\":{\"column\":\"10\",\"row\":\"10\",\"isLinked\":true,\"unit\":\"px\",\"size\":10},\"container_sticky_offset\":50},\"elements\":[{\"id\":\"1ce3f43\",\"elType\":\"widget\",\"settings\":{\"text\":\"<p>Mon. - Sat:<br /><span style=\\\"color: #1246ab;\\\"><strong>9:00am - </strong></span><span style=\\\"color: #1246ab;\\\"><strong>9:00pm</strong></span></p>\",\"typography_typography\":\"custom\",\"typography_font_size\":{\"unit\":\"px\",\"size\":14,\"sizes\":[]},\"scroll_y\":-80},\"elements\":[],\"widgetType\":\"wd_text_block\"},{\"id\":\"ab295b6\",\"elType\":\"widget\",\"settings\":{\"list_items\":[{\"list_content\":\"+254 746 334 492\",\"_id\":\"5c09d81\",\"link\":{\"url\":\"tel:+254746334492\",\"is_external\":false,\"nofollow\":false,\"custom_attributes\":\"\"},\"item_type\":\"image\",\"image\":{\"url\":\"https://homeskitspro.com/wp-content/uploads/2022/05/wd-phone-megamarket.svg\",\"id\":496,\"alt\":\"\",\"source\":\"library\"},\"image_size\":\"custom\",\"image_custom_dimension\":{\"width\":\"14\",\"height\":\"14\"}},{\"_id\":\"be7274e\",\"list_content\":\"Nairobi CBD\",\"item_type\":\"image\",\"image\":{\"url\":\"https://homeskitspro.com/wp-content/uploads/2022/05/wd-cursor-megamarket.svg\",\"id\":494,\"alt\":\"\",\"source\":\"library\"},\"image_size\":\"custom\",\"image_custom_dimension\":{\"width\":\"14\",\"height\":\"14\"}}],\"list_items_gap\":{\"unit\":\"px\",\"size\":10,\"sizes\":[]},\"scroll_y\":-80},\"elements\":[],\"widgetType\":\"wd_list\"}],\"isInner\":true}],\"isInner\":false},{\"id\":\"a65a7a6\",\"elType\":\"container\",\"settings\":{\"scroll_y\":-80,\"container_sticky_offset\":50},\"elements\":[{\"id\":\"66aa8b2\",\"elType\":\"widget\",\"settings\":{\"text\":\"Divider\",\"color\":\"#77777733\",\"gap\":{\"unit\":\"px\",\"size\":0,\"sizes\":[]},\"_margin\":{\"unit\":\"px\",\"top\":\"0\",\"right\":\"20\",\"bottom\":\"20\",\"left\":\"20\",\"isLinked\":false},\"scroll_y\":-80},\"elements\":[],\"widgetType\":\"divider\"}],\"isInner\":false},{\"id\":\"171892f\",\"elType\":\"container\",\"settings\":{\"background_background\":\"classic\",\"background_color\":\"#F1F3F8\",\"padding\":{\"unit\":\"px\",\"top\":\"20\",\"right\":\"20\",\"bottom\":\"20\",\"left\":\"20\",\"isLinked\":true},\"flex_direction\":\"column\",\"flex_gap\":{\"size\":null,\"column\":\"\",\"row\":\"\",\"unit\":\"px\",\"isLinked\":true},\"boxed_width\":{\"unit\":\"custom\",\"size\":\"unset\",\"sizes\":[]},\"boxed_width_tablet\":{\"unit\":\"custom\",\"size\":\"\",\"sizes\":[]},\"boxed_width_mobile\":{\"unit\":\"custom\",\"size\":\"\",\"sizes\":[]},\"scroll_y\":-80,\"container_sticky_offset\":50},\"elements\":[{\"id\":\"79b908d\",\"elType\":\"widget\",\"settings\":{\"text\":\"Find More Stores\",\"style\":\"link\",\"color\":\"primary\",\"scroll_y\":-80,\"link\":{\"url\":\"https://homeskitspro.com/contact-us/\",\"is_external\":false,\"nofollow\":false,\"custom_attributes\":\"\"}},\"elements\":[],\"widgetType\":\"wd_button\"}],\"isInner\":false}]",
+    "_elementor_page_settings": null
+  },
+  "cms_block_cat": [],
+  "jetpack_sharing_enabled": true,
+  "_links": {
+    "self": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514",
+        "targetHints": {
+          "allow": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+        }
+      }
+    ],
+    "collection": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block"
+      }
+    ],
+    "about": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/types/cms_block"
+      }
+    ],
+    "version-history": [
+      {
+        "count": 3,
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514/revisions"
+      }
+    ],
+    "predecessor-version": [
+      {
+        "id": 47136,
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514/revisions/47136"
+      }
+    ],
+    "wp:attachment": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/media?parent=514"
+      }
+    ],
+    "wp:term": [
+      {
+        "taxonomy": "cms_block_cat",
+        "embeddable": true,
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block_cat?post=514"
+      }
+    ],
+    "wp:action-publish": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514"
+      }
+    ],
+    "wp:action-unfiltered-html": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514"
+      }
+    ],
+    "wp:action-create-cms_block_cat": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514"
+      }
+    ],
+    "wp:action-assign-cms_block_cat": [
+      {
+        "href": "https://homeskitspro.com/wp-json/wp/v2/cms_block/514"
+      }
+    ],
+    "curies": [
+      {
+        "name": "wp",
+        "href": "https://api.w.org/{rel}",
+        "templated": true
+      }
+    ]
+  }
+}

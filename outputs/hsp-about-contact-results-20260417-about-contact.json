@@ -1,0 +1,17 @@
+{
+  "backupDir": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-about-contact-backups-20260417-about-contact",
+  "updates": [
+    {
+      "id": 275,
+      "slug": "about-us",
+      "status": "publish",
+      "title": "About us"
+    },
+    {
+      "id": 279,
+      "slug": "contact-us",
+      "status": "publish",
+      "title": "Contact Us"
+    }
+  ]
+}

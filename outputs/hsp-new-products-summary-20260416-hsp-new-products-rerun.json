@@ -1,0 +1,13 @@
+{
+  "mode": "apply",
+  "sourceCsvPath": "C:\\Users\\Eric\\Downloads\\New products to be added.csv",
+  "totalRows": 30,
+  "created": 20,
+  "updated": 10,
+  "failed": 0,
+  "imageFallbacks": 30,
+  "categoriesCreated": 0,
+  "planOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-new-products-plan-20260416-hsp-new-products-rerun.csv",
+  "categoriesOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-new-products-categories-20260416-hsp-new-products-rerun.csv",
+  "resultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-new-products-results-20260416-hsp-new-products-rerun.csv"
+}

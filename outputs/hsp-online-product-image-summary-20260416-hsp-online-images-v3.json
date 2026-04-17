@@ -1,0 +1,10 @@
+{
+  "sourceCsvPath": "C:\\Users\\Eric\\Downloads\\New products to be added.csv",
+  "totalRows": 30,
+  "attached": 8,
+  "alreadyHadImage": 0,
+  "notAttached": 22,
+  "missingProducts": 0,
+  "resultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-online-product-image-results-20260416-hsp-online-images-v3.csv",
+  "candidatesOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-online-product-image-candidates-20260416-hsp-online-images-v3.csv"
+}

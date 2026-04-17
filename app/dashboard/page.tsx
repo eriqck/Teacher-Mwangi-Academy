@@ -1,5 +1,6 @@
 import { AdminSubscriptionsTable } from "@/components/admin-subscriptions-table";
 import { AdminUserManager } from "@/components/admin-user-manager";
+import { DashboardMaterialSearch } from "@/components/dashboard-material-search";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteUpdatesFeed } from "@/components/site-updates-feed";
@@ -182,6 +183,43 @@ export default async function DashboardPage({
     };
   });
   const materialYearTotal = materialTermSummaries.reduce((sum, summary) => sum + summary.totalCount, 0);
+  const dashboardSearchResources = store.resources.filter((resource) => {
+    const levelMatches = user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level);
+
+    if (!levelMatches) {
+      return false;
+    }
+
+    if (resource.category === "scheme-of-work") {
+      return user.role === "admin" || user.role === "teacher";
+    }
+
+    return true;
+  });
+  const dashboardSearchMaterials = dashboardSearchResources
+    .slice()
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+    .map((resource) => {
+      const level = levels.find((entry) => entry.title === resource.level);
+      const term = schemeTerms.find((entry) => entry.id === getResourceTerm(resource));
+      const assessmentSet = assessmentSets.find((entry) => entry.id === resource.assessmentSet);
+      const isAssessment = resource.category === "revision-material" && resource.section === "assessment";
+      const typeLabel =
+        resource.category === "scheme-of-work" ? "Scheme of Work" : isAssessment ? "Assessment" : "Notes";
+
+      return {
+        id: resource.id,
+        title: resource.title,
+        description: resource.description,
+        level: resource.level,
+        subject: resource.subject,
+        typeLabel,
+        termLabel: term?.label ?? "Term 1",
+        year: getResourceYear(resource),
+        setLabel: isAssessment ? assessmentSet?.label ?? "Assessment" : null,
+        href: level ? `/levels/${level.id}` : "/dashboard"
+      };
+    });
   const paidPayments = payments.filter((payment) => payment.status === "paid");
   const pendingPayments = payments.filter((payment) => payment.status === "pending");
   const failedPayments = payments.filter((payment) => payment.status === "failed");
@@ -486,6 +524,21 @@ export default async function DashboardPage({
           <AdminSubscriptionsTable initialSubscriptions={adminSubscriptionRows} />
         </section>
       ) : null}
+
+      <section className="page-shell section">
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">Search materials</span>
+            <h2>Find notes, assessments, schemes, and subjects quickly.</h2>
+          </div>
+          <p>
+            Search by title, subject, level, year, term, set, or material type without scrolling through
+            every card.
+          </p>
+        </div>
+
+        <DashboardMaterialSearch materials={dashboardSearchMaterials} />
+      </section>
 
       <section className="page-shell section">
         <div className="section-head">

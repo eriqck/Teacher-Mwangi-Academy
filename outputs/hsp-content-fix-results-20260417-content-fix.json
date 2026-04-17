@@ -1,0 +1,40 @@
+{
+  "backupDir": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-content-backups-20260417-content-fix",
+  "updates": [
+    {
+      "restBase": "pages",
+      "id": 15,
+      "slug": "home-megamarket",
+      "status": "publish",
+      "title": "Home"
+    },
+    {
+      "restBase": "pages",
+      "id": 275,
+      "slug": "about-us",
+      "status": "publish",
+      "title": "About us"
+    },
+    {
+      "restBase": "pages",
+      "id": 287,
+      "slug": "services",
+      "status": "publish",
+      "title": "Services"
+    },
+    {
+      "restBase": "cms_block",
+      "id": 684,
+      "slug": "popup-with-contact-form-megamarket",
+      "status": "publish",
+      "title": "Popup with contact form Megamarket"
+    },
+    {
+      "restBase": "cms_block",
+      "id": 677,
+      "slug": "promo-popup-megamarket",
+      "status": "draft",
+      "title": "Promo popup Megamarket"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "sourceCsvPath": "C:\\Users\\Eric\\Downloads\\New products to be added.csv",
+  "totalRows": 30,
+  "attached": 0,
+  "alreadyHadImage": 10,
+  "notAttached": 11,
+  "missingProducts": 0,
+  "resultsOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-jumia-product-image-results-20260416-hsp-jumia-images-visual-dry.csv",
+  "candidatesOutputPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-jumia-product-image-candidates-20260416-hsp-jumia-images-visual-dry.csv"
+}
