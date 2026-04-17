@@ -3,12 +3,15 @@ import { AdminUserManager } from "@/components/admin-user-manager";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteUpdatesFeed } from "@/components/site-updates-feed";
-import { featuredResources, levels } from "@/lib/catalog";
+import { assessmentSets } from "@/lib/assessment-sets";
+import { levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
 import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
 import { readAppData } from "@/lib/repository";
+import { schemeTerms } from "@/lib/scheme-terms";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
+import type { ResourceRecord, SchemeTerm } from "@/lib/store";
 
 function formatMoney(amount: number) {
   return `KSh ${amount}`;
@@ -50,6 +53,20 @@ function formatTime(value: string) {
     hour12: false,
     timeZone: "Africa/Nairobi"
   }).format(date);
+}
+
+function getResourceYear(resource: ResourceRecord) {
+  const date = new Date(resource.createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return `${new Date().getFullYear()}`;
+  }
+
+  return `${date.getFullYear()}`;
+}
+
+function getResourceTerm(resource: ResourceRecord): SchemeTerm {
+  return resource.term ?? "term-1";
 }
 
 export default async function DashboardPage({
@@ -131,6 +148,36 @@ export default async function DashboardPage({
       : activePlan?.levelAccessMode === "all"
         ? levels
         : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
+  const dashboardMaterialLevels = user.role === "admin" ? levels : accessibleLevels;
+  const dashboardMaterialLevelTitles = new Set(dashboardMaterialLevels.map((level) => level.title));
+  const dashboardMaterialYear = "2026";
+  const dashboardMaterials = store.resources.filter(
+    (resource) =>
+      resource.category === "revision-material" &&
+      (user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level)) &&
+      getResourceYear(resource) === dashboardMaterialYear
+  );
+  const materialTermSummaries = schemeTerms.map((term) => {
+    const termResources = dashboardMaterials.filter((resource) => getResourceTerm(resource) === term.id);
+    const notesCount = termResources.filter(
+      (resource) => (resource.section ?? "notes") === "notes"
+    ).length;
+    const setSummaries = assessmentSets.map((assessmentSet) => ({
+      ...assessmentSet,
+      count: termResources.filter(
+        (resource) =>
+          resource.section === "assessment" &&
+          resource.assessmentSet === assessmentSet.id
+      ).length
+    }));
+
+    return {
+      term,
+      notesCount,
+      setSummaries,
+      totalCount: notesCount + setSummaries.reduce((sum, item) => sum + item.count, 0)
+    };
+  });
   const paidPayments = payments.filter((payment) => payment.status === "paid");
   const pendingPayments = payments.filter((payment) => payment.status === "pending");
   const failedPayments = payments.filter((payment) => payment.status === "failed");
@@ -439,21 +486,38 @@ export default async function DashboardPage({
       <section className="page-shell section">
         <div className="section-head">
           <div>
-            <span className="eyebrow">Library preview</span>
-            <h2>Featured resources inside the academy.</h2>
+            <span className="eyebrow">Materials summary</span>
+            <h2>{dashboardMaterialYear} materials by term and set.</h2>
           </div>
-          <p>These remain the materials you can market and later protect behind download access.</p>
+          <p>
+            The dashboard now keeps materials short and organized. Open a level when you want to view
+            the actual files.
+          </p>
         </div>
 
-        <div className="resource-grid">
-          {featuredResources.map((resource) => (
-            <article key={resource.title} className="resource-card">
-              <h3>{resource.title}</h3>
-              <div className="resource-meta">
-                <span>{resource.level}</span>
-                <span>{resource.type}</span>
+        <div className="dashboard-summary-grid">
+          {materialTermSummaries.map((summary) => (
+            <article key={summary.term.id} className="dashboard-card dashboard-summary-card material-term-card">
+              <div className="material-term-head">
+                <div>
+                  <span className="subtle">{dashboardMaterialYear}</span>
+                  <h3>{summary.term.label}</h3>
+                </div>
+                <span className="pill">{summary.totalCount} item{summary.totalCount === 1 ? "" : "s"}</span>
               </div>
-              <p className="subtle">{resource.access}</p>
+
+              <div className="material-summary-list">
+                <div className="material-summary-row">
+                  <span>Notes</span>
+                  <strong>{summary.notesCount}</strong>
+                </div>
+                {summary.setSummaries.map((set) => (
+                  <div key={set.id} className="material-summary-row">
+                    <span>{set.label}</span>
+                    <strong>{set.count}</strong>
+                  </div>
+                ))}
+              </div>
             </article>
           ))}
         </div>

@@ -679,6 +679,44 @@ main {
   color: var(--secondary);
 }
 
+.material-term-card {
+  gap: 18px;
+}
+
+.material-term-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.material-term-head h3 {
+  margin: 4px 0 0;
+  font-size: 1.45rem;
+}
+
+.material-summary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.material-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(31, 111, 95, 0.09);
+  color: var(--muted);
+}
+
+.material-summary-row strong {
+  color: var(--secondary);
+  font-size: 1.05rem;
+}
+
 .section-head--compact {
   margin-bottom: 0;
   align-items: center;
