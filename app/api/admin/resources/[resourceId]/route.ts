@@ -57,7 +57,7 @@ export async function PATCH(
     const audience = `${body.audience ?? ""}`.trim();
     const section = `${body.section ?? ""}`.trim();
     const assessmentSet = body.assessmentSet === null ? null : `${body.assessmentSet ?? ""}`.trim();
-    const term = body.term === null ? null : `${body.term ?? ""}`.trim();
+    const term = `${body.term ?? ""}`.trim();
 
     const store = await readAppData();
     const resource = store.resources.find((entry) => entry.id === resourceId);
@@ -110,7 +110,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, Set 3, or CEKENA Exams." }, { status: 400 });
     }
 
+    if (!isSchemeTerm(term)) {
+      return NextResponse.json({ error: "Materials must include Term 1, Term 2, or Term 3." }, { status: 400 });
+    }
+
     const resolvedAssessmentSet: AssessmentSet | null = section === "assessment" ? (assessmentSet as AssessmentSet) : null;
+    const resolvedTerm: SchemeTerm = term as SchemeTerm;
 
     const updated = await updateResourceRecord(resourceId, {
       title,
@@ -120,7 +125,7 @@ export async function PATCH(
       audience,
       section,
       assessmentSet: resolvedAssessmentSet,
-      term: null,
+      term: resolvedTerm,
       updatedAt: new Date().toISOString()
     });
 

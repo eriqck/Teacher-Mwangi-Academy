@@ -175,9 +175,13 @@ export default async function DashboardPage({
       term,
       notesCount,
       setSummaries,
+      levelTitles: Array.from(new Set(termResources.map((resource) => resource.level))).sort((left, right) =>
+        left.localeCompare(right)
+      ),
       totalCount: notesCount + setSummaries.reduce((sum, item) => sum + item.count, 0)
     };
   });
+  const materialYearTotal = materialTermSummaries.reduce((sum, summary) => sum + summary.totalCount, 0);
   const paidPayments = payments.filter((payment) => payment.status === "paid");
   const pendingPayments = payments.filter((payment) => payment.status === "pending");
   const failedPayments = payments.filter((payment) => payment.status === "failed");
@@ -495,7 +499,23 @@ export default async function DashboardPage({
           </p>
         </div>
 
-        <div className="dashboard-summary-grid">
+        <div className="dashboard-summary-grid dashboard-summary-grid--materials">
+          <article className="dashboard-card dashboard-summary-card material-year-card">
+            <span className="subtle">School year</span>
+            <strong className="dashboard-summary-value">{dashboardMaterialYear}</strong>
+            <p className="subtle">
+              {materialYearTotal} uploaded revision material{materialYearTotal === 1 ? "" : "s"} organized into
+              term cards below.
+            </p>
+            <div className="tag-row">
+              {schemeTerms.map((term) => (
+                <span key={term.id} className="tag">
+                  {dashboardMaterialYear} {term.label}
+                </span>
+              ))}
+            </div>
+          </article>
+
           {materialTermSummaries.map((summary) => (
             <article key={summary.term.id} className="dashboard-card dashboard-summary-card material-term-card">
               <div className="material-term-head">
@@ -513,10 +533,28 @@ export default async function DashboardPage({
                 </div>
                 {summary.setSummaries.map((set) => (
                   <div key={set.id} className="material-summary-row">
-                    <span>{set.label}</span>
-                    <strong>{set.count}</strong>
-                  </div>
-                ))}
+                  <span>{set.label}</span>
+                  <strong>{set.count}</strong>
+                </div>
+              ))}
+              </div>
+              <div className="material-term-links">
+                {summary.levelTitles.length > 0 ? (
+                  summary.levelTitles.map((levelTitle) => {
+                    const level = levels.find((entry) => entry.title === levelTitle);
+                    return level ? (
+                      <Link key={level.id} href={`/levels/${level.id}`} className="tag">
+                        {level.title}
+                      </Link>
+                    ) : (
+                      <span key={levelTitle} className="tag">
+                        {levelTitle}
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="subtle">No uploaded materials yet.</span>
+                )}
               </div>
             </article>
           ))}

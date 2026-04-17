@@ -52,11 +52,17 @@ function buildFormState(resource: ResourceRecord): ResourceFormState {
 }
 
 function getResourceTypeLabel(resource: ResourceRecord) {
+  const termLabel = getSchemeTermLabel(resource.term ?? "term-1");
+
   if (resource.category === "scheme-of-work") {
-    return `${getSchemeTermLabel(resource.term)} scheme of work`;
+    return `${termLabel} scheme of work`;
   }
 
-  return resource.section === "assessment" ? getAssessmentSetLabel(resource.assessmentSet) : "Notes";
+  const typeLabel = resource.section === "assessment"
+    ? getAssessmentSetLabel(resource.assessmentSet)
+    : "Notes";
+
+  return `${termLabel} ${typeLabel}`;
 }
 
 export function AdminResourceManager({ initialResources }: ResourceManagerProps) {
@@ -110,7 +116,7 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
             : formState.section === "assessment"
               ? formState.assessmentSet
               : null,
-        term: resource.category === "scheme-of-work" ? formState.term : null
+        term: formState.term || "term-1"
       })
     });
 
@@ -273,34 +279,41 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                       </div>
 
                       <div className="field">
-                        <label htmlFor={resource.category === "scheme-of-work" ? `edit-term-${resource.id}` : `edit-audience-${resource.id}`}>
-                          {resource.category === "scheme-of-work" ? "School term" : "Audience"}
+                        <label htmlFor={`edit-term-${resource.id}`}>
+                          School term
                         </label>
-                        {resource.category === "scheme-of-work" ? (
-                          <>
-                            <select
-                              id={`edit-term-${resource.id}`}
-                              value={formState.term || "term-1"}
-                              onChange={(event) =>
-                                setFormState((current) =>
-                                  current
-                                    ? {
-                                        ...current,
-                                        term: event.target.value as SchemeTerm
-                                      }
-                                    : current
-                                )
-                              }
-                            >
-                              {schemeTerms.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                  {item.label}
-                                </option>
-                              ))}
-                            </select>
-                            <small>Each scheme stays attached to one school term.</small>
-                          </>
-                        ) : (
+                        <select
+                          id={`edit-term-${resource.id}`}
+                          value={formState.term || "term-1"}
+                          onChange={(event) =>
+                            setFormState((current) =>
+                              current
+                                ? {
+                                    ...current,
+                                    term: event.target.value as SchemeTerm
+                                  }
+                                : current
+                            )
+                          }
+                        >
+                          {schemeTerms.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                        <small>
+                          {resource.category === "scheme-of-work"
+                            ? "Each scheme stays attached to one school term."
+                            : "This controls the dashboard term summary for notes and assessments."}
+                        </small>
+                      </div>
+                    </div>
+
+                    {resource.category === "revision-material" ? (
+                      <div className="form-grid">
+                        <div className="field">
+                          <label htmlFor={`edit-audience-${resource.id}`}>Audience</label>
                           <select
                             id={`edit-audience-${resource.id}`}
                             value={formState.audience}
@@ -319,12 +332,8 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                             <option value="parent">Parents only</option>
                             <option value="teacher">Teachers only</option>
                           </select>
-                        )}
-                      </div>
-                    </div>
+                        </div>
 
-                    {resource.category === "revision-material" ? (
-                      <div className="form-grid">
                         <div className="field">
                           <label htmlFor={`edit-section-${resource.id}`}>Content category</label>
                           <select

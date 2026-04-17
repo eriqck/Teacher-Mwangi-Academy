@@ -20,6 +20,8 @@ type BreakItem = {
   id: string;
   title: string;
   durationWeeks: string;
+  week: number;
+  lesson: number;
 };
 
 type SchemeGeneratorFormState = {
@@ -59,7 +61,9 @@ const initialState: SchemeGeneratorFormState = {
     {
       id: "break-1",
       title: "",
-      durationWeeks: ""
+      durationWeeks: "",
+      week: 5,
+      lesson: 4
     }
   ]
 };
@@ -351,7 +355,11 @@ export function SchemeGeneratorForm({
     );
   }
 
-  function updateBreakItem(id: string, key: "title" | "durationWeeks", value: string) {
+  function updateBreakItem(
+    id: string,
+    key: "title" | "durationWeeks" | "week" | "lesson",
+    value: string | number
+  ) {
     setPendingAuthResume(false);
     setFormState((current) => ({
       ...current,
@@ -368,7 +376,9 @@ export function SchemeGeneratorForm({
         {
           id: makeBreakId(current.breaks.length + 1),
           title: "",
-          durationWeeks: ""
+          durationWeeks: "",
+          week: 5,
+          lesson: Math.min(4, current.lessonsPerWeek)
         }
       ]
     }));
@@ -379,7 +389,7 @@ export function SchemeGeneratorForm({
     setFormState((current) => ({
       ...current,
       breaks: current.breaks.length === 1
-        ? [{ id: makeBreakId(1), title: "", durationWeeks: "" }]
+        ? [{ id: makeBreakId(1), title: "", durationWeeks: "", week: 5, lesson: Math.min(4, current.lessonsPerWeek) }]
         : current.breaks.filter((item) => item.id !== id)
     }));
   }
@@ -421,11 +431,16 @@ export function SchemeGeneratorForm({
 
     if (step === 4 && !formState.noBreaks) {
       const hasInvalidBreak = formState.breaks.some(
-        (item) => !item.title.trim() || !item.durationWeeks
+        (item) =>
+          !item.title.trim() ||
+          !item.durationWeeks ||
+          item.week < 1 ||
+          item.lesson < 1 ||
+          item.lesson > formState.lessonsPerWeek
       );
 
       if (hasInvalidBreak) {
-        setError("Fill in all break titles and durations, or turn on No Breaks.");
+        setError("Fill in all break titles, week, lesson, and duration details, or turn on No Breaks.");
         return false;
       }
     }
@@ -456,7 +471,9 @@ export function SchemeGeneratorForm({
       : (() => {
           const entries = formState.breaks
             .filter((item) => item.title.trim() && item.durationWeeks)
-            .map((item) => `${item.title.trim()} (${item.durationWeeks} week${item.durationWeeks === "1" ? "" : "s"})`);
+            .map((item) =>
+              `${item.title.trim()} at week ${item.week}, lesson ${item.lesson} (${item.durationWeeks} week${item.durationWeeks === "1" ? "" : "s"})`
+            );
 
           return entries.length > 0 ? entries.join("; ") : "No breaks recorded for this term.";
         })();
@@ -977,6 +994,34 @@ export function SchemeGeneratorForm({
                         onChange={(event) => updateBreakItem(item.id, "title", event.target.value)}
                         placeholder="Eg. Midterm Break, Exams, Reporting, Revision"
                       />
+                    </label>
+
+                    <label className="field">
+                      <span>Break starts in week *</span>
+                      <select
+                        value={item.week}
+                        onChange={(event) => updateBreakItem(item.id, "week", Number(event.target.value))}
+                      >
+                        {Array.from({ length: 14 }, (_, weekIndex) => weekIndex + 1).map((week) => (
+                          <option key={week} value={week}>
+                            Week {week}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="field">
+                      <span>Break starts at lesson *</span>
+                      <select
+                        value={item.lesson}
+                        onChange={(event) => updateBreakItem(item.id, "lesson", Number(event.target.value))}
+                      >
+                        {Array.from({ length: formState.lessonsPerWeek }, (_, lessonIndex) => lessonIndex + 1).map((lesson) => (
+                          <option key={lesson} value={lesson}>
+                            Lesson {lesson}
+                          </option>
+                        ))}
+                      </select>
                     </label>
 
                     <label className="field">

@@ -46,7 +46,7 @@ function buildResourceRecord(input: {
     category: input.category,
     section: input.category === "scheme-of-work" ? "notes" : input.section,
     assessmentSet: input.category === "scheme-of-work" ? null : input.assessmentSet,
-    term: input.category === "scheme-of-work" ? input.term : null,
+    term: input.term,
     audience: input.category === "scheme-of-work" ? "teacher" : input.audience,
     price: input.category === "scheme-of-work" ? schemeOfWorkPrice : null,
     fileName: input.fileName,

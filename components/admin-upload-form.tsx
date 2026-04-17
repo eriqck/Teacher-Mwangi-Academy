@@ -276,33 +276,54 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       </div>
 
       {!isScheme ? (
-        <div className="form-grid">
-          <div className="field">
-            <label htmlFor={`${variant}-assessment-set`}>Assessment set</label>
-            <select
-              id={`${variant}-assessment-set`}
-              name="assessmentSet"
-              defaultValue="set-1"
-              disabled={!showAssessmentSet}
-            >
-              {assessmentSets.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-            <small>{showAssessmentSet ? "Choose where the assessment should appear." : "Used only when the content category is Assessment."}</small>
+        <>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor={`${variant}-term`}>School term</label>
+              <select
+                id={`${variant}-term`}
+                name="term"
+                value={term}
+                onChange={(event) => setTerm(event.target.value)}
+              >
+                {schemeTerms.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <small>Choose whether this note or assessment belongs to Term 1, Term 2, or Term 3.</small>
+            </div>
+            <div className="field">
+              <label htmlFor={`${variant}-assessment-set`}>Assessment set</label>
+              <select
+                id={`${variant}-assessment-set`}
+                name="assessmentSet"
+                defaultValue="set-1"
+                disabled={!showAssessmentSet}
+              >
+                {assessmentSets.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <small>{showAssessmentSet ? "Choose where the assessment should appear." : "Used only when the content category is Assessment."}</small>
+            </div>
           </div>
-          <div className="field">
-            <label htmlFor={`${variant}-audience`}>Audience</label>
-            <select id={`${variant}-audience`} name="audience" defaultValue="both">
-              <option value="both">Parents and teachers</option>
-              <option value="parent">Parents only</option>
-              <option value="teacher">Teachers only</option>
-            </select>
-            <small>Use audience to control visibility.</small>
+
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor={`${variant}-audience`}>Audience</label>
+              <select id={`${variant}-audience`} name="audience" defaultValue="both">
+                <option value="both">Parents and teachers</option>
+                <option value="parent">Parents only</option>
+                <option value="teacher">Teachers only</option>
+              </select>
+              <small>Use audience to control visibility.</small>
+            </div>
           </div>
-        </div>
+        </>
       ) : (
         <div className="form-grid">
           <div className="field">

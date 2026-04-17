@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, Set 3, or CEKENA Exams." }, { status: 400 });
     }
 
-    if (category === "scheme-of-work" && !isSchemeTerm(term)) {
-      return NextResponse.json({ error: "Schemes of work must include Term 1, Term 2, or Term 3." }, { status: 400 });
+    if (!isSchemeTerm(term)) {
+      return NextResponse.json({ error: "Materials must include Term 1, Term 2, or Term 3." }, { status: 400 });
     }
 
     const resolvedSection: ResourceSection =
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         : resolvedSection === "assessment"
           ? (assessmentSet as AssessmentSet)
           : null;
-    const resolvedTerm: SchemeTerm | null = category === "scheme-of-work" ? (term as SchemeTerm) : null;
+    const resolvedTerm: SchemeTerm = term as SchemeTerm;
 
     try {
       if (isDirectSupabaseUpload) {

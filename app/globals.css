@@ -658,6 +658,10 @@ main {
   gap: 18px;
 }
 
+.dashboard-summary-grid--materials {
+  grid-template-columns: 1.05fr repeat(3, minmax(0, 1fr));
+}
+
 .dashboard-summary-card {
   display: grid;
   gap: 10px;
@@ -681,6 +685,14 @@ main {
 
 .material-term-card {
   gap: 18px;
+}
+
+.material-year-card {
+  align-content: start;
+  background:
+    radial-gradient(circle at top right, rgba(221, 88, 52, 0.2), transparent 38%),
+    linear-gradient(180deg, rgba(255, 247, 237, 0.98), rgba(255, 255, 255, 0.78));
+  border-color: rgba(221, 88, 52, 0.18);
 }
 
 .material-term-head {
@@ -715,6 +727,12 @@ main {
 .material-summary-row strong {
   color: var(--secondary);
   font-size: 1.05rem;
+}
+
+.material-term-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .section-head--compact {
