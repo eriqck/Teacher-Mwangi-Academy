@@ -1130,6 +1130,22 @@ main {
   gap: 14px;
 }
 
+.material-browser-assessments {
+  display: grid;
+  gap: 14px;
+}
+
+.material-browser-section-title {
+  padding: 10px 0 2px;
+  border-top: 1px solid rgba(19, 42, 28, 0.08);
+}
+
+.material-browser-section-title h4 {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 1.06rem;
+}
+
 .material-browser-group + .material-browser-group {
   padding-top: 18px;
   border-top: 1px solid rgba(19, 42, 28, 0.08);

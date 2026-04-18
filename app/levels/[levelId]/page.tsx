@@ -297,19 +297,26 @@ export default async function LevelPage({
                           </section>
                         ) : null}
 
-                        {group.setGroups.map((assessmentSet) => (
-                          <section key={assessmentSet.id} className="material-browser-group">
-                            <div className="material-browser-group-head">
-                              <h4>{assessmentSet.label}</h4>
-                              <span className="pill">{assessmentSet.resources.length}</span>
+                        {group.setGroups.length > 0 ? (
+                          <section className="material-browser-assessments">
+                            <div className="material-browser-section-title">
+                              <h4>Assessments</h4>
                             </div>
-                            <ul className="material-link-list">
-                              {assessmentSet.resources.map((resource) =>
-                                renderRevisionResourceLink(resource, assessmentSet.label)
-                              )}
-                            </ul>
+                            {group.setGroups.map((assessmentSet) => (
+                              <section key={assessmentSet.id} className="material-browser-group">
+                                <div className="material-browser-group-head">
+                                  <h4>{assessmentSet.label}</h4>
+                                  <span className="pill">{assessmentSet.resources.length}</span>
+                                </div>
+                                <ul className="material-link-list">
+                                  {assessmentSet.resources.map((resource) =>
+                                    renderRevisionResourceLink(resource, assessmentSet.label)
+                                  )}
+                                </ul>
+                              </section>
+                            ))}
                           </section>
-                        ))}
+                        ) : null}
                       </div>
                     </details>
                   ))}
