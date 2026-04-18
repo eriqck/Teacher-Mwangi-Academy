@@ -213,6 +213,14 @@ export type GeneratedLessonPlanRequestPayload = {
   unitTitle: string;
   subStrands: string[];
   selectedCount: number;
+  schoolName?: string;
+  roll?: string;
+  lessonTime?: string;
+  year?: string;
+  term?: string;
+  lessonDate?: string;
+  teacherName?: string;
+  tscNumber?: string;
 };
 
 export type GeneratedLessonPlanRequestRecord = {

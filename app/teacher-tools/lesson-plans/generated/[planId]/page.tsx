@@ -34,6 +34,9 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
   const store = await readAppData();
 
   const lessonPlan = store.generatedLessonPlans.find((entry) => entry.id === planId);
+  const sourceRequest = store.generatedLessonPlanRequests.find(
+    (request) => request.generatedLessonPlanId === planId
+  );
 
   if (!lessonPlan) {
     notFound();
@@ -44,6 +47,7 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
   }
 
   const levelTitle = getLevelTitle(lessonPlan.level);
+  const metadata = sourceRequest?.payload;
   const subStrand = lessonPlan.subStrands[0] ?? lessonPlan.unitTitle;
   const lessonSteps = lessonPlan.learnerActivities.length > 0
     ? lessonPlan.learnerActivities
@@ -70,16 +74,16 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
 
         <div className="generated-lesson-meta-grid">
-          <div><span>School:</span><strong>Not specified</strong></div>
-          <div><span>Roll:</span><strong>Not specified</strong></div>
+          <div><span>School:</span><strong>{metadata?.schoolName || "Not specified"}</strong></div>
+          <div><span>Roll:</span><strong>{metadata?.roll || "Not specified"}</strong></div>
           <div><span>Subject:</span><strong>{lessonPlan.subject}</strong></div>
-          <div><span>Time:</span><strong>Not specified</strong></div>
-          <div><span>Year:</span><strong>{new Date(lessonPlan.createdAt).getFullYear()}</strong></div>
+          <div><span>Time:</span><strong>{metadata?.lessonTime || "Not specified"}</strong></div>
+          <div><span>Year:</span><strong>{metadata?.year || new Date(lessonPlan.createdAt).getFullYear()}</strong></div>
           <div><span>Grade:</span><strong>{levelTitle}</strong></div>
-          <div><span>Term:</span><strong>Not specified</strong></div>
-          <div><span>Date:</span><strong>{formatDate(lessonPlan.createdAt)}</strong></div>
-          <div><span>Teacher's Name:</span><strong>{user.fullName}</strong></div>
-          <div><span>TSC No:</span><strong>Not specified</strong></div>
+          <div><span>Term:</span><strong>{metadata?.term || "Not specified"}</strong></div>
+          <div><span>Date:</span><strong>{metadata?.lessonDate ? formatDate(metadata.lessonDate) : formatDate(lessonPlan.createdAt)}</strong></div>
+          <div><span>Teacher's Name:</span><strong>{metadata?.teacherName || user.fullName}</strong></div>
+          <div><span>TSC No:</span><strong>{metadata?.tscNumber || "Not specified"}</strong></div>
         </div>
 
         <div className="generated-lesson-block">

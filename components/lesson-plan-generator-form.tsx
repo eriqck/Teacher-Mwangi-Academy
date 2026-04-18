@@ -16,7 +16,32 @@ type LessonPlanGeneratorFormProps = {
 
 type PersistedLessonPlanDraft = {
   selectedIds: string[];
+  meta: LessonPlanMeta;
   pendingSubmit: boolean;
+};
+
+type LessonPlanMeta = {
+  schoolName: string;
+  roll: string;
+  lessonTime: string;
+  year: string;
+  term: string;
+  lessonDate: string;
+  teacherName: string;
+  tscNumber: string;
+};
+
+const today = new Date().toISOString().slice(0, 10);
+
+const initialMeta: LessonPlanMeta = {
+  schoolName: "",
+  roll: "",
+  lessonTime: "",
+  year: `${new Date().getFullYear()}`,
+  term: "",
+  lessonDate: today,
+  teacherName: "",
+  tscNumber: ""
 };
 
 function getSubStrandId(unitId: string, subStrand: string) {
@@ -37,6 +62,7 @@ export function LessonPlanGeneratorForm({
 }: LessonPlanGeneratorFormProps) {
   const draftStorageKey = useMemo(() => getLessonPlanDraftStorageKey(authRedirectPath), [authRedirectPath]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [meta, setMeta] = useState<LessonPlanMeta>(initialMeta);
   const [error, setError] = useState<string | null>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [pendingAuthResume, setPendingAuthResume] = useState(false);
@@ -61,6 +87,7 @@ export function LessonPlanGeneratorForm({
 
     const payload: PersistedLessonPlanDraft = {
       selectedIds,
+      meta,
       pendingSubmit
     };
 
@@ -90,6 +117,7 @@ export function LessonPlanGeneratorForm({
     try {
       const draft = JSON.parse(rawDraft) as PersistedLessonPlanDraft;
       setSelectedIds(draft.selectedIds);
+      setMeta({ ...initialMeta, ...(draft.meta ?? {}) });
       setPendingAuthResume(draft.pendingSubmit);
     } catch {
       window.sessionStorage.removeItem(draftStorageKey);
@@ -105,11 +133,18 @@ export function LessonPlanGeneratorForm({
 
     const payload: PersistedLessonPlanDraft = {
       selectedIds,
+      meta,
       pendingSubmit: pendingAuthResume
     };
 
     window.sessionStorage.setItem(draftStorageKey, JSON.stringify(payload));
-  }, [draftStorageKey, hasRestoredDraft, pendingAuthResume, selectedIds]);
+  }, [draftStorageKey, hasRestoredDraft, meta, pendingAuthResume, selectedIds]);
+
+  function updateMeta<K extends keyof LessonPlanMeta>(key: K, value: LessonPlanMeta[K]) {
+    setShowAuthPrompt(false);
+    setPendingAuthResume(false);
+    setMeta((current) => ({ ...current, [key]: value }));
+  }
 
   function toggleUnit(unit: LessonPlanUnit, checked: boolean) {
     setShowAuthPrompt(false);
@@ -146,7 +181,15 @@ export function LessonPlanGeneratorForm({
         level: levelId,
         subject,
         unitTitle: selectedUnitTitle,
-        subStrands: selectedSubStrands
+        subStrands: selectedSubStrands,
+        schoolName: meta.schoolName.trim(),
+        roll: meta.roll.trim(),
+        lessonTime: meta.lessonTime.trim(),
+        year: meta.year.trim(),
+        term: meta.term.trim(),
+        lessonDate: meta.lessonDate,
+        teacherName: meta.teacherName.trim(),
+        tscNumber: meta.tscNumber.trim()
       })
     });
 
@@ -218,6 +261,88 @@ export function LessonPlanGeneratorForm({
       <p className="lesson-plan-cost">
         Total Cost: <strong>KSh {totalCost}</strong> ({teacherLessonPlanPrice}/= per lesson plan)
       </p>
+
+      <div className="scheme-wizard-card lesson-plan-meta-card">
+        <div className="scheme-wizard-head">
+          <h3>Lesson Plan Details</h3>
+          <p>Fill these fields so the generated lesson plan header is complete.</p>
+        </div>
+
+        <div className="scheme-wizard-grid">
+          <label className="field">
+            <span>School</span>
+            <input
+              value={meta.schoolName}
+              onChange={(event) => updateMeta("schoolName", event.target.value)}
+              placeholder="Eg. Upendo Senior School"
+            />
+          </label>
+
+          <label className="field">
+            <span>Roll</span>
+            <input
+              value={meta.roll}
+              onChange={(event) => updateMeta("roll", event.target.value)}
+              placeholder="Eg. 20 boys and 10 girls"
+            />
+          </label>
+
+          <label className="field">
+            <span>Time</span>
+            <input
+              value={meta.lessonTime}
+              onChange={(event) => updateMeta("lessonTime", event.target.value)}
+              placeholder="Eg. 8.00 AM - 8.40 AM"
+            />
+          </label>
+
+          <label className="field">
+            <span>Year</span>
+            <input
+              value={meta.year}
+              onChange={(event) => updateMeta("year", event.target.value)}
+              placeholder="Eg. 2026"
+            />
+          </label>
+
+          <label className="field">
+            <span>Term</span>
+            <select value={meta.term} onChange={(event) => updateMeta("term", event.target.value)}>
+              <option value="">--- Select Term ---</option>
+              <option value="Term 1">Term 1</option>
+              <option value="Term 2">Term 2</option>
+              <option value="Term 3">Term 3</option>
+            </select>
+          </label>
+
+          <label className="field">
+            <span>Date</span>
+            <input
+              type="date"
+              value={meta.lessonDate}
+              onChange={(event) => updateMeta("lessonDate", event.target.value)}
+            />
+          </label>
+
+          <label className="field">
+            <span>Teacher's Name</span>
+            <input
+              value={meta.teacherName}
+              onChange={(event) => updateMeta("teacherName", event.target.value)}
+              placeholder="Eg. Mr Mwangi"
+            />
+          </label>
+
+          <label className="field">
+            <span>TSC No.</span>
+            <input
+              value={meta.tscNumber}
+              onChange={(event) => updateMeta("tscNumber", event.target.value)}
+              placeholder="Eg. 6390178"
+            />
+          </label>
+        </div>
+      </div>
 
       <div className="lesson-plan-unit-list">
         {units.map((unit) => {

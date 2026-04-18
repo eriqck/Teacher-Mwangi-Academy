@@ -19,6 +19,14 @@ export async function POST(request: Request) {
     const level = typeof body.level === "string" ? body.level : "";
     const subject = typeof body.subject === "string" ? body.subject.trim() : "";
     const unitTitle = typeof body.unitTitle === "string" ? body.unitTitle.trim() : "";
+    const schoolName = typeof body.schoolName === "string" ? body.schoolName.trim() : "";
+    const roll = typeof body.roll === "string" ? body.roll.trim() : "";
+    const lessonTime = typeof body.lessonTime === "string" ? body.lessonTime.trim() : "";
+    const year = typeof body.year === "string" ? body.year.trim() : "";
+    const term = typeof body.term === "string" ? body.term.trim() : "";
+    const lessonDate = typeof body.lessonDate === "string" ? body.lessonDate.trim() : "";
+    const teacherName = typeof body.teacherName === "string" ? body.teacherName.trim() : "";
+    const tscNumber = typeof body.tscNumber === "string" ? body.tscNumber.trim() : "";
     const subStrands = Array.isArray(body.subStrands)
       ? body.subStrands.map((item) => `${item}`.trim()).filter(Boolean)
       : [];
@@ -53,7 +61,15 @@ export async function POST(request: Request) {
         subject,
         unitTitle,
         subStrands,
-        selectedCount: subStrands.length
+        selectedCount: subStrands.length,
+        schoolName,
+        roll,
+        lessonTime,
+        year,
+        term,
+        lessonDate,
+        teacherName,
+        tscNumber
       },
       generatedLessonPlanId: null,
       createdAt,
