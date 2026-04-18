@@ -113,6 +113,59 @@ export default async function LevelPage({
       resources: schemes.filter((resource) => resource.term === term.id)
     }))
     .filter((group) => group.resources.length > 0);
+  const renderRevisionResourceLink = (
+    resource: (typeof resources)[number],
+    label: string
+  ) => {
+    const linkText = resource.fileName || resource.title;
+    const meta = `${resource.subject} - ${label}`;
+
+    if (resource.canOpen) {
+      return (
+        <li key={resource.id} className="material-link-item">
+          <a
+            href={resource.fileUrl}
+            className="material-file-link"
+            download={resource.fileName}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="material-file-badge">PDF</span>
+            <span>
+              <strong>{linkText}</strong>
+              <small>{meta}</small>
+            </span>
+          </a>
+        </li>
+      );
+    }
+
+    if (resource.canPurchase) {
+      return (
+        <li key={resource.id} className="material-link-item">
+          <Link href={`/purchases/materials/${resource.id}`} className="material-file-link material-file-link--locked">
+            <span className="material-file-badge material-file-badge--buy">BUY</span>
+            <span>
+              <strong>{linkText}</strong>
+              <small>{meta} - KSh {teacherMaterialPrice}</small>
+            </span>
+          </Link>
+        </li>
+      );
+    }
+
+    return (
+      <li key={resource.id} className="material-link-item">
+        <Link href={user ? "/subscribe" : "/login"} className="material-file-link material-file-link--locked">
+          <span className="material-file-badge material-file-badge--lock">LOCK</span>
+          <span>
+            <strong>{linkText}</strong>
+            <small>{user ? "Subscribe to unlock download" : "Sign in to unlock download"}</small>
+          </span>
+        </Link>
+      </li>
+    );
+  };
 
   return (
     <main>
@@ -238,35 +291,9 @@ export default async function LevelPage({
                               <h4>Notes</h4>
                               <span className="pill">{group.notes.length}</span>
                             </div>
-                            <div className="resource-grid">
-                              {group.notes.map((resource) => (
-                                <article key={resource.id} className="resource-card">
-                                  <h3>{resource.title}</h3>
-                                  <div className="resource-meta">
-                                    <span>{resource.subject}</span>
-                                    <span>
-                                      {resource.canPurchase && !resource.canOpen
-                                        ? `KSh ${teacherMaterialPrice} one-time`
-                                        : "Notes"}
-                                    </span>
-                                  </div>
-                                  <p className="subtle">{resource.description}</p>
-                                  <div className="hero-actions">
-                                    {resource.canOpen ? (
-                                      <Link href={resource.fileUrl} target="_blank" className="button">
-                                        Open material
-                                      </Link>
-                                    ) : resource.canPurchase ? (
-                                      <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
-                                        Buy for KSh {teacherMaterialPrice}
-                                      </Link>
-                                    ) : (
-                                      <span className="pill">Login and active access required</span>
-                                    )}
-                                  </div>
-                                </article>
-                              ))}
-                            </div>
+                            <ul className="material-link-list">
+                              {group.notes.map((resource) => renderRevisionResourceLink(resource, "Notes"))}
+                            </ul>
                           </section>
                         ) : null}
 
@@ -276,35 +303,11 @@ export default async function LevelPage({
                               <h4>{assessmentSet.label}</h4>
                               <span className="pill">{assessmentSet.resources.length}</span>
                             </div>
-                            <div className="resource-grid">
-                              {assessmentSet.resources.map((resource) => (
-                                <article key={resource.id} className="resource-card">
-                                  <h3>{resource.title}</h3>
-                                  <div className="resource-meta">
-                                    <span>{resource.subject}</span>
-                                    <span>
-                                      {resource.canPurchase && !resource.canOpen
-                                        ? `KSh ${teacherMaterialPrice} one-time`
-                                        : assessmentSet.label}
-                                    </span>
-                                  </div>
-                                  <p className="subtle">{resource.description}</p>
-                                  <div className="hero-actions">
-                                    {resource.canOpen ? (
-                                      <Link href={resource.fileUrl} target="_blank" className="button">
-                                        Open assessment
-                                      </Link>
-                                    ) : resource.canPurchase ? (
-                                      <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
-                                        Buy for KSh {teacherMaterialPrice}
-                                      </Link>
-                                    ) : (
-                                      <span className="pill">Login and active access required</span>
-                                    )}
-                                  </div>
-                                </article>
-                              ))}
-                            </div>
+                            <ul className="material-link-list">
+                              {assessmentSet.resources.map((resource) =>
+                                renderRevisionResourceLink(resource, assessmentSet.label)
+                              )}
+                            </ul>
                           </section>
                         ))}
                       </div>

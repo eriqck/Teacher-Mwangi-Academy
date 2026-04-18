@@ -1140,6 +1140,78 @@ main {
   font-size: 1.02rem;
 }
 
+.material-link-list {
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.material-link-item {
+  min-width: 0;
+}
+
+.material-file-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  width: fit-content;
+  max-width: 100%;
+  color: #0645ad;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.material-file-link:hover {
+  color: #0b6f55;
+}
+
+.material-file-link strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.material-file-link small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+
+.material-file-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  background: #e33b2f;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.material-file-badge--buy {
+  background: #1f8d5d;
+}
+
+.material-file-badge--lock {
+  background: #6b7280;
+}
+
+.material-file-link--locked {
+  color: var(--secondary);
+}
+
 .material-browser .resource-card {
   padding: 18px;
   border-radius: 22px;
