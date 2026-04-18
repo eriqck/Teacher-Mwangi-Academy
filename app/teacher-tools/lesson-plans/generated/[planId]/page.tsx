@@ -9,6 +9,21 @@ function getLevelTitle(levelId: string) {
   return levels.find((level) => level.id === levelId)?.title ?? levelId;
 }
 
+function formatDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not specified";
+  }
+
+  return new Intl.DateTimeFormat("en-KE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Africa/Nairobi"
+  }).format(date);
+}
+
 export default async function TeacherToolGeneratedLessonPlanDetailPage({
   params
 }: {
@@ -28,6 +43,12 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
     redirect("/teacher-tools/lesson-plans");
   }
 
+  const levelTitle = getLevelTitle(lessonPlan.level);
+  const subStrand = lessonPlan.subStrands[0] ?? lessonPlan.unitTitle;
+  const lessonSteps = lessonPlan.learnerActivities.length > 0
+    ? lessonPlan.learnerActivities
+    : [`Guide learners through ${subStrand.toLowerCase()} using discussion, practice, and feedback.`];
+
   return (
     <section className="teacher-tools-content">
       <div className="teacher-tools-section-head print-hidden">
@@ -43,97 +64,83 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
       </div>
 
-      <article className="teacher-tools-card generated-scheme-sheet">
-        <div className="generated-scheme-header">
-          <div>
-            <h3>{lessonPlan.title}</h3>
-            <p className="subtle">
-              {[getLevelTitle(lessonPlan.level), lessonPlan.subject, lessonPlan.unitTitle].join(" · ")}
-            </p>
-          </div>
-          <div className="generated-scheme-meta-grid">
-            <div>
-              <span className="subtle">Level</span>
-              <strong>{getLevelTitle(lessonPlan.level)}</strong>
-            </div>
-            <div>
-              <span className="subtle">Subject</span>
-              <strong>{lessonPlan.subject}</strong>
-            </div>
-            <div>
-              <span className="subtle">Unit</span>
-              <strong>{lessonPlan.unitTitle}</strong>
-            </div>
-            <div>
-              <span className="subtle">Selected substrands</span>
-              <strong>{lessonPlan.selectedCount}</strong>
-            </div>
+      <article className="teacher-tools-card generated-scheme-sheet generated-lesson-plan-sheet">
+        <div className="generated-lesson-title">
+          <h3>Lesson Plan</h3>
+        </div>
+
+        <div className="generated-lesson-meta-grid">
+          <div><span>School:</span><strong>Not specified</strong></div>
+          <div><span>Roll:</span><strong>Not specified</strong></div>
+          <div><span>Subject:</span><strong>{lessonPlan.subject}</strong></div>
+          <div><span>Time:</span><strong>Not specified</strong></div>
+          <div><span>Year:</span><strong>{new Date(lessonPlan.createdAt).getFullYear()}</strong></div>
+          <div><span>Grade:</span><strong>{levelTitle}</strong></div>
+          <div><span>Term:</span><strong>Not specified</strong></div>
+          <div><span>Date:</span><strong>{formatDate(lessonPlan.createdAt)}</strong></div>
+          <div><span>Teacher's Name:</span><strong>{user.fullName}</strong></div>
+          <div><span>TSC No:</span><strong>Not specified</strong></div>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>Strand</h4>
+          <p>{lessonPlan.unitTitle}</p>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>Sub-Strand</h4>
+          <p>{subStrand}</p>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>Lesson Learning Outcomes</h4>
+          <p>By the end of the lesson, the learner should be able to:</p>
+          <ol>
+            {lessonPlan.learningObjectives.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>KIQ</h4>
+          <ol>
+            {lessonPlan.keyQuestions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>Learning Resources</h4>
+          <p>{lessonPlan.resources.join(", ")}</p>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>Introduction (5 mins)</h4>
+          <p>{lessonSteps[0]}</p>
+        </div>
+
+        <div className="generated-lesson-block">
+          <h4>Lesson Development</h4>
+          <div className="generated-lesson-steps">
+            {lessonSteps.map((item, index) => (
+              <div key={`${index}-${item}`}>
+                <strong>Step {index + 1}</strong>
+                <p>{item}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="generated-scheme-overview">
-          <div>
-            <h4>Substrands covered</h4>
-            <ul>
-              {lessonPlan.subStrands.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4>Learning objectives</h4>
-            <ul>
-              {lessonPlan.learningObjectives.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4>Key questions</h4>
-            <ul>
-              {lessonPlan.keyQuestions.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
+        <div className="generated-lesson-block">
+          <h4>Conclusion</h4>
+          <p>{lessonPlan.reflection}</p>
         </div>
 
-        <div className="generated-scheme-overview">
-          <div>
-            <h4>Learner activities</h4>
-            <ul>
-              {lessonPlan.learnerActivities.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4>Resources</h4>
-            <ul>
-              {lessonPlan.resources.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4>Assessment methods</h4>
-            <ul>
-              {lessonPlan.assessmentMethods.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <div className="generated-scheme-overview">
-          <div>
-            <h4>Reflection</h4>
-            <p className="subtle">{lessonPlan.reflection}</p>
-          </div>
-          <div>
-            <h4>Homework</h4>
-            <p className="subtle">{lessonPlan.homework}</p>
-          </div>
+        <div className="generated-lesson-block">
+          <h4>Extended Activities</h4>
+          <p>{lessonPlan.homework}</p>
         </div>
       </article>
     </section>

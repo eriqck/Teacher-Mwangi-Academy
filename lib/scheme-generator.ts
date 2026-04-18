@@ -54,10 +54,11 @@ export function buildGeneratedScheme(input: SchemeGenerationInput & {
   const level = levels.find((entry) => entry.id === input.level);
   const title = `${level?.title ?? input.level} ${input.subject} ${input.term.replace("-", " ").toUpperCase()} Scheme of Work`;
 
-  const weeklyPlan: GeneratedSchemeWeekRecord[] = Array.from({ length: input.weeksCount }, (_, index) => {
-    const weekNumber = index + 1;
-    const lessonStart = index * input.lessonsPerWeek + 1;
-    const lessonEnd = lessonStart + input.lessonsPerWeek - 1;
+  const weeklyPlan: GeneratedSchemeWeekRecord[] = Array.from(
+    { length: input.weeksCount * input.lessonsPerWeek },
+    (_, index) => {
+    const weekNumber = Math.floor(index / input.lessonsPerWeek) + 1;
+    const lessonNumber = index % input.lessonsPerWeek + 1;
     const outcome = getListValue(
       input.learningOutcomes,
       index,
@@ -87,13 +88,13 @@ export function buildGeneratedScheme(input: SchemeGenerationInput & {
 
     return {
       weekNumber,
-      lessonRange: `${lessonStart}-${lessonEnd}`,
-      focus: `${input.subStrand} - Week ${weekNumber}`,
+      lessonRange: `${lessonNumber}`,
+      focus: `${input.subStrand} - Lesson ${lessonNumber}`,
       learningOutcome: outcome,
       learnerActivities: [
-        `Guide learners through ${input.strand} with emphasis on ${input.subStrand}.`,
-        `Use ${inquiry.toLowerCase()} as the anchor discussion or practical task.`,
-        `Track ${competency.toLowerCase()} while reinforcing ${value.toLowerCase()} and ${issue.toLowerCase()}.`
+        `Learners are guided to explore ${input.subStrand.toLowerCase()} through discussion, examples, and guided practice.`,
+        `Learners respond to the key inquiry question: ${inquiry}`,
+        `Learners demonstrate ${competency.toLowerCase()} while observing ${value.toLowerCase()} and relating the lesson to ${issue.toLowerCase()}.`
       ],
       resources: chunkResources(input.resources, index),
       assessment,

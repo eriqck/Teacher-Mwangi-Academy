@@ -1917,6 +1917,84 @@ main {
   vertical-align: top;
 }
 
+.generated-scheme-table--mentor {
+  min-width: 1400px;
+  font-size: 0.84rem;
+}
+
+.generated-scheme-table--mentor th,
+.generated-scheme-table--mentor td {
+  border: 1px solid rgba(19, 42, 28, 0.16);
+}
+
+.generated-scheme-table--mentor th {
+  background: rgba(31, 111, 95, 0.1);
+}
+
+.generated-lesson-plan-sheet {
+  gap: 18px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.generated-lesson-title {
+  text-align: center;
+}
+
+.generated-lesson-title h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  text-transform: uppercase;
+}
+
+.generated-lesson-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid rgba(19, 42, 28, 0.16);
+}
+
+.generated-lesson-meta-grid > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px;
+  padding: 10px 12px;
+  border-right: 1px solid rgba(19, 42, 28, 0.12);
+  border-bottom: 1px solid rgba(19, 42, 28, 0.12);
+}
+
+.generated-lesson-meta-grid span,
+.generated-lesson-block h4 {
+  font-weight: 800;
+}
+
+.generated-lesson-block {
+  display: grid;
+  gap: 8px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(19, 42, 28, 0.12);
+}
+
+.generated-lesson-block h4,
+.generated-lesson-block p,
+.generated-lesson-block ol {
+  margin: 0;
+}
+
+.generated-lesson-block ol {
+  padding-left: 22px;
+}
+
+.generated-lesson-steps {
+  display: grid;
+  gap: 10px;
+}
+
+.generated-lesson-steps > div {
+  display: grid;
+  gap: 5px;
+}
+
 .empty-state {
   display: grid;
   gap: 12px;
@@ -2369,6 +2447,7 @@ main {
 
   .generated-scheme-meta-grid,
   .generated-scheme-overview,
+  .generated-lesson-meta-grid,
   .teacher-tools-overview,
   .teacher-tools-grid,
   .teacher-tools-grade-grid,
@@ -2468,6 +2547,10 @@ main {
   .generated-scheme-sheet,
   .teacher-tools-card {
     text-align: left;
+  }
+
+  .generated-lesson-meta-grid > div {
+    grid-template-columns: 1fr;
   }
 
   .field-span-2 {

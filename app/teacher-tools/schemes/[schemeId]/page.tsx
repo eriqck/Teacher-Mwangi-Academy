@@ -10,6 +10,14 @@ function getLevelTitle(levelId: string) {
   return levels.find((level) => level.id === levelId)?.title ?? levelId;
 }
 
+function getSchemeNoteValue(notes: string, label: string) {
+  const line = notes
+    .split(/\r?\n/)
+    .find((entry) => entry.toLowerCase().startsWith(`${label.toLowerCase()}:`));
+
+  return line?.split(":").slice(1).join(":").trim() || "";
+}
+
 export default async function TeacherToolGeneratedSchemeDetailPage({
   params
 }: {
@@ -29,6 +37,11 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
     redirect("/teacher-tools/schemes");
   }
 
+  const schemeYear = getSchemeNoteValue(scheme.notes, "Academic year") || `${new Date(scheme.createdAt).getFullYear()}`;
+  const referenceBook = getSchemeNoteValue(scheme.notes, "Reference book") || "Course book / teacher guide";
+  const termLabel = getSchemeTermLabel(scheme.term);
+  const levelTitle = getLevelTitle(scheme.level);
+
   return (
     <section className="teacher-tools-content">
       <div className="teacher-tools-section-head print-hidden">
@@ -47,18 +60,27 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
       <article className="teacher-tools-card generated-scheme-sheet">
         <div className="generated-scheme-header">
           <div>
-            <h3>{scheme.title}</h3>
+            <h3>{schemeYear} {levelTitle} {scheme.subject} Schemes of Work - {termLabel}</h3>
             <p className="subtle">
-              {[getLevelTitle(scheme.level), scheme.subject, getSchemeTermLabel(scheme.term)].join(" · ")}
+              {[levelTitle, scheme.subject, termLabel].join(" - ")}
             </p>
           </div>
+
           <div className="generated-scheme-meta-grid">
             <div>
               <span className="subtle">School</span>
               <strong>{scheme.schoolName || "Not specified"}</strong>
             </div>
             <div>
-              <span className="subtle">Class</span>
+              <span className="subtle">Teacher's name</span>
+              <strong>{user.fullName}</strong>
+            </div>
+            <div>
+              <span className="subtle">Year</span>
+              <strong>{schemeYear}</strong>
+            </div>
+            <div>
+              <span className="subtle">Grade/Class</span>
               <strong>{scheme.className || "Not specified"}</strong>
             </div>
             <div>
@@ -69,60 +91,50 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
               <span className="subtle">Sub-strand</span>
               <strong>{scheme.subStrand}</strong>
             </div>
-          </div>
-        </div>
-
-        <div className="generated-scheme-overview">
-          <div>
-            <h4>Learning outcomes</h4>
-            <ul>
-              {scheme.learningOutcomes.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4>Key inquiry questions</h4>
-            <ul>
-              {scheme.keyInquiryQuestions.length > 0
-                ? scheme.keyInquiryQuestions.map((item) => <li key={item}>{item}</li>)
-                : <li>Use guided discussion questions during delivery.</li>}
-            </ul>
-          </div>
-          <div>
-            <h4>Competencies, values, and issues</h4>
-            <ul>
-              {[...scheme.coreCompetencies, ...scheme.values, ...scheme.pertinentIssues].map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+            <div>
+              <span className="subtle">Reference book</span>
+              <strong>{referenceBook}</strong>
+            </div>
           </div>
         </div>
 
         <div className="generated-scheme-table-wrap">
-          <table className="mini-table generated-scheme-table">
+          <table className="mini-table generated-scheme-table generated-scheme-table--mentor">
             <thead>
               <tr>
                 <th>Week</th>
-                <th>Lessons</th>
-                <th>Focus</th>
-                <th>Learning outcome</th>
-                <th>Learner activities</th>
-                <th>Resources</th>
-                <th>Assessment</th>
-                <th>Remarks</th>
+                <th>Lesson</th>
+                <th>Strand</th>
+                <th>Sub Strand</th>
+                <th>Specific Learning Outcomes</th>
+                <th>Learning Experiences</th>
+                <th>Key Inquiry Questions</th>
+                <th>Learning Resources</th>
+                <th>Assessment Methods</th>
+                <th>Reflection</th>
               </tr>
             </thead>
             <tbody>
               {scheme.weeklyPlan.map((week) => (
-                <tr key={week.weekNumber}>
-                  <td>Week {week.weekNumber}</td>
+                <tr key={`${week.weekNumber}-${week.lessonRange}-${week.focus}`}>
+                  <td>{week.weekNumber}</td>
                   <td>{week.lessonRange}</td>
-                  <td>{week.focus}</td>
+                  <td>{scheme.strand}</td>
+                  <td>{scheme.subStrand}</td>
                   <td>{week.learningOutcome}</td>
                   <td>
                     <ul className="generated-scheme-list-inline">
                       {week.learnerActivities.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td>
+                    <ul className="generated-scheme-list-inline">
+                      {(scheme.keyInquiryQuestions.length > 0
+                        ? scheme.keyInquiryQuestions.slice(0, 2)
+                        : [`How can learners apply ${scheme.subStrand.toLowerCase()}?`]
+                      ).map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
