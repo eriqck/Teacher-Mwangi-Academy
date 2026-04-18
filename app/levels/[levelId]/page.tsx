@@ -7,6 +7,7 @@ import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
+import type { SchemeTerm } from "@/lib/store";
 
 export async function generateMetadata({
   params
@@ -38,6 +39,20 @@ export async function generateMetadata({
   };
 }
 
+function getResourceYear(resource: { createdAt: string }) {
+  const date = new Date(resource.createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return `${new Date().getFullYear()}`;
+  }
+
+  return `${date.getFullYear()}`;
+}
+
+function getResourceTerm(resource: { term?: SchemeTerm | null }): SchemeTerm {
+  return resource.term ?? "term-1";
+}
+
 export default async function LevelPage({
   params
 }: {
@@ -57,6 +72,39 @@ export default async function LevelPage({
   const assessments = resources.filter(
     (resource) => resource.category === "revision-material" && resource.section === "assessment"
   );
+  const revisionMaterials = [...notes, ...assessments];
+  const materialYears = Array.from(new Set(revisionMaterials.map((resource) => getResourceYear(resource)))).sort(
+    (left, right) => right.localeCompare(left)
+  );
+  const revisionMaterialYearGroups = materialYears.map((year) => ({
+    year,
+    terms: schemeTerms
+      .map((term) => {
+        const termNotes = notes.filter(
+          (resource) => getResourceYear(resource) === year && getResourceTerm(resource) === term.id
+        );
+        const setGroups = assessmentSets
+          .map((assessmentSet) => ({
+            ...assessmentSet,
+            resources: assessments.filter(
+              (resource) =>
+                getResourceYear(resource) === year &&
+                getResourceTerm(resource) === term.id &&
+                resource.assessmentSet === assessmentSet.id
+            )
+          }))
+          .filter((group) => group.resources.length > 0);
+        const totalCount = termNotes.length + setGroups.reduce((sum, group) => sum + group.resources.length, 0);
+
+        return {
+          term,
+          notes: termNotes,
+          setGroups,
+          totalCount
+        };
+      })
+      .filter((group) => group.totalCount > 0)
+  }));
   const schemes = resources.filter((resource) => resource.category === "scheme-of-work");
   const unassignedSchemes = schemes.filter((resource) => !resource.term);
   const termSchemeGroups = schemeTerms
@@ -146,117 +194,134 @@ export default async function LevelPage({
       <section className="page-shell section">
         <div className="section-head">
           <div>
-            <span className="eyebrow">Notes</span>
-            <h2>{level.title} notes</h2>
+            <span className="eyebrow">Learning materials</span>
+            <h2>{level.title} materials by year and term.</h2>
           </div>
-          <p>Topic notes, study support, and learning guides for this level.</p>
+          <p>
+            Materials are grouped to keep the page simple. Older uploads without a selected term
+            automatically appear under Term 1.
+          </p>
         </div>
 
-        <div className="resource-grid">
-          {notes.length > 0 ? (
-            notes.map((resource) => (
-              <article key={resource.id} className="resource-card">
-                <h3>{resource.title}</h3>
-                <div className="resource-meta">
-                  <span>{resource.subject}</span>
-                  <span>
-                    {user?.role === "teacher" && !resource.canOpen && resource.canPurchase
-                      ? `KSh ${teacherMaterialPrice} one-time`
-                      : "Notes"}
-                  </span>
+        {revisionMaterialYearGroups.length > 0 ? (
+          <div className="material-browser">
+            {revisionMaterialYearGroups.map((yearGroup) => (
+              <article key={yearGroup.year} className="dashboard-card material-browser-year">
+                <div className="material-browser-year-head">
+                  <div>
+                    <span className="eyebrow">School year</span>
+                    <h3>{yearGroup.year}</h3>
+                  </div>
+                  <div className="tag-row">
+                    {yearGroup.terms.map((group) => (
+                      <span key={group.term.id} className="tag">
+                        {group.term.label}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <p className="subtle">{resource.description}</p>
-                <div className="hero-actions">
-                  {resource.canOpen ? (
-                    <Link href={resource.fileUrl} target="_blank" className="button">
-                      Open material
-                    </Link>
-                  ) : resource.canPurchase ? (
-                    <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
-                      Buy for KSh {teacherMaterialPrice}
-                    </Link>
-                  ) : (
-                    <span className="pill">Login and active access required</span>
-                  )}
+
+                <div className="material-browser-terms">
+                  {yearGroup.terms.map((group, groupIndex) => (
+                    <details key={group.term.id} className="material-browser-term" open={groupIndex === 0}>
+                      <summary>
+                        <span>
+                          {yearGroup.year} {group.term.label}
+                        </span>
+                        <strong>{group.totalCount} item{group.totalCount === 1 ? "" : "s"}</strong>
+                      </summary>
+
+                      <div className="material-browser-groups">
+                        {group.notes.length > 0 ? (
+                          <section className="material-browser-group">
+                            <div className="material-browser-group-head">
+                              <h4>Notes</h4>
+                              <span className="pill">{group.notes.length}</span>
+                            </div>
+                            <div className="resource-grid">
+                              {group.notes.map((resource) => (
+                                <article key={resource.id} className="resource-card">
+                                  <h3>{resource.title}</h3>
+                                  <div className="resource-meta">
+                                    <span>{resource.subject}</span>
+                                    <span>
+                                      {resource.canPurchase && !resource.canOpen
+                                        ? `KSh ${teacherMaterialPrice} one-time`
+                                        : "Notes"}
+                                    </span>
+                                  </div>
+                                  <p className="subtle">{resource.description}</p>
+                                  <div className="hero-actions">
+                                    {resource.canOpen ? (
+                                      <Link href={resource.fileUrl} target="_blank" className="button">
+                                        Open material
+                                      </Link>
+                                    ) : resource.canPurchase ? (
+                                      <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
+                                        Buy for KSh {teacherMaterialPrice}
+                                      </Link>
+                                    ) : (
+                                      <span className="pill">Login and active access required</span>
+                                    )}
+                                  </div>
+                                </article>
+                              ))}
+                            </div>
+                          </section>
+                        ) : null}
+
+                        {group.setGroups.map((assessmentSet) => (
+                          <section key={assessmentSet.id} className="material-browser-group">
+                            <div className="material-browser-group-head">
+                              <h4>{assessmentSet.label}</h4>
+                              <span className="pill">{assessmentSet.resources.length}</span>
+                            </div>
+                            <div className="resource-grid">
+                              {assessmentSet.resources.map((resource) => (
+                                <article key={resource.id} className="resource-card">
+                                  <h3>{resource.title}</h3>
+                                  <div className="resource-meta">
+                                    <span>{resource.subject}</span>
+                                    <span>
+                                      {resource.canPurchase && !resource.canOpen
+                                        ? `KSh ${teacherMaterialPrice} one-time`
+                                        : assessmentSet.label}
+                                    </span>
+                                  </div>
+                                  <p className="subtle">{resource.description}</p>
+                                  <div className="hero-actions">
+                                    {resource.canOpen ? (
+                                      <Link href={resource.fileUrl} target="_blank" className="button">
+                                        Open assessment
+                                      </Link>
+                                    ) : resource.canPurchase ? (
+                                      <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
+                                        Buy for KSh {teacherMaterialPrice}
+                                      </Link>
+                                    ) : (
+                                      <span className="pill">Login and active access required</span>
+                                    )}
+                                  </div>
+                                </article>
+                              ))}
+                            </div>
+                          </section>
+                        ))}
+                      </div>
+                    </details>
+                  ))}
                 </div>
               </article>
-            ))
-          ) : (
-            <article className="resource-card">
-              <h3>No notes uploaded yet</h3>
-              <p className="subtle">
-                There are no uploaded notes for {level.title} yet.
-              </p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="page-shell section">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Assessment</span>
-            <h2>{level.title} assessments</h2>
+            ))}
           </div>
-          <p>Assessments are grouped into Set 1, Set 2, Set 3, and CEKENA Exams for easier navigation.</p>
-        </div>
-
-        <div className="assessment-stack">
-          {assessmentSets.map((assessmentSet) => {
-            const setResources = assessments.filter(
-              (resource) => resource.assessmentSet === assessmentSet.id
-            );
-
-            return (
-              <section key={assessmentSet.id} className="assessment-block">
-                <div className="assessment-head">
-                  <span className="eyebrow">{assessmentSet.label}</span>
-                  <h3>{assessmentSet.label} assessments</h3>
-                </div>
-
-                <div className="resource-grid">
-                  {setResources.length > 0 ? (
-                    setResources.map((resource) => (
-                      <article key={resource.id} className="resource-card">
-                        <h3>{resource.title}</h3>
-                        <div className="resource-meta">
-                          <span>{resource.subject}</span>
-                          <span>
-                            {user?.role === "teacher" && !resource.canOpen && resource.canPurchase
-                              ? `KSh ${teacherMaterialPrice} one-time`
-                              : assessmentSet.label}
-                          </span>
-                        </div>
-                        <p className="subtle">{resource.description}</p>
-                        <div className="hero-actions">
-                          {resource.canOpen ? (
-                            <Link href={resource.fileUrl} target="_blank" className="button">
-                              Open assessment
-                            </Link>
-                          ) : resource.canPurchase ? (
-                            <Link href={`/purchases/materials/${resource.id}`} className="button-secondary button-buy">
-                              Buy for KSh {teacherMaterialPrice}
-                            </Link>
-                          ) : (
-                            <span className="pill">Login and active access required</span>
-                          )}
-                        </div>
-                      </article>
-                    ))
-                  ) : (
-                    <article className="resource-card">
-                      <h3>No {assessmentSet.label.toLowerCase()} uploaded yet</h3>
-                      <p className="subtle">
-                        There are no {assessmentSet.label.toLowerCase()} assessments uploaded for{" "}
-                        {level.title} yet.
-                      </p>
-                    </article>
-                  )}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+        ) : (
+          <article className="resource-card">
+            <h3>No revision materials uploaded yet</h3>
+            <p className="subtle">
+              There are no uploaded notes or assessments for {level.title} yet.
+            </p>
+          </article>
+        )}
       </section>
 
       <section className="page-shell section">
