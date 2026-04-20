@@ -14,6 +14,7 @@ type LessonPlanGeneratorFormProps = {
   unitsByTerm: Record<string, LessonPlanUnit[]>;
   canGenerate?: boolean;
   isAdmin?: boolean;
+  firstGenerationFree?: boolean;
   authRedirectPath?: string;
 };
 
@@ -71,6 +72,7 @@ export function LessonPlanGeneratorForm({
   unitsByTerm,
   canGenerate = false,
   isAdmin = false,
+  firstGenerationFree = false,
   authRedirectPath = "/teacher-tools/lesson-plans"
 }: LessonPlanGeneratorFormProps) {
   const draftStorageKey = useMemo(() => getLessonPlanDraftStorageKey(authRedirectPath), [authRedirectPath]);
@@ -87,7 +89,8 @@ export function LessonPlanGeneratorForm({
   const activeUnits = meta.term ? unitsByTerm[selectedTermId] ?? [] : [];
   const totalSelected = selectedIds.length;
   const totalCost = totalSelected * lessonPlanUnitPrice;
-  const teacherLessonPlanPrice = totalCost;
+  const payableTotal = firstGenerationFree ? 0 : totalCost;
+  const teacherLessonPlanPrice = payableTotal;
 
   const selectedUnitTitle = useMemo(() => {
     const firstUnit = activeUnits.find((unit) =>
@@ -278,12 +281,12 @@ export function LessonPlanGeneratorForm({
       <div className="teacher-tools-section-head">
         <div>
           <span className="eyebrow">Lesson plan generation</span>
-          <h2>Select Strands/Substrands: {levelTitle} - {subject}</h2>
+          <h2>Select Strands and Substrands: {levelTitle} - {subject}</h2>
         </div>
       </div>
 
       <p className="lesson-plan-cost">
-        Total Cost: <strong>KSh {totalCost}</strong> ({lessonPlanUnitPrice}/= per lesson plan)
+        Total Cost: <strong>KSh {payableTotal}</strong> ({lessonPlanUnitPrice}/= per lesson plan after the first free generation)
       </p>
 
       <div className="scheme-wizard-card lesson-plan-meta-card">

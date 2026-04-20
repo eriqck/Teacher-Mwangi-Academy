@@ -5,6 +5,7 @@ import { levels } from "@/lib/catalog";
 import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
 import { createPendingLessonPlanGenerationPayment } from "@/lib/payments";
 import {
+  readAppData,
   saveGeneratedLessonPlanRecord,
   saveGeneratedLessonPlanRequestRecord,
   savePaymentRecord
@@ -67,7 +68,12 @@ export async function POST(request: Request) {
       tscNumber
     };
 
-    if (user.role === "admin") {
+    const store = await readAppData();
+    const firstGenerationFree =
+      user.role === "teacher" && !store.generatedLessonPlans.some((plan) => plan.userId === user.id);
+    const canGenerateWithoutPayment = user.role === "admin" || firstGenerationFree;
+
+    if (canGenerateWithoutPayment) {
       const paymentId = createId("pay");
       const generatedLessonPlan = buildGeneratedLessonPlan({
         id: createId("generated_lesson_plan"),
@@ -84,7 +90,10 @@ export async function POST(request: Request) {
         currency: "KES",
         amount: 0,
         phoneNumber: user.phoneNumber,
-        accountReference: `${subject} admin lesson plan generation`,
+        accountReference:
+          user.role === "admin"
+            ? `${subject} admin lesson plan generation`
+            : `${subject} first free lesson plan generation`,
         plan: null,
         schemeSubject: null,
         schemeLevel: null,
@@ -96,7 +105,7 @@ export async function POST(request: Request) {
         merchantRequestId: null,
         mpesaReceiptNumber: null,
         resultCode: 0,
-        resultDesc: "Admin generated without payment",
+        resultDesc: user.role === "admin" ? "Admin generated without payment" : "First lesson plan generated free",
         createdAt,
         updatedAt: createdAt
       };
@@ -118,7 +127,8 @@ export async function POST(request: Request) {
         data: {
           authorization_url: `/teacher-tools/lesson-plans/generated/${generatedLessonPlan.id}?payment=success`,
           reference: paymentId,
-          adminBypass: true
+          adminBypass: user.role === "admin",
+          freeGeneration: firstGenerationFree
         }
       });
     }

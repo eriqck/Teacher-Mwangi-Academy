@@ -2,11 +2,19 @@ import Link from "next/link";
 import { SchemeGeneratorForm } from "@/components/scheme-generator-form";
 import { getCurrentUser } from "@/lib/auth";
 import { teacherSchemeGenerationPrice } from "@/lib/business";
+import { readAppData } from "@/lib/repository";
 
 export default async function TeacherToolNewSchemePage() {
   const user = await getCurrentUser();
   const canGenerate = user?.role === "teacher" || user?.role === "admin";
   const isAdmin = user?.role === "admin";
+  const store = user ? await readAppData() : null;
+  const firstGenerationFree = Boolean(
+    user &&
+      user.role === "teacher" &&
+      store &&
+      !store.generatedSchemes.some((scheme) => scheme.userId === user.id)
+  );
 
   return (
     <section className="teacher-tools-content">
@@ -33,11 +41,13 @@ export default async function TeacherToolNewSchemePage() {
       <article className="teacher-tools-card scheme-generator-card">
         <p className="subtle">
           Complete each step below, then generate the scheme in the uploaded-ready format.
-          Teachers pay KSh {teacherSchemeGenerationPrice} per generated scheme, while admins can generate directly.
+          Teachers get the first scheme free, then pay KSh {teacherSchemeGenerationPrice} per generated scheme.
+          Admins can generate directly.
         </p>
         <SchemeGeneratorForm
           canGenerate={canGenerate}
           isAdmin={isAdmin}
+          firstGenerationFree={firstGenerationFree}
           authRedirectPath="/teacher-tools/schemes/new"
         />
       </article>

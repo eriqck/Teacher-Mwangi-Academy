@@ -47,8 +47,8 @@ export default async function TeacherToolLessonPlansPage({
 
       <article className="teacher-tools-card">
         <p className="subtle">
-          Pick a class level first, then choose the subject and the strands/substrands you want.
-          Each generated lesson plan is charged independently at KSh {teacherLessonPlanPrice}.
+          Pick a class level first, then choose the subject, strands, and substrands you want.
+          The first lesson-plan generation is free, then each lesson plan is charged independently at KSh {teacherLessonPlanPrice}.
         </p>
         {!canGenerate ? (
           <div className="teacher-tools-unlock-box">

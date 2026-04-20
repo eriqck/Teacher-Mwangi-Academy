@@ -3,7 +3,12 @@ import { requireUser, createId } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { createPendingSchemeGenerationPayment } from "@/lib/payments";
 import { buildGeneratedScheme, normalizeLineList } from "@/lib/scheme-generator";
-import { saveGeneratedSchemeRecord, saveGeneratedSchemeRequestRecord, savePaymentRecord } from "@/lib/repository";
+import {
+  readAppData,
+  saveGeneratedSchemeRecord,
+  saveGeneratedSchemeRequestRecord,
+  savePaymentRecord
+} from "@/lib/repository";
 import type { GeneratedSchemeRequestPayload, PaymentRecord } from "@/lib/store";
 
 function isSchemeTerm(value: string): value is "term-1" | "term-2" | "term-3" {
@@ -92,7 +97,12 @@ export async function POST(request: Request) {
       notes
     };
 
-    if (user.role === "admin") {
+    const store = await readAppData();
+    const firstGenerationFree =
+      user.role === "teacher" && !store.generatedSchemes.some((scheme) => scheme.userId === user.id);
+    const canGenerateWithoutPayment = user.role === "admin" || firstGenerationFree;
+
+    if (canGenerateWithoutPayment) {
       const paymentId = createId("pay");
       const generatedScheme = buildGeneratedScheme({
         id: createId("generated_scheme"),
@@ -109,7 +119,8 @@ export async function POST(request: Request) {
         currency: "KES",
         amount: 0,
         phoneNumber: user.phoneNumber,
-        accountReference: `${subject} admin scheme generation`,
+        accountReference:
+          user.role === "admin" ? `${subject} admin scheme generation` : `${subject} first free scheme generation`,
         plan: null,
         schemeSubject: null,
         schemeLevel: null,
@@ -121,7 +132,7 @@ export async function POST(request: Request) {
         merchantRequestId: null,
         mpesaReceiptNumber: null,
         resultCode: 0,
-        resultDesc: "Admin generated without payment",
+        resultDesc: user.role === "admin" ? "Admin generated without payment" : "First scheme generated free",
         createdAt,
         updatedAt: createdAt
       };
@@ -143,7 +154,8 @@ export async function POST(request: Request) {
         data: {
           authorization_url: `/teacher-tools/schemes/${generatedScheme.id}?payment=success`,
           reference: paymentId,
-          adminBypass: true
+          adminBypass: user.role === "admin",
+          freeGeneration: firstGenerationFree
         }
       });
     }

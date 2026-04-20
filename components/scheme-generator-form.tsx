@@ -126,6 +126,7 @@ function makeBreakId(index: number) {
 type SchemeGeneratorFormProps = {
   canGenerate?: boolean;
   isAdmin?: boolean;
+  firstGenerationFree?: boolean;
   authRedirectPath?: string;
 };
 
@@ -143,6 +144,7 @@ function getSchemeDraftStorageKey(path: string) {
 export function SchemeGeneratorForm({
   canGenerate = false,
   isAdmin = false,
+  firstGenerationFree = false,
   authRedirectPath = "/teacher-tools/schemes/new"
 }: SchemeGeneratorFormProps) {
   const draftStorageKey = useMemo(() => getSchemeDraftStorageKey(authRedirectPath), [authRedirectPath]);
@@ -437,7 +439,7 @@ export function SchemeGeneratorForm({
 
     if (step === 2) {
       if (selectedSubtopicIds.length === 0) {
-        setError("Select at least one topic or subtopic before moving to the next step.");
+        setError("Select at least one strand or substrand before moving to the next step.");
         return false;
       }
     }
@@ -515,7 +517,7 @@ export function SchemeGeneratorForm({
       strand: selectedTopicTitles[0] ?? `${formState.subject} term coverage`,
       subStrand:
         selectedSubtopics.slice(0, 3).join(", ") ||
-        "Selected subtopics",
+        "Selected substrands",
       weeksCount,
       lessonsPerWeek: formState.lessonsPerWeek,
       learningOutcomes: selectedSubtopics
@@ -785,16 +787,16 @@ export function SchemeGeneratorForm({
         <section className="scheme-wizard-card">
           <div className="scheme-wizard-head scheme-wizard-head--spaced">
             <div>
-              <h3>Topics &amp; Subtopics Details</h3>
+              <h3>Strands &amp; Substrands Details</h3>
               <p>
-                {selectedLevel?.title} {formState.subject}. Select the topics and subtopics you want in this scheme.
+                {selectedLevel?.title} {formState.subject}. Select the strands and substrands you want in this scheme.
               </p>
             </div>
           </div>
 
           <div className="scheme-inline-banner scheme-inline-banner--success">
-            Did you know that you can include the uncovered subtopics of the previous term or class?
-            Scroll down and select the topics you want included.
+            Did you know that you can include the uncovered substrands of the previous term or class?
+            Scroll down and select the strands you want included.
           </div>
 
           <div className="scheme-select-all">
@@ -824,7 +826,7 @@ export function SchemeGeneratorForm({
                         checked={groupChecked}
                         onChange={(event) => toggleTopicGroup(topic, event.target.checked)}
                       />
-                      <span>{topic.title} ({topic.subtopics.length} subtopics)</span>
+                      <span>{topic.title} ({topic.subtopics.length} substrands)</span>
                     </label>
                     <span className="pill">{checkedCount} selected</span>
                   </div>
@@ -1121,7 +1123,7 @@ export function SchemeGeneratorForm({
                 <strong>{formState.referenceBook}</strong>
               </div>
               <div>
-                <span className="subtle">Selected subtopics</span>
+                <span className="subtle">Selected substrands</span>
                 <strong>{selectedSubtopicIds.length}</strong>
               </div>
             </div>
@@ -1137,6 +1139,8 @@ export function SchemeGeneratorForm({
                   : "Redirecting to M-Pesa..."
                 : isAdmin
                   ? "Generate PDF"
+                  : firstGenerationFree
+                    ? "Generate PDF · First one free"
                   : `Generate PDF · Pay KSh ${teacherSchemeGenerationPrice}`}
             </button>
           </div>

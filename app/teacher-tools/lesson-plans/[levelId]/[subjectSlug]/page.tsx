@@ -16,6 +16,11 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
   const isAdmin = user?.role === "admin";
   const { levelId, subjectSlug } = await params;
   const store = await readAppData();
+  const firstGenerationFree = Boolean(
+    user &&
+      user.role === "teacher" &&
+      !store.generatedLessonPlans.some((plan) => plan.userId === user.id)
+  );
   const level = getLessonPlanLevels().find((entry) => entry.id === levelId);
 
   if (!level) {
@@ -57,6 +62,7 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
         unitsByTerm={unitsByTerm}
         canGenerate={canGenerate}
         isAdmin={isAdmin}
+        firstGenerationFree={firstGenerationFree}
         authRedirectPath={`/teacher-tools/lesson-plans/${levelId}/${encodeURIComponent(subject)}`}
       />
     </section>

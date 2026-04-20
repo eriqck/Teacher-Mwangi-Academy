@@ -53,7 +53,7 @@ export default async function TeacherToolsDashboardPage({
               <div>
                 <h3>What you can do here</h3>
                 <ul>
-                  <li>Create a scheme of work and pay only for that scheme</li>
+                  <li>Create your first scheme of work free, then pay only for each new scheme</li>
                   <li>Generate a lesson plan at KSh {teacherLessonPlanPrice} each</li>
                   <li>Save your generated work in your teacher account</li>
                 </ul>
@@ -144,8 +144,8 @@ export default async function TeacherToolsDashboardPage({
             <h3>Workspace overview</h3>
             <ul>
               <li>{schemeCount} saved generated scheme{schemeCount === 1 ? "" : "s"}</li>
-              <li>Each generated scheme is charged at KSh {teacherSchemeGenerationPrice}</li>
-              <li>Each lesson plan will be charged at KSh {teacherLessonPlanPrice}</li>
+              <li>First scheme generation is free, then KSh {teacherSchemeGenerationPrice} per scheme</li>
+              <li>First lesson-plan generation is free, then KSh {teacherLessonPlanPrice} per lesson plan</li>
             </ul>
           </div>
 
@@ -153,8 +153,8 @@ export default async function TeacherToolsDashboardPage({
             <h3>How payment works now</h3>
             <div className="teacher-tools-unlock-box">
               <p className="subtle">
-                The bot workspace is billed separately from subscriptions. When you create a scheme,
-                the app takes you to checkout for that exact generation instead of unlocking everything.
+                The bot workspace is billed separately from subscriptions. Your first scheme and first lesson-plan
+                generation are free; after that, the app takes you to checkout for each exact generation.
               </p>
               <p className="subtle">
                 Your normal teacher subscription still stays on the main dashboard for notes, assessments,
@@ -169,8 +169,7 @@ export default async function TeacherToolsDashboardPage({
         <article className="teacher-tools-card">
           <h3>Scheme generation</h3>
           <p className="subtle">
-            Fill in the curriculum inputs, go through checkout, and the scheme is generated after payment
-            confirmation.
+            Fill in the curriculum inputs, generate the first scheme free, then use checkout for later schemes.
           </p>
           <div className="hero-actions">
             <Link href="/teacher-tools/schemes/new" className="button">
