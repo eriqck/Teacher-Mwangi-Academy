@@ -1473,6 +1473,11 @@ main {
   color: var(--secondary);
 }
 
+.message-info {
+  background: rgba(31, 111, 95, 0.1);
+  color: var(--secondary);
+}
+
 .panel-stack {
   display: grid;
   gap: 18px;

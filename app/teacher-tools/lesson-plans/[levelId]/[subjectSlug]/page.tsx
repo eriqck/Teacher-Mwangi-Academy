@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { LessonPlanGeneratorForm } from "@/components/lesson-plan-generator-form";
 import { getCurrentUser } from "@/lib/auth";
 import { getLessonPlanLevels, getLessonPlanSubjects, getLessonPlanUnits } from "@/lib/lesson-plan-curriculum";
+import { readAppData } from "@/lib/repository";
+import { schemeTerms } from "@/lib/scheme-terms";
 
 export default async function TeacherToolLessonPlanSubjectDetailPage({
   params
@@ -13,6 +15,7 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
   const canGenerate = user?.role === "teacher" || user?.role === "admin";
   const isAdmin = user?.role === "admin";
   const { levelId, subjectSlug } = await params;
+  const store = await readAppData();
   const level = getLessonPlanLevels().find((entry) => entry.id === levelId);
 
   if (!level) {
@@ -27,7 +30,9 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
     notFound();
   }
 
-  const units = getLessonPlanUnits(levelId, subject);
+  const unitsByTerm = Object.fromEntries(
+    schemeTerms.map((term) => [term.id, getLessonPlanUnits(levelId, subject, term.id, store.resources)])
+  );
 
   return (
     <section className="teacher-tools-content">
@@ -49,7 +54,7 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
         levelId={levelId}
         levelTitle={level.title}
         subject={subject}
-        units={units}
+        unitsByTerm={unitsByTerm}
         canGenerate={canGenerate}
         isAdmin={isAdmin}
         authRedirectPath={`/teacher-tools/lesson-plans/${levelId}/${encodeURIComponent(subject)}`}

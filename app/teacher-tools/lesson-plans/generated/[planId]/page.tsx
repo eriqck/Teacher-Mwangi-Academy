@@ -4,6 +4,7 @@ import { PrintSchemeButton } from "@/components/print-scheme-button";
 import { requireTeacherUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { readAppData } from "@/lib/repository";
+import { schemeTerms } from "@/lib/scheme-terms";
 
 function getLevelTitle(levelId: string) {
   return levels.find((level) => level.id === levelId)?.title ?? levelId;
@@ -22,6 +23,14 @@ function formatDate(value: string) {
     year: "numeric",
     timeZone: "Africa/Nairobi"
   }).format(date);
+}
+
+function formatTerm(value: string | undefined) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  return schemeTerms.find((term) => term.id === value || term.label === value)?.label ?? value;
 }
 
 export default async function TeacherToolGeneratedLessonPlanDetailPage({
@@ -80,7 +89,7 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
           <div><span>Time:</span><strong>{metadata?.lessonTime || "Not specified"}</strong></div>
           <div><span>Year:</span><strong>{metadata?.year || new Date(lessonPlan.createdAt).getFullYear()}</strong></div>
           <div><span>Grade:</span><strong>{levelTitle}</strong></div>
-          <div><span>Term:</span><strong>{metadata?.term || "Not specified"}</strong></div>
+          <div><span>Term:</span><strong>{formatTerm(metadata?.term)}</strong></div>
           <div><span>Date:</span><strong>{metadata?.lessonDate ? formatDate(metadata.lessonDate) : formatDate(lessonPlan.createdAt)}</strong></div>
           <div><span>Teacher's Name:</span><strong>{metadata?.teacherName || user.fullName}</strong></div>
           <div><span>TSC No:</span><strong>{metadata?.tscNumber || "Not specified"}</strong></div>

@@ -456,9 +456,11 @@ export async function createPendingLessonPlanGenerationPayment(input: {
   phoneNumber: string;
   accountReference: string;
   title: string;
+  amount?: number;
 }) {
   const paymentId = createId("pay");
   const createdAt = new Date().toISOString();
+  const amount = Math.max(teacherLessonPlanPrice, input.amount ?? teacherLessonPlanPrice);
 
   const payment: PaymentRecord = {
     id: paymentId,
@@ -467,7 +469,7 @@ export async function createPendingLessonPlanGenerationPayment(input: {
     status: "pending",
     provider: "paystack",
     currency: "KES",
-    amount: teacherLessonPlanPrice,
+    amount,
     phoneNumber: input.phoneNumber,
     accountReference: input.accountReference,
     plan: null,
@@ -490,7 +492,7 @@ export async function createPendingLessonPlanGenerationPayment(input: {
   try {
     const result = await initializePaystackTransaction({
       email: input.email,
-      amount: teacherLessonPlanPrice,
+      amount,
       reference: paymentId,
       callbackUrl: getPaystackCallbackUrl(),
       metadata: {

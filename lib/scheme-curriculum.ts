@@ -146,6 +146,174 @@ const subjectTopicTemplates: Array<{
         subtopics
       }));
     }
+  },
+  {
+    match: (subject) => subject.includes("integrated science"),
+    topics: (term) => {
+      const base: TopicTuple[] = term === "term-1"
+        ? [
+            ["Scientific Investigation", ["Laboratory safety", "Observation and classification", "Measuring instruments", "Recording findings"]],
+            ["Living Things", ["Characteristics of living things", "Plants and animals", "Human body systems", "Healthy habits"]],
+            ["Matter and Materials", ["Properties of matter", "Mixtures", "Separation of mixtures", "Uses of materials"]]
+          ]
+        : term === "term-2"
+          ? [
+              ["Force and Energy", ["Forms of energy", "Simple machines", "Friction", "Energy conservation"]],
+              ["Earth and Space", ["Weather", "Soil", "Water cycle", "Environmental conservation"]],
+              ["Health and Technology", ["Nutrition", "Disease prevention", "First aid", "Science in daily life"]]
+            ]
+          : [
+              ["Applied Science", ["Project work", "Science models", "Community science problems", "Innovation tasks"]],
+              ["Revision and Assessment", ["Practical investigation", "Data interpretation", "Integrated science quiz", "Learner reflection"]],
+              ["Environment and Sustainability", ["Waste management", "Conservation practices", "Climate awareness", "Responsible resource use"]]
+            ];
+
+      return base.map(([title, subtopics], index) => ({
+        id: `integrated-science-${term}-${index + 1}`,
+        title,
+        subtopics
+      }));
+    }
+  },
+  {
+    match: (subject) => subject.includes("social studies"),
+    topics: (term) => {
+      const base: TopicTuple[] = term === "term-1"
+        ? [
+            ["Natural and Built Environments", ["Physical features", "Weather and climate", "Human settlement", "Environmental care"]],
+            ["Citizenship and Governance", ["Rights and responsibilities", "Leadership", "National values", "Conflict resolution"]],
+            ["People and Population", ["Population distribution", "Communities", "Migration", "Culture and identity"]]
+          ]
+        : term === "term-2"
+          ? [
+              ["Economic Activities", ["Farming", "Trade", "Transport", "Use of resources"]],
+              ["History and Heritage", ["Historical sources", "Cultural heritage", "Important leaders", "National symbols"]],
+              ["Maps and Location", ["Direction", "Map symbols", "Scale", "Using maps in daily life"]]
+            ]
+          : [
+              ["Regional Studies", ["Counties and regions", "Resources in Kenya", "Neighbouring countries", "Regional cooperation"]],
+              ["Social Responsibility", ["Community service", "Peaceful living", "Disaster preparedness", "Responsible citizenship"]],
+              ["Revision and Assessment", ["Case studies", "Map work", "Structured questions", "Project presentation"]]
+            ];
+
+      return base.map(([title, subtopics], index) => ({
+        id: `social-studies-${term}-${index + 1}`,
+        title,
+        subtopics
+      }));
+    }
+  },
+  {
+    match: (subject) => subject.includes("religious") || subject === "cre" || subject.includes("christian religious"),
+    topics: (term) => {
+      const base: TopicTuple[] = term === "term-1"
+        ? [
+            ["Creation and Faith", ["Creation stories", "Human dignity", "Care for creation", "Faith in daily life"]],
+            ["Sacred Scriptures", ["Bible stories", "Teachings from scripture", "Prayer", "Applying scripture values"]],
+            ["Moral Values", ["Respect", "Responsibility", "Honesty", "Forgiveness"]]
+          ]
+        : term === "term-2"
+          ? [
+              ["Worship and Community", ["Places of worship", "Religious celebrations", "Service to others", "Unity in diversity"]],
+              ["Life Skills and Values", ["Decision making", "Peer influence", "Compassion", "Peaceful relationships"]],
+              ["Religious Leaders", ["Biblical leaders", "Servant leadership", "Role models", "Leadership qualities"]]
+            ]
+          : [
+              ["Christian Living", ["Love and service", "Stewardship", "Responsible choices", "Living with others"]],
+              ["Revision and Assessment", ["Scripture review", "Moral questions", "Case studies", "Reflection tasks"]],
+              ["Faith in Action", ["Community projects", "Helping the needy", "Environmental care", "Personal commitment"]]
+            ];
+
+      return base.map(([title, subtopics], index) => ({
+        id: `religious-education-${term}-${index + 1}`,
+        title,
+        subtopics
+      }));
+    }
+  },
+  {
+    match: (subject) => subject.includes("agriculture") || subject.includes("nutrition"),
+    topics: (term) => {
+      const base: TopicTuple[] = term === "term-1"
+        ? [
+            ["Crop Production", ["Soil preparation", "Planting materials", "Crop care", "Harvesting"]],
+            ["Foods and Nutrition", ["Food groups", "Balanced diet", "Food hygiene", "Meal planning"]],
+            ["Agricultural Tools", ["Tool identification", "Tool safety", "Tool maintenance", "Simple farm operations"]]
+          ]
+        : term === "term-2"
+          ? [
+              ["Animal Production", ["Domestic animals", "Animal feeds", "Animal housing", "Animal health"]],
+              ["Food Preparation", ["Kitchen safety", "Cooking methods", "Preservation", "Serving meals"]],
+              ["Conservation Agriculture", ["Water conservation", "Soil conservation", "Composting", "Sustainable farming"]]
+            ]
+          : [
+              ["Agribusiness", ["Farm records", "Marketing farm produce", "Budgeting", "Entrepreneurship"]],
+              ["Home Management", ["Cleaning routines", "Laundry", "Resource management", "Safety at home"]],
+              ["Revision and Practical Tasks", ["Practical assessment", "Project work", "Portfolio tasks", "Reflection"]]
+            ];
+
+      return base.map(([title, subtopics], index) => ({
+        id: `agriculture-nutrition-${term}-${index + 1}`,
+        title,
+        subtopics
+      }));
+    }
+  },
+  {
+    match: (subject) => subject.includes("pre-technical"),
+    topics: (term) => {
+      const base: TopicTuple[] = term === "term-1"
+        ? [
+            ["Workshop Safety", ["Safety rules", "Personal protective equipment", "Tool handling", "First aid"]],
+            ["Technical Drawing", ["Drawing instruments", "Lines and symbols", "Sketching", "Simple plans"]],
+            ["Materials and Tools", ["Wood", "Metal", "Plastics", "Measuring tools"]]
+          ]
+        : term === "term-2"
+          ? [
+              ["Simple Machines", ["Levers", "Pulleys", "Inclined planes", "Applications of machines"]],
+              ["Making and Repair", ["Joining methods", "Finishing", "Maintenance", "Problem solving"]],
+              ["Energy and Technology", ["Sources of energy", "Electrical safety", "Simple circuits", "Technology careers"]]
+            ]
+          : [
+              ["Design Process", ["Identifying needs", "Generating ideas", "Making models", "Evaluating products"]],
+              ["Entrepreneurship", ["Product costing", "Marketing", "Customer needs", "Innovation"]],
+              ["Revision and Project Work", ["Practical project", "Portfolio assessment", "Presentation", "Reflection"]]
+            ];
+
+      return base.map(([title, subtopics], index) => ({
+        id: `pre-technical-${term}-${index + 1}`,
+        title,
+        subtopics
+      }));
+    }
+  },
+  {
+    match: (subject) => subject.includes("creative arts") || subject.includes("sports"),
+    topics: (term) => {
+      const base: TopicTuple[] = term === "term-1"
+        ? [
+            ["Visual Arts", ["Drawing", "Painting", "Pattern making", "Art appreciation"]],
+            ["Music", ["Rhythm", "Melody", "Singing", "Listening skills"]],
+            ["Games and Movement", ["Basic movement", "Ball handling", "Teamwork", "Safety in play"]]
+          ]
+        : term === "term-2"
+          ? [
+              ["Performing Arts", ["Drama", "Dance", "Voice projection", "Creative expression"]],
+              ["Sports Skills", ["Athletics", "Games rules", "Fitness", "Fair play"]],
+              ["Creative Production", ["Craft work", "Improvisation", "Presentation", "Peer feedback"]]
+            ]
+          : [
+              ["Art and Design Project", ["Planning artwork", "Creating final pieces", "Exhibition", "Reflection"]],
+              ["Music and Performance", ["Group performance", "Instrument use", "Composition", "Evaluation"]],
+              ["Revision and Assessment", ["Skill practice", "Portfolio tasks", "Performance assessment", "Self assessment"]]
+            ];
+
+      return base.map(([title, subtopics], index) => ({
+        id: `creative-arts-sports-${term}-${index + 1}`,
+        title,
+        subtopics
+      }));
+    }
   }
 ];
 
@@ -154,18 +322,18 @@ function defaultTopics(subject: string, term: SchemeTerm): SchemeTopicGroup[] {
   return [
     {
       id: `${subject}-${term}-1`,
-      title: `${subject} Strand 1`,
-      subtopics: [`${termLabel} topic 1`, `${termLabel} topic 2`, `${termLabel} practical activity`, `${termLabel} assessment task`]
+      title: `${subject} Foundations`,
+      subtopics: [`${subject} key concepts`, `${subject} vocabulary`, `${subject} guided practice`, `${termLabel} assessment task`]
     },
     {
       id: `${subject}-${term}-2`,
-      title: `${subject} Strand 2`,
-      subtopics: [`${termLabel} concept review`, `${termLabel} learner discussion`, `${termLabel} application task`, `${termLabel} reinforcement activity`]
+      title: `${subject} Skills and Practice`,
+      subtopics: [`${subject} concept review`, `${subject} learner discussion`, `${subject} application task`, `${subject} reinforcement activity`]
     },
     {
       id: `${subject}-${term}-3`,
-      title: `${subject} Strand 3`,
-      subtopics: [`${termLabel} inquiry task`, `${termLabel} project idea`, `${termLabel} reflection task`, `${termLabel} end-of-topic check`]
+      title: `${subject} Application and Assessment`,
+      subtopics: [`${subject} inquiry task`, `${subject} project idea`, `${subject} reflection task`, `${termLabel} end-of-topic check`]
     }
   ];
 }

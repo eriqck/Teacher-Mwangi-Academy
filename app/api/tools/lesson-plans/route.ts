@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createId, requireUser } from "@/lib/auth";
+import { teacherLessonPlanPrice } from "@/lib/business";
 import { levels } from "@/lib/catalog";
 import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
 import { createPendingLessonPlanGenerationPayment } from "@/lib/payments";
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
     }
 
     const createdAt = new Date().toISOString();
+    const amount = subStrands.length * teacherLessonPlanPrice;
     const payload: GeneratedLessonPlanRequestPayload = {
       level,
       subject,
@@ -126,7 +128,8 @@ export async function POST(request: Request) {
       email: user.email,
       phoneNumber: user.phoneNumber,
       accountReference: `${subject} lesson plan generation`,
-      title: `${subject} lesson plan generation`
+      title: `${subject} lesson plan generation`,
+      amount
     });
 
     await saveGeneratedLessonPlanRequestRecord({

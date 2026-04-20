@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { teacherLessonPlanPrice } from "@/lib/business";
+import { teacherLessonPlanPrice as lessonPlanUnitPrice } from "@/lib/business";
+import { schemeTerms } from "@/lib/scheme-terms";
 import type { LessonPlanUnit } from "@/lib/lesson-plan-curriculum";
+import type { SchemeTerm } from "@/lib/store";
 
 type LessonPlanGeneratorFormProps = {
   levelId: string;
   levelTitle: string;
   subject: string;
-  units: LessonPlanUnit[];
+  unitsByTerm: Record<string, LessonPlanUnit[]>;
   canGenerate?: boolean;
   isAdmin?: boolean;
   authRedirectPath?: string;
@@ -53,11 +55,20 @@ function getLessonPlanDraftStorageKey(path: string) {
   return `teacher-mwangi:lesson-plan-draft:${path}`;
 }
 
+function getTermId(value: string): SchemeTerm {
+  const term = schemeTerms.find((item) => item.id === value || item.label === value);
+  return term?.id ?? "term-1";
+}
+
+function getTermLabel(value: string) {
+  return schemeTerms.find((item) => item.id === value || item.label === value)?.label ?? value;
+}
+
 export function LessonPlanGeneratorForm({
   levelId,
   levelTitle,
   subject,
-  units,
+  unitsByTerm,
   canGenerate = false,
   isAdmin = false,
   authRedirectPath = "/teacher-tools/lesson-plans"
@@ -72,15 +83,18 @@ export function LessonPlanGeneratorForm({
   const [isPending, startTransition] = useTransition();
   const hasTriggeredResumeRef = useRef(false);
 
+  const selectedTermId = getTermId(meta.term);
+  const activeUnits = meta.term ? unitsByTerm[selectedTermId] ?? [] : [];
   const totalSelected = selectedIds.length;
-  const totalCost = totalSelected > 0 ? teacherLessonPlanPrice : 0;
+  const totalCost = totalSelected * lessonPlanUnitPrice;
+  const teacherLessonPlanPrice = totalCost;
 
   const selectedUnitTitle = useMemo(() => {
-    const firstUnit = units.find((unit) =>
+    const firstUnit = activeUnits.find((unit) =>
       unit.subStrands.some((subStrand) => selectedIds.includes(getSubStrandId(unit.id, subStrand)))
     );
     return firstUnit?.title ?? "Selected unit";
-  }, [selectedIds, units]);
+  }, [activeUnits, selectedIds]);
 
   function persistDraft(pendingSubmit: boolean) {
     if (typeof window === "undefined") {
@@ -145,6 +159,9 @@ export function LessonPlanGeneratorForm({
   function updateMeta<K extends keyof LessonPlanMeta>(key: K, value: LessonPlanMeta[K]) {
     setShowAuthPrompt(false);
     setPendingAuthResume(false);
+    if (key === "term") {
+      setSelectedIds([]);
+    }
     setMeta((current) => ({ ...current, [key]: value }));
   }
 
@@ -170,7 +187,7 @@ export function LessonPlanGeneratorForm({
   }
 
   async function submitLessonPlanGeneration() {
-    const selectedSubStrands = units.flatMap((unit) =>
+    const selectedSubStrands = activeUnits.flatMap((unit) =>
       unit.subStrands.filter((subStrand) => selectedIds.includes(getSubStrandId(unit.id, subStrand)))
     );
 
@@ -188,7 +205,7 @@ export function LessonPlanGeneratorForm({
         roll: meta.roll.trim(),
         lessonTime: meta.lessonTime.trim(),
         year: meta.year.trim(),
-        term: meta.term.trim(),
+        term: getTermLabel(meta.term.trim()),
         lessonDate: meta.lessonDate,
         teacherName: meta.teacherName.trim(),
         tscNumber: meta.tscNumber.trim()
@@ -230,6 +247,11 @@ export function LessonPlanGeneratorForm({
   }, [canGenerate, hasRestoredDraft, pendingAuthResume]);
 
   async function handleSubmit() {
+    if (!meta.term) {
+      setError("Select the term first so the bot can show the correct strands and substrands.");
+      return;
+    }
+
     if (selectedIds.length === 0) {
       setError("Select at least one strand or substrand first.");
       return;
@@ -261,7 +283,7 @@ export function LessonPlanGeneratorForm({
       </div>
 
       <p className="lesson-plan-cost">
-        Total Cost: <strong>KSh {totalCost}</strong> ({teacherLessonPlanPrice}/= per lesson plan)
+        Total Cost: <strong>KSh {totalCost}</strong> ({lessonPlanUnitPrice}/= per lesson plan)
       </p>
 
       <div className="scheme-wizard-card lesson-plan-meta-card">
@@ -311,9 +333,11 @@ export function LessonPlanGeneratorForm({
             <span>Term</span>
             <select value={meta.term} onChange={(event) => updateMeta("term", event.target.value)}>
               <option value="">--- Select Term ---</option>
-              <option value="Term 1">Term 1</option>
-              <option value="Term 2">Term 2</option>
-              <option value="Term 3">Term 3</option>
+              {schemeTerms.map((term) => (
+                <option key={term.id} value={term.id}>
+                  {term.label}
+                </option>
+              ))}
             </select>
           </label>
 
@@ -346,8 +370,12 @@ export function LessonPlanGeneratorForm({
         </div>
       </div>
 
+      {!meta.term ? (
+        <p className="message message-info">Select a term to load the correct strands and substrands.</p>
+      ) : null}
+
       <div className="lesson-plan-unit-list">
-        {units.map((unit) => {
+        {activeUnits.map((unit) => {
           const unitIds = unit.subStrands.map((subStrand) => getSubStrandId(unit.id, subStrand));
           const checkedCount = unitIds.filter((id) => selectedIds.includes(id)).length;
           const allChecked = checkedCount === unitIds.length && unitIds.length > 0;
