@@ -7,6 +7,7 @@ import {
   getLevelOptionsByStage,
   getReferenceBooksForSubject,
   getSchemeYearOptions,
+  getSubjectOptionsByStage,
   getTopicGroupsForScheme,
   type SchemeTopicGroup
 } from "@/lib/scheme-curriculum";
@@ -171,7 +172,10 @@ export function SchemeGeneratorForm({
     () => levels.find((entry) => entry.id === formState.level) ?? null,
     [formState.level]
   );
-  const subjectOptions = selectedLevel?.subjects ?? [];
+  const subjectOptions = useMemo(
+    () => getSubjectOptionsByStage(formState.stage),
+    [formState.stage]
+  );
   const referenceBooks = useMemo(
     () => getReferenceBooksForSubject(formState.subject),
     [formState.subject]
@@ -283,8 +287,9 @@ export function SchemeGeneratorForm({
     }
 
     const nextLevels = getLevelOptionsByStage(nextStage);
+    const nextSubjects = getSubjectOptionsByStage(nextStage);
     const nextLevel = nextLevels[0]?.id ?? "";
-    const nextSubject = nextLevels[0]?.subjects[0] ?? "";
+    const nextSubject = nextSubjects[0] ?? "";
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";
 
     setFormState((current) => ({
@@ -300,7 +305,9 @@ export function SchemeGeneratorForm({
   function handleLevelChange(nextLevel: string) {
     setShowAuthPrompt(false);
     setPendingAuthResume(false);
-    const nextSubject = levels.find((entry) => entry.id === nextLevel)?.subjects[0] ?? "";
+    const nextLevelStage = levels.find((entry) => entry.id === nextLevel)?.stage ?? formState.stage;
+    const nextSubjects = getSubjectOptionsByStage(nextLevelStage);
+    const nextSubject = nextSubjects.includes(formState.subject) ? formState.subject : nextSubjects[0] ?? "";
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";
 
     setFormState((current) => ({

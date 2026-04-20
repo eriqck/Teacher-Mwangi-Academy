@@ -1,4 +1,4 @@
-import { levels } from "@/lib/catalog";
+import { getSubjectsForStage, levels } from "@/lib/catalog";
 import { getTopicGroupsForScheme } from "@/lib/scheme-curriculum";
 import type { ResourceRecord, SchemeTerm } from "@/lib/store";
 
@@ -66,7 +66,8 @@ export function getLessonPlanLevels() {
 }
 
 export function getLessonPlanSubjects(levelId: string) {
-  return levels.find((level) => level.id === levelId)?.subjects ?? [];
+  const level = levels.find((entry) => entry.id === levelId);
+  return level ? getSubjectsForStage(level.stage) : [];
 }
 
 export function getLessonPlanUnits(

@@ -1,4 +1,4 @@
-import { levels } from "@/lib/catalog";
+import { getSubjectsForStage, levels } from "@/lib/catalog";
 import type { SchemeTerm } from "@/lib/store";
 
 export type SchemeTopicGroup = {
@@ -351,6 +351,10 @@ export function getTopicGroupsForScheme(subject: string, term: SchemeTerm) {
 
 export function getLevelOptionsByStage(stage: "Junior School" | "Senior School" | "") {
   return stage ? levels.filter((level) => level.stage === stage) : levels;
+}
+
+export function getSubjectOptionsByStage(stage: "Junior School" | "Senior School" | "") {
+  return stage ? getSubjectsForStage(stage) : [];
 }
 
 export function getSchemeYearOptions(baseYear = new Date().getFullYear()) {

@@ -8,6 +8,55 @@ export type Level = {
   formats: string[];
 };
 
+export const juniorSchoolSubjects = [
+  "English",
+  "Kiswahili",
+  "Mathematics",
+  "Integrated Science",
+  "Creative Arts and Sports",
+  "Pre-Technical Studies",
+  "Social Studies",
+  "Religious Education",
+  "Agriculture & Nutrition"
+];
+
+export const seniorSchoolSubjects = [
+  "Core Mathematics",
+  "Mathematics",
+  "English",
+  "Kiswahili",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "General Science",
+  "Geography",
+  "History & Citizenship",
+  "Business Studies",
+  "CRE",
+  "IRE",
+  "HRE",
+  "Agriculture",
+  "Computer Studies",
+  "Home Science",
+  "Art and Design",
+  "Music",
+  "Physical Education",
+  "Aviation Technology",
+  "Building Construction",
+  "Electricity",
+  "Metal Work",
+  "Woodwork",
+  "Power Mechanics",
+  "Drawing and Design",
+  "French",
+  "German",
+  "Arabic"
+];
+
+export function getSubjectsForStage(stage: Level["stage"]) {
+  return stage === "Junior School" ? juniorSchoolSubjects : seniorSchoolSubjects;
+}
+
 export const levels: Level[] = [
   {
     id: "grade-6",
