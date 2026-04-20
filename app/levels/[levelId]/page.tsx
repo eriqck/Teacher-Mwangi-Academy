@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { assessmentSets } from "@/lib/assessment-sets";
 import { SiteHeader } from "@/components/site-header";
-import { schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
+import { teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
 import { getLevelPageData } from "@/lib/resource-access";
-import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
+import { schemeTerms } from "@/lib/scheme-terms";
 import type { SchemeTerm } from "@/lib/store";
 
 export async function generateMetadata({
@@ -105,14 +105,6 @@ export default async function LevelPage({
       })
       .filter((group) => group.totalCount > 0)
   }));
-  const schemes = resources.filter((resource) => resource.category === "scheme-of-work");
-  const unassignedSchemes = schemes.filter((resource) => !resource.term);
-  const termSchemeGroups = schemeTerms
-    .map((term) => ({
-      term,
-      resources: schemes.filter((resource) => resource.term === term.id)
-    }))
-    .filter((group) => group.resources.length > 0);
   const renderRevisionResourceLink = (
     resource: (typeof resources)[number],
     label: string
@@ -241,6 +233,18 @@ export default async function LevelPage({
               )}
             </div>
           </article>
+
+          <article className="dashboard-card">
+            <h3>Schemes of work</h3>
+            <p className="subtle">
+              Open a separate schemes page to generate a new scheme or choose from ready uploaded schemes.
+            </p>
+            <div className="hero-actions">
+              <Link href={`/levels/${level.id}/schemes`} className="button-secondary">
+                Open schemes page
+              </Link>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -250,10 +254,6 @@ export default async function LevelPage({
             <span className="eyebrow">Learning materials</span>
             <h2>{level.title} materials by year and term.</h2>
           </div>
-          <p>
-            Materials are grouped to keep the page simple. Older uploads without a selected term
-            automatically appear under Term 1.
-          </p>
         </div>
 
         {revisionMaterialYearGroups.length > 0 ? (
@@ -334,104 +334,6 @@ export default async function LevelPage({
         )}
       </section>
 
-      <section className="page-shell section">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Teacher resources</span>
-            <h2>{level.title} schemes of work</h2>
-          </div>
-          <p>Teacher schemes for this level only show terms that already have uploaded scheme files.</p>
-        </div>
-
-        {schemes.length > 0 ? (
-          <div className="assessment-stack">
-            {termSchemeGroups.map(({ term, resources: termSchemes }) => (
-                <section key={term.id} className="assessment-block">
-                  <div className="assessment-head">
-                    <span className="eyebrow">{term.label}</span>
-                    <h3>{term.label} schemes of work</h3>
-                  </div>
-
-                  <div className="resource-grid">
-                    {termSchemes.map((resource) => (
-                        <article key={resource.id} className="resource-card">
-                          <h3>{resource.title}</h3>
-                          <div className="resource-meta">
-                            <span>{resource.subject}</span>
-                            <span>KSh {schemeOfWorkPrice} one-time</span>
-                          </div>
-                          <p className="subtle">{resource.description}</p>
-                          <div className="hero-actions">
-                            {resource.canOpen ? (
-                              <Link href={resource.fileUrl} target="_blank" className="button">
-                                Open scheme
-                              </Link>
-                            ) : user?.role === "teacher" ? (
-                              <Link href={`/purchases/schemes/${resource.id}`} className="button-secondary button-buy">
-                                Buy exact scheme
-                              </Link>
-                            ) : !user ? (
-                              <Link href="/login" className="button-secondary">
-                                Sign in as teacher
-                              </Link>
-                            ) : (
-                              <span className="pill">Teacher account required</span>
-                            )}
-                          </div>
-                        </article>
-                      ))}
-                  </div>
-                </section>
-              ))}
-
-            {unassignedSchemes.length > 0 ? (
-              <section className="assessment-block">
-                <div className="assessment-head">
-                  <span className="eyebrow">Older uploads</span>
-                  <h3>Schemes still missing a term</h3>
-                </div>
-
-                <div className="resource-grid">
-                  {unassignedSchemes.map((resource) => (
-                    <article key={resource.id} className="resource-card">
-                      <h3>{resource.title}</h3>
-                      <div className="resource-meta">
-                        <span>{resource.subject}</span>
-                        <span>{getSchemeTermLabel(resource.term)}</span>
-                      </div>
-                      <p className="subtle">{resource.description}</p>
-                      <div className="hero-actions">
-                        {resource.canOpen ? (
-                          <Link href={resource.fileUrl} target="_blank" className="button">
-                            Open scheme
-                          </Link>
-                        ) : user?.role === "teacher" ? (
-                          <Link href={`/purchases/schemes/${resource.id}`} className="button-secondary button-buy">
-                            Buy exact scheme
-                          </Link>
-                        ) : !user ? (
-                          <Link href="/login" className="button-secondary">
-                            Sign in as teacher
-                          </Link>
-                        ) : (
-                          <span className="pill">Teacher account required</span>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-          </div>
-        ) : (
-          <div className="resource-grid">
-            <article className="resource-card">
-              <h3>No schemes uploaded yet</h3>
-              <p className="subtle">There are no teacher schemes uploaded for {level.title} yet.</p>
-            </article>
-          </div>
-        )}
-      </section>
     </main>
   );
 }
