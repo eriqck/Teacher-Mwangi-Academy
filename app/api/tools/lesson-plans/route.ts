@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { createId, requireUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
+import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
 import { createPendingLessonPlanGenerationPayment } from "@/lib/payments";
-import { saveGeneratedLessonPlanRequestRecord } from "@/lib/repository";
+import {
+  saveGeneratedLessonPlanRecord,
+  saveGeneratedLessonPlanRequestRecord,
+  savePaymentRecord
+} from "@/lib/repository";
+import type { GeneratedLessonPlanRequestPayload, PaymentRecord } from "@/lib/store";
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +49,78 @@ export async function POST(request: Request) {
     }
 
     const createdAt = new Date().toISOString();
+    const payload: GeneratedLessonPlanRequestPayload = {
+      level,
+      subject,
+      unitTitle,
+      subStrands,
+      selectedCount: subStrands.length,
+      schoolName,
+      roll,
+      lessonTime,
+      year,
+      term,
+      lessonDate,
+      teacherName,
+      tscNumber
+    };
+
+    if (user.role === "admin") {
+      const paymentId = createId("pay");
+      const generatedLessonPlan = buildGeneratedLessonPlan({
+        id: createId("generated_lesson_plan"),
+        userId: user.id,
+        createdAt,
+        ...payload
+      });
+      const payment: PaymentRecord = {
+        id: paymentId,
+        userId: user.id,
+        kind: "generated-lesson-plan",
+        status: "paid",
+        provider: "paystack",
+        currency: "KES",
+        amount: 0,
+        phoneNumber: user.phoneNumber,
+        accountReference: `${subject} admin lesson plan generation`,
+        plan: null,
+        schemeSubject: null,
+        schemeLevel: null,
+        schemeTerm: null,
+        resourceId: null,
+        paymentReference: paymentId,
+        authorizationUrl: null,
+        checkoutRequestId: null,
+        merchantRequestId: null,
+        mpesaReceiptNumber: null,
+        resultCode: 0,
+        resultDesc: "Admin generated without payment",
+        createdAt,
+        updatedAt: createdAt
+      };
+
+      await savePaymentRecord(payment);
+      await saveGeneratedLessonPlanRecord(generatedLessonPlan);
+      await saveGeneratedLessonPlanRequestRecord({
+        id: createId("generated_lesson_plan_request"),
+        userId: user.id,
+        paymentId,
+        status: "completed",
+        payload,
+        generatedLessonPlanId: generatedLessonPlan.id,
+        createdAt,
+        updatedAt: createdAt
+      });
+
+      return NextResponse.json({
+        data: {
+          authorization_url: `/teacher-tools/lesson-plans/generated/${generatedLessonPlan.id}?payment=success`,
+          reference: paymentId,
+          adminBypass: true
+        }
+      });
+    }
+
     const payment = await createPendingLessonPlanGenerationPayment({
       userId: user.id,
       email: user.email,
@@ -56,21 +134,7 @@ export async function POST(request: Request) {
       userId: user.id,
       paymentId: payment.paymentId,
       status: "pending",
-      payload: {
-        level,
-        subject,
-        unitTitle,
-        subStrands,
-        selectedCount: subStrands.length,
-        schoolName,
-        roll,
-        lessonTime,
-        year,
-        term,
-        lessonDate,
-        teacherName,
-        tscNumber
-      },
+      payload,
       generatedLessonPlanId: null,
       createdAt,
       updatedAt: createdAt

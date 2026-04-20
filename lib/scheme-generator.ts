@@ -31,12 +31,39 @@ function getListValue(values: string[], index: number, fallback: string) {
 
 function chunkResources(resources: string[], index: number) {
   if (resources.length === 0) {
-    return ["Course book", "Teacher guide"];
+    return ["Learner's book", "Teacher's guide", "Charts", "Exercise book"];
   }
 
   const first = resources[index % resources.length];
   const second = resources[(index + 1) % resources.length];
   return first === second ? [first] : [first, second];
+}
+
+function buildLearningOutcome(subStrand: string, outcome: string, index: number) {
+  const action = index % 3 === 0 ? "Explain" : index % 3 === 1 ? "Identify" : "Apply";
+
+  return [
+    "By the end of the lesson, the learner should be able to:",
+    `${action} ${subStrand.toLowerCase()} using relevant examples.`,
+    outcome,
+    `Appreciate the importance of ${subStrand.toLowerCase()} in day-to-day learning.`
+  ].join("\n");
+}
+
+function buildLearningExperiences(input: {
+  strand: string;
+  subStrand: string;
+  inquiry: string;
+  competency: string;
+  value: string;
+  issue: string;
+}) {
+  return [
+    `In pairs, learners are guided to discuss the meaning and main ideas in ${input.subStrand}.`,
+    `In groups, learners are guided to work through examples and activities from ${input.strand}.`,
+    `Learners answer and discuss: ${input.inquiry}`,
+    `Learners demonstrate ${input.competency.toLowerCase()} while practising ${input.value.toLowerCase()} and relating the lesson to ${input.issue.toLowerCase()}.`
+  ];
 }
 
 export function normalizeLineList(value: string) {
@@ -53,54 +80,62 @@ export function buildGeneratedScheme(input: SchemeGenerationInput & {
 }): GeneratedSchemeRecord {
   const level = levels.find((entry) => entry.id === input.level);
   const title = `${level?.title ?? input.level} ${input.subject} ${input.term.replace("-", " ").toUpperCase()} Scheme of Work`;
+  const strands = normalizeLineList(input.strand);
+  const subStrands = normalizeLineList(input.subStrand);
 
   const weeklyPlan: GeneratedSchemeWeekRecord[] = Array.from(
     { length: input.weeksCount * input.lessonsPerWeek },
     (_, index) => {
-    const weekNumber = Math.floor(index / input.lessonsPerWeek) + 1;
-    const lessonNumber = index % input.lessonsPerWeek + 1;
-    const outcome = getListValue(
-      input.learningOutcomes,
-      index,
-      `Build practical understanding of ${input.subStrand}.`
-    );
-    const inquiry = getListValue(
-      input.keyInquiryQuestions,
-      index,
-      `How can learners apply ${input.subStrand} in real situations?`
-    );
-    const competency = getListValue(
-      input.coreCompetencies,
-      index,
-      "Critical thinking and problem solving"
-    );
-    const value = getListValue(input.values, index, "Responsibility");
-    const issue = getListValue(
-      input.pertinentIssues,
-      index,
-      "Effective communication and collaboration"
-    );
-    const assessment = getListValue(
-      input.assessmentMethods,
-      index,
-      "Observation, oral questions, and short written task"
-    );
+      const weekNumber = Math.floor(index / input.lessonsPerWeek) + 1;
+      const lessonNumber = index % input.lessonsPerWeek + 1;
+      const strand = getListValue(strands, index, input.strand);
+      const subStrand = getListValue(subStrands, index, input.subStrand);
+      const outcome = getListValue(
+        input.learningOutcomes,
+        index,
+        `Build practical understanding of ${subStrand}.`
+      );
+      const inquiry = getListValue(
+        input.keyInquiryQuestions,
+        index,
+        `How can learners apply ${subStrand} in real situations?`
+      );
+      const competency = getListValue(
+        input.coreCompetencies,
+        index,
+        "Critical thinking and problem solving"
+      );
+      const value = getListValue(input.values, index, "Responsibility");
+      const issue = getListValue(
+        input.pertinentIssues,
+        index,
+        "Effective communication and collaboration"
+      );
+      const assessment = getListValue(
+        input.assessmentMethods,
+        index,
+        "Observation, oral questions, and short written task"
+      );
 
-    return {
-      weekNumber,
-      lessonRange: `${lessonNumber}`,
-      focus: `${input.subStrand} - Lesson ${lessonNumber}`,
-      learningOutcome: outcome,
-      learnerActivities: [
-        `Learners are guided to explore ${input.subStrand.toLowerCase()} through discussion, examples, and guided practice.`,
-        `Learners respond to the key inquiry question: ${inquiry}`,
-        `Learners demonstrate ${competency.toLowerCase()} while observing ${value.toLowerCase()} and relating the lesson to ${issue.toLowerCase()}.`
-      ],
-      resources: chunkResources(input.resources, index),
-      assessment,
-      remarks: input.notes || "Adjust pacing based on learner progress."
-    };
-  });
+      return {
+        weekNumber,
+        lessonRange: `${lessonNumber}`,
+        focus: `${strand}::${subStrand}`,
+        learningOutcome: buildLearningOutcome(subStrand, outcome, index),
+        learnerActivities: buildLearningExperiences({
+          strand,
+          subStrand,
+          inquiry,
+          competency,
+          value,
+          issue
+        }),
+        resources: chunkResources(input.resources, index),
+        assessment,
+        remarks: input.notes || "Adjust pacing based on learner progress."
+      };
+    }
+  );
 
   return {
     id: input.id,

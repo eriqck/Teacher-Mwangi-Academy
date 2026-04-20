@@ -124,6 +124,7 @@ function makeBreakId(index: number) {
 
 type SchemeGeneratorFormProps = {
   canGenerate?: boolean;
+  isAdmin?: boolean;
   authRedirectPath?: string;
 };
 
@@ -140,6 +141,7 @@ function getSchemeDraftStorageKey(path: string) {
 
 export function SchemeGeneratorForm({
   canGenerate = false,
+  isAdmin = false,
   authRedirectPath = "/teacher-tools/schemes/new"
 }: SchemeGeneratorFormProps) {
   const draftStorageKey = useMemo(() => getSchemeDraftStorageKey(authRedirectPath), [authRedirectPath]);
@@ -1122,7 +1124,13 @@ export function SchemeGeneratorForm({
               ← Back
             </button>
             <button type="submit" className="teacher-tools-action teacher-tools-action--primary" disabled={isPending}>
-              {isPending ? "Redirecting to M-Pesa..." : `Generate PDF · Pay KSh ${teacherSchemeGenerationPrice}`}
+              {isPending
+                ? isAdmin
+                  ? "Generating PDF..."
+                  : "Redirecting to M-Pesa..."
+                : isAdmin
+                  ? "Generate PDF"
+                  : `Generate PDF · Pay KSh ${teacherSchemeGenerationPrice}`}
             </button>
           </div>
         </section>

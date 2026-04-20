@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { requireUser, createId } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { createPendingSchemeGenerationPayment } from "@/lib/payments";
-import { normalizeLineList } from "@/lib/scheme-generator";
-import { saveGeneratedSchemeRequestRecord } from "@/lib/repository";
+import { buildGeneratedScheme, normalizeLineList } from "@/lib/scheme-generator";
+import { saveGeneratedSchemeRecord, saveGeneratedSchemeRequestRecord, savePaymentRecord } from "@/lib/repository";
+import type { GeneratedSchemeRequestPayload, PaymentRecord } from "@/lib/store";
 
 function isSchemeTerm(value: string): value is "term-1" | "term-2" | "term-3" {
   return value === "term-1" || value === "term-2" || value === "term-3";
@@ -71,6 +72,82 @@ export async function POST(request: Request) {
     }
 
     const createdAt = new Date().toISOString();
+    const payload: GeneratedSchemeRequestPayload = {
+      schoolName,
+      className,
+      level,
+      subject,
+      term,
+      strand,
+      subStrand,
+      weeksCount,
+      lessonsPerWeek,
+      learningOutcomes,
+      keyInquiryQuestions: normalizeLineList(typeof body.keyInquiryQuestions === "string" ? body.keyInquiryQuestions : ""),
+      coreCompetencies: normalizeLineList(typeof body.coreCompetencies === "string" ? body.coreCompetencies : ""),
+      values: normalizeLineList(typeof body.values === "string" ? body.values : ""),
+      pertinentIssues: normalizeLineList(typeof body.pertinentIssues === "string" ? body.pertinentIssues : ""),
+      resources: normalizeLineList(typeof body.resources === "string" ? body.resources : ""),
+      assessmentMethods: normalizeLineList(typeof body.assessmentMethods === "string" ? body.assessmentMethods : ""),
+      notes
+    };
+
+    if (user.role === "admin") {
+      const paymentId = createId("pay");
+      const generatedScheme = buildGeneratedScheme({
+        id: createId("generated_scheme"),
+        userId: user.id,
+        createdAt,
+        ...payload
+      });
+      const payment: PaymentRecord = {
+        id: paymentId,
+        userId: user.id,
+        kind: "generated-scheme",
+        status: "paid",
+        provider: "paystack",
+        currency: "KES",
+        amount: 0,
+        phoneNumber: user.phoneNumber,
+        accountReference: `${subject} admin scheme generation`,
+        plan: null,
+        schemeSubject: null,
+        schemeLevel: null,
+        schemeTerm: null,
+        resourceId: null,
+        paymentReference: paymentId,
+        authorizationUrl: null,
+        checkoutRequestId: null,
+        merchantRequestId: null,
+        mpesaReceiptNumber: null,
+        resultCode: 0,
+        resultDesc: "Admin generated without payment",
+        createdAt,
+        updatedAt: createdAt
+      };
+
+      await savePaymentRecord(payment);
+      await saveGeneratedSchemeRecord(generatedScheme);
+      await saveGeneratedSchemeRequestRecord({
+        id: createId("generated_scheme_request"),
+        userId: user.id,
+        paymentId,
+        status: "completed",
+        payload,
+        generatedSchemeId: generatedScheme.id,
+        createdAt,
+        updatedAt: createdAt
+      });
+
+      return NextResponse.json({
+        data: {
+          authorization_url: `/teacher-tools/schemes/${generatedScheme.id}?payment=success`,
+          reference: paymentId,
+          adminBypass: true
+        }
+      });
+    }
+
     const payment = await createPendingSchemeGenerationPayment({
       userId: user.id,
       email: user.email,
@@ -84,25 +161,7 @@ export async function POST(request: Request) {
       userId: user.id,
       paymentId: payment.paymentId,
       status: "pending",
-      payload: {
-        schoolName,
-        className,
-        level,
-        subject,
-        term,
-        strand,
-        subStrand,
-        weeksCount,
-        lessonsPerWeek,
-        learningOutcomes,
-        keyInquiryQuestions: normalizeLineList(typeof body.keyInquiryQuestions === "string" ? body.keyInquiryQuestions : ""),
-        coreCompetencies: normalizeLineList(typeof body.coreCompetencies === "string" ? body.coreCompetencies : ""),
-        values: normalizeLineList(typeof body.values === "string" ? body.values : ""),
-        pertinentIssues: normalizeLineList(typeof body.pertinentIssues === "string" ? body.pertinentIssues : ""),
-        resources: normalizeLineList(typeof body.resources === "string" ? body.resources : ""),
-        assessmentMethods: normalizeLineList(typeof body.assessmentMethods === "string" ? body.assessmentMethods : ""),
-        notes
-      },
+      payload,
       generatedSchemeId: null,
       createdAt,
       updatedAt: createdAt

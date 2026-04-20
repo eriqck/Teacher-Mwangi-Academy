@@ -6,6 +6,7 @@ import { teacherSchemeGenerationPrice } from "@/lib/business";
 export default async function TeacherToolNewSchemePage() {
   const user = await getCurrentUser();
   const canGenerate = user?.role === "teacher" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
 
   return (
     <section className="teacher-tools-content">
@@ -31,11 +32,12 @@ export default async function TeacherToolNewSchemePage() {
 
       <article className="teacher-tools-card scheme-generator-card">
         <p className="subtle">
-          Complete each step below, then continue to M-Pesa. Every generated scheme is charged
-          independently at KSh {teacherSchemeGenerationPrice}.
+          Complete each step below, then generate the scheme in the uploaded-ready format.
+          Teachers pay KSh {teacherSchemeGenerationPrice} per generated scheme, while admins can generate directly.
         </p>
         <SchemeGeneratorForm
           canGenerate={canGenerate}
+          isAdmin={isAdmin}
           authRedirectPath="/teacher-tools/schemes/new"
         />
       </article>

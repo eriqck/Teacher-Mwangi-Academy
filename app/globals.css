@@ -1931,6 +1931,10 @@ main {
   background: rgba(31, 111, 95, 0.1);
 }
 
+.generated-scheme-table--mentor td {
+  white-space: pre-line;
+}
+
 .generated-lesson-plan-sheet {
   gap: 18px;
   max-width: 980px;

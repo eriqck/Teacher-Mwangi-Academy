@@ -11,6 +11,7 @@ type LessonPlanGeneratorFormProps = {
   subject: string;
   units: LessonPlanUnit[];
   canGenerate?: boolean;
+  isAdmin?: boolean;
   authRedirectPath?: string;
 };
 
@@ -58,6 +59,7 @@ export function LessonPlanGeneratorForm({
   subject,
   units,
   canGenerate = false,
+  isAdmin = false,
   authRedirectPath = "/teacher-tools/lesson-plans"
 }: LessonPlanGeneratorFormProps) {
   const draftStorageKey = useMemo(() => getLessonPlanDraftStorageKey(authRedirectPath), [authRedirectPath]);
@@ -415,7 +417,13 @@ export function LessonPlanGeneratorForm({
           onClick={handleSubmit}
           disabled={isPending}
         >
-          {isPending ? "Redirecting to M-Pesa..." : `Generate Lesson Plan · Pay KSh ${teacherLessonPlanPrice}`}
+          {isPending
+            ? isAdmin
+              ? "Generating lesson plan..."
+              : "Redirecting to M-Pesa..."
+            : isAdmin
+              ? "Generate Lesson Plan"
+              : `Generate Lesson Plan · Pay KSh ${teacherLessonPlanPrice}`}
         </button>
       </div>
     </section>

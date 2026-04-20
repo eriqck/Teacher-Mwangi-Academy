@@ -18,6 +18,15 @@ function getSchemeNoteValue(notes: string, label: string) {
   return line?.split(":").slice(1).join(":").trim() || "";
 }
 
+function getSchemeRowFocus(focus: string, fallbackStrand: string, fallbackSubStrand: string) {
+  const [strand, subStrand] = focus.split("::");
+
+  return {
+    strand: strand || fallbackStrand,
+    subStrand: subStrand || fallbackSubStrand
+  };
+}
+
 export default async function TeacherToolGeneratedSchemeDetailPage({
   params
 }: {
@@ -115,41 +124,39 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
               </tr>
             </thead>
             <tbody>
-              {scheme.weeklyPlan.map((week) => (
-                <tr key={`${week.weekNumber}-${week.lessonRange}-${week.focus}`}>
-                  <td>{week.weekNumber}</td>
-                  <td>{week.lessonRange}</td>
-                  <td>{scheme.strand}</td>
-                  <td>{scheme.subStrand}</td>
-                  <td>{week.learningOutcome}</td>
-                  <td>
-                    <ul className="generated-scheme-list-inline">
-                      {week.learnerActivities.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <ul className="generated-scheme-list-inline">
-                      {(scheme.keyInquiryQuestions.length > 0
-                        ? scheme.keyInquiryQuestions.slice(0, 2)
-                        : [`How can learners apply ${scheme.subStrand.toLowerCase()}?`]
-                      ).map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <ul className="generated-scheme-list-inline">
-                      {week.resources.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>{week.assessment}</td>
-                  <td>{week.remarks}</td>
-                </tr>
-              ))}
+              {scheme.weeklyPlan.map((week, index) => {
+                const rowFocus = getSchemeRowFocus(week.focus, scheme.strand, scheme.subStrand);
+                const inquiry =
+                  scheme.keyInquiryQuestions[index % Math.max(scheme.keyInquiryQuestions.length, 1)] ||
+                  `How can learners apply ${rowFocus.subStrand.toLowerCase()}?`;
+
+                return (
+                  <tr key={`${week.weekNumber}-${week.lessonRange}-${week.focus}`}>
+                    <td>{week.weekNumber}</td>
+                    <td>{week.lessonRange}</td>
+                    <td>{rowFocus.strand}</td>
+                    <td>{rowFocus.subStrand}</td>
+                    <td>{week.learningOutcome}</td>
+                    <td>
+                      <ul className="generated-scheme-list-inline">
+                        {week.learnerActivities.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td>{inquiry}</td>
+                    <td>
+                      <ul className="generated-scheme-list-inline">
+                        {week.resources.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td>{week.assessment}</td>
+                    <td>{week.remarks}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

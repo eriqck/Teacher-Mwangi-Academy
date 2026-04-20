@@ -11,6 +11,7 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
 }) {
   const user = await getCurrentUser();
   const canGenerate = user?.role === "teacher" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
   const { levelId, subjectSlug } = await params;
   const level = getLessonPlanLevels().find((entry) => entry.id === levelId);
 
@@ -50,6 +51,7 @@ export default async function TeacherToolLessonPlanSubjectDetailPage({
         subject={subject}
         units={units}
         canGenerate={canGenerate}
+        isAdmin={isAdmin}
         authRedirectPath={`/teacher-tools/lesson-plans/${levelId}/${encodeURIComponent(subject)}`}
       />
     </section>
