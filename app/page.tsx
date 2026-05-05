@@ -2,56 +2,34 @@ import Link from "next/link";
 import Image from "next/image";
 import { access } from "fs/promises";
 import path from "path";
-import { HomeMetrics } from "@/components/home-metrics";
 import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { getCurrentUser } from "@/lib/auth";
-import {
-  academyName,
-  schemeOfWorkPrice,
-  teacherLessonPlanPrice,
-  teacherMaterialPrice
-} from "@/lib/business";
+import { academyName } from "@/lib/business";
 import { levels, membershipPlans } from "@/lib/catalog";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
 
-const testimonials = [
-  {
-    quote:
-      "My son became far more consistent in Mathematics after using the weekly revision packs. The structure made a huge difference.",
-    author: "Parent, Nairobi"
-  },
-  {
-    quote:
-      "The materials save me preparation time and help my learners revise with more confidence.",
-    author: "Teacher, Kiambu"
-  },
-  {
-    quote:
-      "This feels more guided than random notes online. It gives both parents and students a clear path.",
-    author: "Parent, Thika"
-  }
+const heroCards = [
+  { icon: "📘", title: "Schemes", text: "Term-ready plans" },
+  { icon: "✅", title: "Assessments", text: "Quick practice" },
+  { icon: "🎓", title: "Revision", text: "Guided learning" },
+  { icon: "👩🏾‍🏫", title: "Teachers", text: "Classroom support" }
 ];
 
-const metrics = [
-  { value: "1,200+", label: "Learners supported" },
-  { value: "7", label: "Levels covered" },
-  { value: "Weekly", label: "Fresh revision support" },
-  { value: "KSh 150", label: "Starting subscription" }
-];
+function shortenSubject(subject: string) {
+  const replacements: Record<string, string> = {
+    Mathematics: "Math",
+    "Core Mathematics": "Core Math",
+    "Integrated Science": "Science",
+    "Creative Arts and Sports": "Creative",
+    "Pre-Technical Studies": "Pre-Tech",
+    "History & Citizenship": "History",
+    "Business Studies": "Business",
+    "Agriculture & Nutrition": "Agriculture",
+    "Religious Education": "Religion"
+  };
 
-const painPoints = [
-  "CBE revision can feel confusing and scattered.",
-  "Parents often lack time to guide study consistently.",
-  "Students revise hard but still underperform without structure.",
-  "Teachers need ready-made quality resources they can trust."
-];
-
-const solutions = [
-  "Structured learning paths by class level and subject.",
-  "Downloadable packs with practical revision guidance.",
-  "Clear assessments, topical drills, and model answers.",
-  "One trusted place for both home and classroom support."
-];
+  return replacements[subject] ?? subject;
+}
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -64,10 +42,10 @@ export default async function HomePage() {
     .catch(() => false);
 
   const navLinks = [
-    { href: "#why", label: "Why us" },
     { href: "#levels", label: "Levels" },
-    { href: "#pricing", label: "Pricing" },
-    { href: "#testimonials", label: "Results" },
+    { href: "#plans", label: "Plans" },
+    { href: "#updates", label: "Updates" },
+    { href: "#results", label: "Results" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];
 
@@ -84,7 +62,6 @@ export default async function HomePage() {
             <span className="home-brand-mark">TM</span>
             <span className="home-brand-copy">
               <span className="home-brand-title">{academyName}</span>
-              <span className="home-brand-subtitle">CBE learning support for families and teachers</span>
             </span>
           </Link>
 
@@ -126,29 +103,28 @@ export default async function HomePage() {
         <article className="home-hero-card">
           <div className="home-hero-glow" aria-hidden="true" />
           <div className="home-hero-content">
-            <span className="home-kicker">Trusted CBE revision platform</span>
-            <h1 className="home-title">Help your child move from confusion to confidence.</h1>
-            <p className="home-copy">
-              Structured revision materials, teacher guidance, and classroom-ready resources designed
-              for Grade 6, Grade 7, Grade 8, Grade 9, Grade 10, Form 3, and Form 4.
-            </p>
-
-            <div className="home-pill-row">
-              <span className="home-pill">Weekly guided revision</span>
-              <span className="home-pill">Parents and teachers supported</span>
-              <span className="home-pill">Simple, local, practical</span>
-            </div>
+            <h1 className="home-title">Clear revision. Better results.</h1>
 
             <div className="home-hero-actions">
-              <Link href="/subscribe" className="home-hero-primary">
-                Explore membership
+              <Link href="#levels" className="home-hero-primary">
+                Explore materials
               </Link>
-              <Link href="#levels" className="home-hero-secondary">
-                Browse materials
+              <Link href="#plans" className="home-hero-secondary">
+                View plans
               </Link>
             </div>
 
-            <HomeMetrics metrics={metrics} />
+            <div className="home-feature-grid">
+              {heroCards.map((card) => (
+                <article key={card.title} className="home-feature-card">
+                  <span className="home-feature-icon" aria-hidden="true">
+                    {card.icon}
+                  </span>
+                  <h2 className="home-feature-title">{card.title}</h2>
+                  <p className="home-feature-text">{card.text}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </article>
 
@@ -170,84 +146,19 @@ export default async function HomePage() {
               </div>
 
               <div className="home-founder-copy">
-                <span className="home-kicker home-kicker--soft">Founder spotlight</span>
                 <h2 className="home-founder-name">James Mwangi</h2>
-                <p className="home-founder-text">
-                  Physics and Mathematics teacher focused on helping learners understand concepts
-                  clearly and improve steadily.
-                </p>
               </div>
             </div>
           </article>
-
-          <article className="home-dark-card">
-            <span className="home-dark-kicker">Why parents join</span>
-            <h2 className="home-dark-title">A guided system, not random notes.</h2>
-            <ul className="home-dark-list">
-              <li>Easy-to-follow revision paths</li>
-              <li>Better home support without overwhelm</li>
-              <li>Trusted materials organised by level</li>
-              <li>Practical support for both learners and teachers</li>
-            </ul>
-            <Link href="#pricing" className="home-dark-link">
-              See how it works
-            </Link>
-          </article>
         </aside>
-      </section>
-
-      <section className="page-shell home-section home-updates-section">
-        <div className="home-section-head">
-          <div>
-            <span className="home-section-kicker">Latest updates</span>
-            <h2 className="home-section-title">Fresh improvements inside the academy.</h2>
-          </div>
-          <p className="home-section-copy">
-            New features, added assessment series, and coverage updates appear here so parents and teachers always know what has changed.
-          </p>
-        </div>
-
-        <SiteUpdatesFeed updates={latestUpdates} marquee />
-      </section>
-
-      <section className="page-shell home-problem-grid" id="why">
-        <article className="home-problem-card">
-          <span className="home-section-kicker">The problem</span>
-          <h2 className="home-section-title">Families do not need more content. They need clarity.</h2>
-          <div className="home-chip-list">
-            {painPoints.map((item) => (
-              <div key={item} className="home-chip-card home-chip-card--problem">
-                {item}
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="home-problem-card home-problem-card--solution">
-          <span className="home-section-kicker home-section-kicker--emerald">Our solution</span>
-          <h2 className="home-section-title">
-            Everything needed to revise with direction and confidence.
-          </h2>
-          <div className="home-chip-list">
-            {solutions.map((item) => (
-              <div key={item} className="home-chip-card home-chip-card--solution">
-                {item}
-              </div>
-            ))}
-          </div>
-        </article>
       </section>
 
       <section className="page-shell home-section" id="levels">
         <div className="home-section-head">
           <div>
-            <span className="home-section-kicker">Coverage</span>
-            <h2 className="home-section-title">Find the right materials by grade and level.</h2>
+            <span className="home-section-kicker">Levels</span>
+            <h2 className="home-section-title">Choose class. Start revision.</h2>
           </div>
-          <p className="home-section-copy">
-            Simple navigation makes it easy for parents, learners, and teachers to go straight to
-            the right support materials.
-          </p>
         </div>
 
         <div className="home-level-grid">
@@ -256,17 +167,17 @@ export default async function HomePage() {
               <article className="home-level-card" data-level={level.id}>
                 <span className="home-level-stage">{level.stage}</span>
                 <h3 className="home-level-title">{level.title}</h3>
-                <p className="home-level-description">{level.description}</p>
 
                 <div className="home-tag-row">
                   {(level.cardTags ?? level.subjects).slice(0, 6).map((subject) => (
                     <span key={subject} className="home-tag">
-                      {subject}
+                      {shortenSubject(subject)}
                     </span>
                   ))}
                 </div>
+
                 <div className="home-level-actions">
-                  <span className="home-level-button">See more...</span>
+                  <span className="home-level-button">See more</span>
                 </div>
               </article>
             </Link>
@@ -274,144 +185,73 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="page-shell home-section" id="pricing">
+      <section className="page-shell home-section" id="plans">
         <div className="home-section-head">
           <div>
-            <span className="home-section-kicker">Pricing</span>
-            <h2 className="home-section-title">Simple plans for parents and teachers.</h2>
+            <span className="home-section-kicker">Plans</span>
+            <h2 className="home-section-title">Simple pricing.</h2>
           </div>
-          <p className="home-section-copy">
-            Keep the decision easy: one affordable monthly plan for consistent support, plus
-            one-time purchases when needed.
-          </p>
         </div>
 
         <div className="home-pricing-grid">
           <article className="home-pricing-card home-pricing-card--parent">
-            <span className="home-pricing-badge">Most popular</span>
-            <p className="home-pricing-name">{parentPlan.name}</p>
+            <span className="home-pricing-badge">Popular</span>
+            <p className="home-pricing-name">{parentPlan.name.replace(" Subscription", "")}</p>
             <h3 className="home-pricing-price">
               {parentPlan.price}
-              <span className="home-pricing-cadence">{parentPlan.cadence}</span>
+              <span className="home-pricing-cadence">per month</span>
             </h3>
-            <p className="home-pricing-copy">
-              That is about KSh 10 a day for guided revision support.
-            </p>
             <ul className="home-pricing-list">
-              {parentPlan.highlights.map((highlight) => (
-                <li key={highlight}>{highlight}</li>
-              ))}
+              <li>All levels access</li>
+              <li>Revision downloads</li>
+              <li>Parent support</li>
             </ul>
             <Link href="/subscribe" className="home-pricing-button">
-              Choose parent plan
+              Choose plan
             </Link>
           </article>
 
           <article className="home-pricing-card home-pricing-card--teacher">
-            <p className="home-pricing-name">{teacherPlan.name}</p>
+            <p className="home-pricing-name">{teacherPlan.name.replace(" Subscription", "")}</p>
             <h3 className="home-pricing-price">
               {teacherPlan.price}
-              <span className="home-pricing-cadence">{teacherPlan.cadence}</span>
+              <span className="home-pricing-cadence">per month</span>
             </h3>
-            <p className="home-pricing-copy">
-              Affordable professional support for teachers and tutors.
-            </p>
             <ul className="home-pricing-list">
-              {teacherPlan.highlights.map((highlight) => (
-                <li key={highlight}>{highlight}</li>
-              ))}
+              <li>Schemes</li>
+              <li>Lesson plans</li>
+              <li>Assessments</li>
+              <li>Revision packs</li>
             </ul>
             <Link href="/subscribe" className="home-pricing-button">
-              Choose teacher plan
+              Get started
             </Link>
           </article>
         </div>
-
-        <article className="home-one-time-card">
-          <div>
-            <h3>One-time resource purchases</h3>
-            <p className="home-one-time-copy">
-              Schemes of work can be bought separately at KSh {schemeOfWorkPrice} each, while notes
-              and assessments are available to teachers at KSh {teacherMaterialPrice} per material.
-            </p>
-          </div>
-          <Link href="/subscribe" className="home-one-time-button">
-            Browse one-time resources
-          </Link>
-        </article>
-
-        <article className="home-bot-card">
-          <div className="home-bot-copy">
-            <span className="home-section-kicker home-section-kicker--emerald">Teacher bot</span>
-            <h3>Generate schemes and lesson plans from one teacher workspace.</h3>
-            <p className="home-one-time-copy">
-              Teachers can open the bot directly from the homepage, generate schemes per output,
-              and create lesson plans at KSh {teacherLessonPlanPrice} each without leaving the academy platform.
-            </p>
-            <div className="home-bot-actions">
-              <Link href="/teacher-tools" className="home-pricing-button home-bot-primary">
-                Open teacher bot
-              </Link>
-              <Link href="/login" className="home-one-time-button">
-                Teacher sign in
-              </Link>
-            </div>
-          </div>
-
-          <div className="home-bot-panel">
-            <span className="home-bot-badge">Inside the bot</span>
-            <ul className="home-bot-list">
-              <li>Guided scheme of work generator</li>
-              <li>Lesson plan generation at KSh {teacherLessonPlanPrice} each</li>
-              <li>Saved teacher outputs inside the workspace</li>
-            </ul>
-          </div>
-        </article>
       </section>
 
-      <section className="page-shell home-section" id="testimonials">
+      <section className="page-shell home-section home-updates-section" id="updates">
         <div className="home-section-head">
           <div>
-            <span className="home-section-kicker">Community feedback</span>
-            <h2 className="home-section-title">What parents and teachers are saying.</h2>
+            <span className="home-section-kicker">Updates</span>
+            <h2 className="home-section-title">Latest updates.</h2>
           </div>
-          <p className="home-section-copy">
-            Honest feedback from homes and classrooms shows how the academy is supporting clearer
-            revision, stronger routines, and more confident learning.
-          </p>
         </div>
 
-        <div className="home-testimonial-grid">
-          {testimonials.map((item) => (
-            <article key={item.author} className="home-testimonial-card">
-              <div className="home-stars" aria-hidden="true">
-                {"\u2605\u2605\u2605\u2605\u2605"}
-              </div>
-              <p>"{item.quote}"</p>
-              <strong>{item.author}</strong>
-            </article>
-          ))}
-        </div>
+        <SiteUpdatesFeed updates={latestUpdates} compact />
       </section>
 
-      <section className="page-shell home-cta">
+      <section className="page-shell home-cta" id="results">
         <div className="home-cta-inner">
           <div>
-            <span className="home-cta-tag">Ready to learn with confidence</span>
-            <h2 className="home-cta-title">
-              Give learners one trusted place for structured CBE revision.
-            </h2>
-            <p className="home-cta-copy">
-              Join {academyName} and help students revise with more clarity, more consistency, and
-              less confusion.
-            </p>
+            <h2 className="home-cta-title">Start revision now.</h2>
           </div>
 
           <div className="home-cta-actions">
             <Link href="/subscribe" className="home-cta-primary">
-              Start subscription
+              Start membership
             </Link>
-            <Link href="/levels/grade-7" className="home-cta-secondary">
+            <Link href="/levels/grade-6" className="home-cta-secondary">
               Browse materials
             </Link>
           </div>
