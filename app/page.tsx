@@ -9,10 +9,10 @@ import { levels, membershipPlans } from "@/lib/catalog";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
 
 const heroCards = [
-  { icon: "📘", title: "Schemes", text: "Term-ready plans" },
-  { icon: "✅", title: "Assessments", text: "Quick practice" },
-  { icon: "🎓", title: "Revision", text: "Guided learning" },
-  { icon: "👩🏾‍🏫", title: "Teachers", text: "Classroom support" }
+  { icon: "📘", title: "Schemes", text: "Term-ready plans", href: "/levels/grade-6/schemes" },
+  { icon: "✅", title: "Assessments", text: "Quick practice", href: "/levels/grade-6" },
+  { icon: "🎓", title: "Revision", text: "Guided learning", href: "/levels/grade-6" },
+  { icon: "👩🏾‍🏫", title: "Teachers", text: "Classroom support", href: "/teacher-tools" }
 ];
 
 function shortenSubject(subject: string) {
@@ -116,13 +116,13 @@ export default async function HomePage() {
 
             <div className="home-feature-grid">
               {heroCards.map((card) => (
-                <article key={card.title} className="home-feature-card">
+                <Link key={card.title} href={card.href} className="home-feature-card">
                   <span className="home-feature-icon" aria-hidden="true">
                     {card.icon}
                   </span>
                   <h2 className="home-feature-title">{card.title}</h2>
                   <p className="home-feature-text">{card.text}</p>
-                </article>
+                </Link>
               ))}
             </div>
           </div>
