@@ -2,17 +2,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { access } from "fs/promises";
 import path from "path";
-import { SiteUpdatesFeed } from "@/components/site-updates-feed";
 import { getCurrentUser } from "@/lib/auth";
 import { academyName } from "@/lib/business";
 import { levels, membershipPlans } from "@/lib/catalog";
-import { getLatestSiteUpdates } from "@/lib/site-updates";
 
 const heroCards = [
   { icon: "📘", title: "Schemes", text: "Term-ready plans", href: "/levels/grade-6/schemes" },
   { icon: "✅", title: "Assessments", text: "Quick practice", href: "/levels/grade-6" },
   { icon: "🎓", title: "Revision", text: "Guided learning", href: "/levels/grade-6" },
   { icon: "👩🏾‍🏫", title: "Teachers", text: "Classroom support", href: "/teacher-tools" }
+];
+
+const serviceSlides = [
+  { title: "Scheme generation", href: "/teacher-tools/schemes" },
+  { title: "Lesson plans", href: "/teacher-tools/lesson-plans" },
+  { title: "Assessments", href: "/levels/grade-6" },
+  { title: "Notes", href: "/levels/grade-6" },
+  { title: "Ready schemes", href: "/levels/grade-6/schemes" }
 ];
 
 function shortenSubject(subject: string) {
@@ -33,7 +39,6 @@ function shortenSubject(subject: string) {
 
 export default async function HomePage() {
   const user = await getCurrentUser();
-  const latestUpdates = getLatestSiteUpdates(3);
   const founderImagePath = "/teacher-mwangi-profile.png";
   const founderImageAvailable = await access(
     path.join(process.cwd(), "public", "teacher-mwangi-profile.png")
@@ -44,7 +49,6 @@ export default async function HomePage() {
   const navLinks = [
     { href: "#levels", label: "Levels" },
     { href: "#plans", label: "Plans" },
-    { href: "#updates", label: "Updates" },
     { href: "#results", label: "Results" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];
@@ -150,6 +154,26 @@ export default async function HomePage() {
               </div>
             </div>
           </article>
+
+          <article className="home-services-card" aria-label="Academy services">
+            <div className="home-services-head">
+              <span className="home-section-kicker">Services</span>
+            </div>
+
+            <div className="home-services-slider">
+              <div className="home-services-track">
+                {[...serviceSlides, ...serviceSlides].map((service, index) => (
+                  <Link
+                    key={`${service.title}-${index}`}
+                    href={service.href}
+                    className="home-service-pill"
+                  >
+                    {service.title}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </article>
         </aside>
       </section>
 
@@ -157,7 +181,7 @@ export default async function HomePage() {
         <div className="home-section-head">
           <div>
             <span className="home-section-kicker">Levels</span>
-            <h2 className="home-section-title">Choose class. Start revision.</h2>
+            <h2 className="home-section-title">Choose class. Open materials.</h2>
           </div>
         </div>
 
@@ -230,21 +254,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="page-shell home-section home-updates-section" id="updates">
-        <div className="home-section-head">
-          <div>
-            <span className="home-section-kicker">Updates</span>
-            <h2 className="home-section-title">Latest updates.</h2>
-          </div>
-        </div>
-
-        <SiteUpdatesFeed updates={latestUpdates} compact />
-      </section>
-
       <section className="page-shell home-cta" id="results">
         <div className="home-cta-inner">
           <div>
-            <h2 className="home-cta-title">Start revision now.</h2>
+            <h2 className="home-cta-title">Start learning now.</h2>
           </div>
 
           <div className="home-cta-actions">

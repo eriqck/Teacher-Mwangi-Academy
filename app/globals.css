@@ -3379,6 +3379,58 @@ main {
   padding: 18px 20px;
 }
 
+.home-services-card {
+  width: 100%;
+  max-width: 340px;
+  justify-self: start;
+  overflow: hidden;
+  border-radius: 30px;
+  padding: 18px 0 18px 18px;
+}
+
+.home-services-head {
+  padding-right: 18px;
+}
+
+.home-services-slider {
+  margin-top: 14px;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.home-services-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  animation: homeServicesSlide 18s linear infinite;
+}
+
+.home-service-pill {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 11px 16px;
+  background: #fff7ed;
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  color: #9a3412;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.home-service-pill:hover,
+.home-service-pill:focus-visible {
+  transform: translateY(-2px);
+  background: #f97316;
+  color: #fff;
+}
+
 .home-founder-head {
   display: flex;
   align-items: center;
@@ -3500,10 +3552,6 @@ main {
 
 .home-section {
   padding-top: 28px;
-}
-
-.home-updates-section {
-  padding-top: 14px;
 }
 
 .home-problem-card {
@@ -3769,10 +3817,12 @@ main {
 }
 
 .home-pricing-cadence {
-  margin-left: 8px;
-  font-size: 1.15rem;
+  display: block;
+  margin-top: 8px;
+  font-size: 1rem;
   font-weight: 700;
   color: #64748b;
+  letter-spacing: normal;
 }
 
 .home-pricing-copy {
@@ -4174,6 +4224,12 @@ main {
     justify-self: stretch;
   }
 
+  .home-services-card {
+    max-width: none;
+    justify-self: stretch;
+    padding-right: 18px;
+  }
+
   .home-hero-actions,
   .home-pill-row,
   .home-tag-row,
@@ -4204,6 +4260,16 @@ main {
   55%,
   100% {
     transform: translateX(360%) rotate(18deg);
+  }
+}
+
+@keyframes homeServicesSlide {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-50% - 5px));
   }
 }
 
