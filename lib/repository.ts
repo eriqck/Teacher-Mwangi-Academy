@@ -1,5 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
+import {
+  createManagedSignedUpload,
+  deleteManagedFile,
+  getManagedFilePublicUrl,
+  uploadManagedFile
+} from "@/lib/managed-storage";
 import type {
   DataStore,
   GeneratedLessonPlanRecord,
@@ -18,7 +24,8 @@ import type {
   UserRecord
 } from "@/lib/store";
 import { readStore, updateStore } from "@/lib/store";
-import { getSupabaseAdmin, getSupabaseBucket, isSupabaseConfigured } from "@/lib/supabase";
+import { isManagedStorageConfigured } from "@/lib/managed-storage";
+import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
 function mapUser(row: Record<string, unknown>): UserRecord {
   return {
@@ -1120,36 +1127,21 @@ export async function deletePropertyRecord(propertyId: string) {
 }
 
 export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, mimeType: string) {
-  const supabase = getSupabaseAdmin();
-  const bucket = getSupabaseBucket();
-  const { error } = await supabase.storage.from(bucket).upload(filePath, fileBuffer, {
-    contentType: mimeType,
-    upsert: false
-  });
-  if (error) throw new Error(error.message);
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return data.publicUrl;
+  return uploadManagedFile(filePath, fileBuffer, mimeType);
 }
 
-export async function createSignedResourceUpload(filePath: string) {
-  const supabase = getSupabaseAdmin();
-  const bucket = getSupabaseBucket();
-  const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(filePath);
-  if (error) throw new Error(error.message);
-  return data;
+export async function createSignedResourceUpload(filePath: string, mimeType?: string) {
+  return createManagedSignedUpload(filePath, mimeType);
 }
 
 export function getResourceFilePublicUrl(filePath: string) {
-  const supabase = getSupabaseAdmin();
-  const bucket = getSupabaseBucket();
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return data.publicUrl;
+  return getManagedFilePublicUrl(filePath);
 }
 
 export async function deleteResourceFile(filePath: string) {
   if (!filePath) return;
 
-  if (!isSupabaseConfigured()) {
+  if (!isManagedStorageConfigured()) {
     const absolutePath = path.join(process.cwd(), filePath);
     try {
       await fs.unlink(absolutePath);
@@ -1161,12 +1153,7 @@ export async function deleteResourceFile(filePath: string) {
     return;
   }
 
-  const supabase = getSupabaseAdmin();
-  const bucket = getSupabaseBucket();
-  const { error } = await supabase.storage.from(bucket).remove([filePath]);
-  if (error && !error.message.toLowerCase().includes("not found")) {
-    throw new Error(error.message);
-  }
+  await deleteManagedFile(filePath);
 }
 
 function toPaymentRow(payment: Partial<PaymentRecord>) {

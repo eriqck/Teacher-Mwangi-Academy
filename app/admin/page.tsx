@@ -24,8 +24,8 @@ export default async function AdminPage() {
             <h2>Upload revision materials and schemes from the browser.</h2>
           </div>
           <p>
-            Files are stored locally inside this project and every upload is registered in the app
-            store so you can manage what is available to members.
+            Uploaded files are saved through the configured storage provider, and every upload is
+            registered in the app store so you can manage what is available to members.
           </p>
         </div>
 

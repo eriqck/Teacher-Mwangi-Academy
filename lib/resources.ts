@@ -2,9 +2,9 @@ import { promises as fs } from "fs";
 import path from "path";
 import { createId } from "@/lib/auth";
 import { schemeOfWorkPrice } from "@/lib/business";
+import { isManagedStorageConfigured } from "@/lib/managed-storage";
 import { saveResourceRecord, uploadResourceFile } from "@/lib/repository";
 import type { AssessmentSet, ResourceCategory, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
-import { isSupabaseConfigured } from "@/lib/supabase";
 
 function slugify(input: string) {
   return input
@@ -107,7 +107,7 @@ export async function saveUploadedResource(input: {
   let fileUrl: string;
   let filePath: string;
 
-  if (isSupabaseConfigured()) {
+  if (isManagedStorageConfigured()) {
     const storagePath = `${folderName}/${timestamp}-${safeFileName}`;
     fileUrl = await uploadResourceFile(storagePath, fileBuffer, input.file.type || "application/octet-stream");
     filePath = storagePath;

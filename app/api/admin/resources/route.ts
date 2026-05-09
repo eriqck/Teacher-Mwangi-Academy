@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAssessmentSet } from "@/lib/assessment-sets";
 import { getCurrentUser } from "@/lib/auth";
+import { isManagedStorageConfigured } from "@/lib/managed-storage";
 import { deleteResourceFile, getResourceFilePublicUrl } from "@/lib/repository";
 import { saveUploadedResource, saveUploadedResourceMetadata } from "@/lib/resources";
 import { isSchemeTerm } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
-import { isSupabaseConfigured } from "@/lib/supabase";
 
 function isAudience(value: string): value is "parent" | "teacher" | "both" {
   return value === "parent" || value === "teacher" || value === "both";
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     const uploadedFile = file instanceof File ? file : null;
 
-    if (isDirectSupabaseUpload && (!fileName || !mimeType || !isSupabaseConfigured())) {
+    if (isDirectSupabaseUpload && (!fileName || !mimeType || !isManagedStorageConfigured())) {
       return NextResponse.json({ error: "Direct upload metadata is incomplete." }, { status: 400 });
     }
 

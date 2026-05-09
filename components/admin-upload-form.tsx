@@ -107,7 +107,8 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
         },
         body: JSON.stringify({
           category: variant,
-          fileName: file.name
+          fileName: file.name,
+          mimeType: file.type || "application/octet-stream"
         })
       }, {
         retries: 2,
@@ -118,6 +119,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
         | {
             ok?: boolean;
             error?: string;
+            storageProvider?: "r2" | "supabase" | "local";
             signedUrl?: string;
             storagePath?: string;
             fileUrl?: string;
@@ -127,17 +129,23 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       const canUseDirectUpload = Boolean(prepareResponse.ok && prepareData?.signedUrl && prepareData?.storagePath);
 
       if (canUseDirectUpload && prepareData?.signedUrl && prepareData.storagePath) {
-        const uploadFormData = new FormData();
-        uploadFormData.append("cacheControl", "3600");
-        uploadFormData.append("", file);
-
         try {
+          const isR2Upload = prepareData.storageProvider === "r2";
           const storageResponse = await fetchWithRetry(prepareData.signedUrl, {
             method: "PUT",
-            headers: {
-              "x-upsert": "false"
-            },
-            body: uploadFormData
+            headers: isR2Upload
+              ? {
+                  "Content-Type": file.type || "application/octet-stream"
+                }
+              : {
+                  "x-upsert": "false"
+                },
+            body: isR2Upload ? file : (() => {
+              const uploadFormData = new FormData();
+              uploadFormData.append("cacheControl", "3600");
+              uploadFormData.append("", file);
+              return uploadFormData;
+            })()
           }, {
             retries: 2,
             retryOnResponse: true
@@ -164,9 +172,9 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           }
         } catch (storageError) {
           if (file.size > 4_000_000) {
-            setError(
-              storageError instanceof Error
-                ? `${storageError.message}. Check the Supabase bucket and try again.`
+              setError(
+                storageError instanceof Error
+                ? `${storageError.message}. Check the configured storage provider and try again.`
                 : "Direct upload failed."
             );
             return;
@@ -175,7 +183,7 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       } else if (file.size > 4_000_000) {
         setError(
           prepareData?.error ??
-            "Large-file upload could not be prepared. Confirm Supabase storage is configured."
+            "Large-file upload could not be prepared. Confirm managed storage is configured."
         );
         return;
       }
