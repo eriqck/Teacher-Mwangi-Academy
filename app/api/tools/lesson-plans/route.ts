@@ -4,13 +4,24 @@ import { teacherLessonPlanPrice } from "@/lib/business";
 import { levels } from "@/lib/catalog";
 import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
 import { createPendingLessonPlanGenerationPayment } from "@/lib/payments";
+import { buildSchemeNoteContext } from "@/lib/scheme-note-context";
+import { schemeTerms } from "@/lib/scheme-terms";
 import {
   readAppData,
   saveGeneratedLessonPlanRecord,
   saveGeneratedLessonPlanRequestRecord,
   savePaymentRecord
 } from "@/lib/repository";
-import type { GeneratedLessonPlanRequestPayload, PaymentRecord } from "@/lib/store";
+import type { GeneratedLessonPlanRequestPayload, PaymentRecord, SchemeTerm } from "@/lib/store";
+
+function resolveLessonPlanTerm(value: string): SchemeTerm {
+  const normalized = value.trim().toLowerCase();
+  const matched = schemeTerms.find(
+    (entry) => entry.id === normalized || entry.label.toLowerCase() === normalized
+  );
+
+  return matched?.id ?? "term-1";
+}
 
 export async function POST(request: Request) {
   try {
@@ -69,6 +80,13 @@ export async function POST(request: Request) {
     };
 
     const store = await readAppData();
+    const levelTitle = levels.find((entry) => entry.id === level)?.title ?? level;
+    const sourceNoteContext = await buildSchemeNoteContext({
+      resources: store.resources,
+      levelTitle,
+      subject,
+      term: resolveLessonPlanTerm(term)
+    });
     const firstGenerationFree =
       user.role === "teacher" && !store.generatedLessonPlans.some((plan) => plan.userId === user.id);
     const canGenerateWithoutPayment = user.role === "admin" || firstGenerationFree;
@@ -79,6 +97,7 @@ export async function POST(request: Request) {
         id: createId("generated_lesson_plan"),
         userId: user.id,
         createdAt,
+        sourceNoteContext,
         ...payload
       });
       const payment: PaymentRecord = {

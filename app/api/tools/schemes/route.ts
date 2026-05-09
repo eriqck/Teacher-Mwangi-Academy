@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUser, createId } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { createPendingSchemeGenerationPayment } from "@/lib/payments";
+import { buildSchemeNoteContext } from "@/lib/scheme-note-context";
 import { buildGeneratedScheme, normalizeLineList } from "@/lib/scheme-generator";
 import {
   readAppData,
@@ -98,6 +99,13 @@ export async function POST(request: Request) {
     };
 
     const store = await readAppData();
+    const levelTitle = levels.find((entry) => entry.id === level)?.title ?? level;
+    const sourceNoteContext = await buildSchemeNoteContext({
+      resources: store.resources,
+      levelTitle,
+      subject,
+      term
+    });
     const firstGenerationFree =
       user.role === "teacher" && !store.generatedSchemes.some((scheme) => scheme.userId === user.id);
     const canGenerateWithoutPayment = user.role === "admin" || firstGenerationFree;
@@ -108,6 +116,7 @@ export async function POST(request: Request) {
         id: createId("generated_scheme"),
         userId: user.id,
         createdAt,
+        sourceNoteContext,
         ...payload
       });
       const payment: PaymentRecord = {

@@ -123,6 +123,7 @@ export type GeneratedSchemeWeekRecord = {
   focus: string;
   learningOutcome: string;
   learnerActivities: string[];
+  keyInquiryQuestion?: string;
   resources: string[];
   assessment: string;
   remarks: string;

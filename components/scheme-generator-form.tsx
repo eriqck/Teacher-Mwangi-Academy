@@ -111,6 +111,17 @@ function getSelectedSubtopics(topicGroups: SchemeTopicGroup[], selectedSubtopicI
   );
 }
 
+function getSelectedStrandPairs(topicGroups: SchemeTopicGroup[], selectedSubtopicIds: string[]) {
+  return topicGroups.flatMap((topic) =>
+    topic.subtopics
+      .filter((subtopic) => selectedSubtopicIds.includes(getSubtopicId(topic.id, subtopic)))
+      .map((subStrand) => ({
+        strand: topic.title,
+        subStrand
+      }))
+  );
+}
+
 function getSelectedTopicTitles(topicGroups: SchemeTopicGroup[], selectedSubtopicIds: string[]) {
   return topicGroups
     .filter((topic) =>
@@ -189,6 +200,10 @@ export function SchemeGeneratorForm({
   );
   const selectedSubtopics = useMemo(
     () => getSelectedSubtopics(topicSelection.topics, selectedSubtopicIds),
+    [topicSelection.topics, selectedSubtopicIds]
+  );
+  const selectedStrandPairs = useMemo(
+    () => getSelectedStrandPairs(topicSelection.topics, selectedSubtopicIds),
     [topicSelection.topics, selectedSubtopicIds]
   );
   const selectedTopicTitles = useMemo(
@@ -514,28 +529,32 @@ export function SchemeGeneratorForm({
       level: formState.level,
       subject: formState.subject.trim(),
       term: formState.term as SchemeTerm,
-      strand: selectedTopicTitles[0] ?? `${formState.subject} term coverage`,
+      strand:
+        selectedStrandPairs.map((pair) => pair.strand).join("\n") ||
+        selectedTopicTitles.join("\n") ||
+        `${formState.subject} term coverage`,
       subStrand:
-        selectedSubtopics.slice(0, 3).join(", ") ||
+        selectedStrandPairs.map((pair) => pair.subStrand).join("\n") ||
+        selectedSubtopics.join("\n") ||
         "Selected substrands",
       weeksCount,
       lessonsPerWeek: formState.lessonsPerWeek,
-      learningOutcomes: selectedSubtopics
-        .map((subtopic) => `Develop understanding of ${subtopic}.`)
+      learningOutcomes: selectedStrandPairs
+        .map((pair) => `Explain and apply ${pair.subStrand.toLowerCase()} from ${pair.strand.toLowerCase()}.`)
         .join("\n"),
-      keyInquiryQuestions: selectedSubtopics
+      keyInquiryQuestions: selectedStrandPairs
         .slice(0, 6)
-        .map((subtopic) => `How can learners apply ${subtopic.toLowerCase()} in ${formState.subject.toLowerCase()}?`)
+        .map((pair) => `How can learners apply ${pair.subStrand.toLowerCase()} in ${formState.subject.toLowerCase()}?`)
         .join("\n"),
       coreCompetencies: defaultCoreCompetencies.join("\n"),
       values: defaultValues.join("\n"),
       pertinentIssues: defaultPertinentIssues.join("\n"),
-      resources: [formState.referenceBook, "Teacher guide", "Learner's book"].join("\n"),
+      resources: [formState.referenceBook, "Teacher's notes", "Learner's book", "Digital devices"].join("\n"),
       assessmentMethods: [
         "Observation",
         "Oral questions",
-        "Short written exercise",
-        "Topic quiz"
+        "Written exercises",
+        "Assessment rubrics"
       ].join("\n"),
       notes: [
         `Academic year: ${formState.year}`,
@@ -543,6 +562,7 @@ export function SchemeGeneratorForm({
         `Teaching ends at week ${formState.lastWeek}, lesson ${formState.lastLesson}.`,
         `Double lesson: ${formState.doubleLesson || "No double lesson"}.`,
         `Reference book: ${formState.referenceBook}.`,
+        `Format style: ${formState.referenceBook.toLowerCase().includes("mentor") ? "mentor" : "rationalized"}`,
         `Breaks: ${breakSummary}`
       ].join("\n")
     };

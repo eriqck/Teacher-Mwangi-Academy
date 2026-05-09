@@ -30,12 +30,23 @@ import {
   updatePaymentById
 } from "@/lib/repository";
 import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
+import { buildSchemeNoteContext } from "@/lib/scheme-note-context";
 import { buildGeneratedScheme } from "@/lib/scheme-generator";
+import { schemeTerms } from "@/lib/scheme-terms";
 
 function addDays(days: number) {
   const now = new Date();
   now.setDate(now.getDate() + days);
   return now.toISOString();
+}
+
+function resolveStoredTermToSchemeTerm(value: string | undefined | null) {
+  const normalized = `${value ?? ""}`.trim().toLowerCase();
+  const matched = schemeTerms.find(
+    (entry) => entry.id === normalized || entry.label.toLowerCase() === normalized
+  );
+
+  return matched?.id ?? "term-1";
 }
 
 export async function createPendingSubscriptionPayment(input: {
@@ -584,10 +595,19 @@ async function applyVerifiedPaystackPaymentOutcome(
           });
           redirectPath = `/teacher-tools/schemes/${request.generatedSchemeId}?payment=success`;
         } else {
+          const store = await readAppData();
+          const levelTitle = levels.find((entry) => entry.id === request.payload.level)?.title ?? request.payload.level;
+          const sourceNoteContext = await buildSchemeNoteContext({
+            resources: store.resources,
+            levelTitle,
+            subject: request.payload.subject,
+            term: request.payload.term
+          });
           const generatedScheme = buildGeneratedScheme({
             id: createId("generated_scheme"),
             userId: request.userId,
             createdAt: updatedAt,
+            sourceNoteContext,
             ...request.payload
           });
 
@@ -623,10 +643,19 @@ async function applyVerifiedPaystackPaymentOutcome(
           });
           redirectPath = `/teacher-tools/lesson-plans/generated/${request.generatedLessonPlanId}?payment=success`;
         } else {
+          const store = await readAppData();
+          const levelTitle = levels.find((entry) => entry.id === request.payload.level)?.title ?? request.payload.level;
+          const sourceNoteContext = await buildSchemeNoteContext({
+            resources: store.resources,
+            levelTitle,
+            subject: request.payload.subject,
+            term: resolveStoredTermToSchemeTerm(request.payload.term)
+          });
           const generatedLessonPlan = buildGeneratedLessonPlan({
             id: createId("generated_lesson_plan"),
             userId: request.userId,
             createdAt: updatedAt,
+            sourceNoteContext,
             ...request.payload
           });
 

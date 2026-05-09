@@ -4,18 +4,16 @@ import { PrintSchemeButton } from "@/components/print-scheme-button";
 import { requireTeacherUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { readAppData } from "@/lib/repository";
+import {
+  getSchemeDisplayHeading,
+  getSchemeFormatStyle,
+  getSchemeNoteValue,
+  getSchemeTableHeaders
+} from "@/lib/scheme-generator";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 
 function getLevelTitle(levelId: string) {
   return levels.find((level) => level.id === levelId)?.title ?? levelId;
-}
-
-function getSchemeNoteValue(notes: string, label: string) {
-  const line = notes
-    .split(/\r?\n/)
-    .find((entry) => entry.toLowerCase().startsWith(`${label.toLowerCase()}:`));
-
-  return line?.split(":").slice(1).join(":").trim() || "";
 }
 
 function getSchemeRowFocus(focus: string, fallbackStrand: string, fallbackSubStrand: string) {
@@ -50,6 +48,16 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
   const referenceBook = getSchemeNoteValue(scheme.notes, "Reference book") || "Course book / teacher guide";
   const termLabel = getSchemeTermLabel(scheme.term);
   const levelTitle = getLevelTitle(scheme.level);
+  const formatStyle = getSchemeFormatStyle(referenceBook, scheme.subject, scheme.notes);
+  const tableHeaders = getSchemeTableHeaders(formatStyle);
+  const documentHeading = getSchemeDisplayHeading({
+    style: formatStyle,
+    year: schemeYear,
+    levelTitle,
+    subject: scheme.subject,
+    termLabel,
+    referenceBook
+  });
 
   return (
     <section className="teacher-tools-content">
@@ -69,89 +77,88 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
       <article className="teacher-tools-card generated-scheme-sheet">
         <div className="generated-scheme-header">
           <div>
-            <h3>{schemeYear} {levelTitle} {scheme.subject} Schemes of Work - {termLabel}</h3>
-            <p className="subtle">
-              {[levelTitle, scheme.subject, termLabel].join(" - ")}
-            </p>
+            <h3>{documentHeading}</h3>
           </div>
-
-          <div className="generated-scheme-meta-grid">
-            <div>
-              <span className="subtle">School</span>
-              <strong>{scheme.schoolName || "Not specified"}</strong>
+          {formatStyle === "mentor" ? (
+            <div className="generated-scheme-meta-strip">
+              <span><strong>SCHOOL</strong> {scheme.schoolName || "____________________"}</span>
+              <span><strong>TEACHER'S NAME</strong> {user.fullName}</span>
+              <span><strong>YEAR</strong> {schemeYear}</span>
             </div>
-            <div>
-              <span className="subtle">Teacher's name</span>
-              <strong>{user.fullName}</strong>
+          ) : (
+            <div className="generated-scheme-meta-table-wrap">
+              <table className="generated-scheme-meta-table">
+                <thead>
+                  <tr>
+                    <th>SCHOOL</th>
+                    <th>GRADE</th>
+                    <th>LEARNING AREA</th>
+                    <th>TERM</th>
+                    <th>YEAR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{scheme.schoolName || ""}</td>
+                    <td>{scheme.className || levelTitle}</td>
+                    <td>{scheme.subject}</td>
+                    <td>{termLabel.replace("Term ", "")}</td>
+                    <td>{schemeYear}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div>
-              <span className="subtle">Year</span>
-              <strong>{schemeYear}</strong>
-            </div>
-            <div>
-              <span className="subtle">Grade/Class</span>
-              <strong>{scheme.className || "Not specified"}</strong>
-            </div>
-            <div>
-              <span className="subtle">Strand</span>
-              <strong>{scheme.strand}</strong>
-            </div>
-            <div>
-              <span className="subtle">Sub-strand</span>
-              <strong>{scheme.subStrand}</strong>
-            </div>
-            <div>
-              <span className="subtle">Reference book</span>
-              <strong>{referenceBook}</strong>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="generated-scheme-table-wrap">
-          <table className="mini-table generated-scheme-table generated-scheme-table--mentor">
+          <table
+            className={`mini-table generated-scheme-table ${
+              formatStyle === "mentor" ? "generated-scheme-table--mentor" : "generated-scheme-table--rationalized"
+            }`}
+          >
             <thead>
               <tr>
-                <th>Week</th>
-                <th>Lesson</th>
-                <th>Strand</th>
-                <th>Sub Strand</th>
-                <th>Specific Learning Outcomes</th>
-                <th>Learning Experiences</th>
-                <th>Key Inquiry Questions</th>
-                <th>Learning Resources</th>
-                <th>Assessment Methods</th>
-                <th>Reflection</th>
+                {tableHeaders.map((heading) => (
+                  <th key={heading}>{heading}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {scheme.weeklyPlan.map((week, index) => {
                 const rowFocus = getSchemeRowFocus(week.focus, scheme.strand, scheme.subStrand);
                 const inquiry =
+                  week.keyInquiryQuestion ||
                   scheme.keyInquiryQuestions[index % Math.max(scheme.keyInquiryQuestions.length, 1)] ||
                   `How can learners apply ${rowFocus.subStrand.toLowerCase()}?`;
+                const previous = index > 0 ? scheme.weeklyPlan[index - 1] : null;
+                const previousFocus = previous
+                  ? getSchemeRowFocus(previous.focus, scheme.strand, scheme.subStrand)
+                  : null;
+                const weekLabel = previous?.weekNumber === week.weekNumber ? "" : `${week.weekNumber}`;
+                const strandLabel = previousFocus?.strand === rowFocus.strand ? "" : rowFocus.strand;
+                const experiencesText = week.learnerActivities.join("\n");
+                const resourcesText = week.resources.join("\n");
 
                 return (
                   <tr key={`${week.weekNumber}-${week.lessonRange}-${week.focus}`}>
-                    <td>{week.weekNumber}</td>
+                    <td>{weekLabel}</td>
                     <td>{week.lessonRange}</td>
-                    <td>{rowFocus.strand}</td>
+                    <td>{strandLabel}</td>
                     <td>{rowFocus.subStrand}</td>
                     <td>{week.learningOutcome}</td>
-                    <td>
-                      <ul className="generated-scheme-list-inline">
-                        {week.learnerActivities.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td>{inquiry}</td>
-                    <td>
-                      <ul className="generated-scheme-list-inline">
-                        {week.resources.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                    </td>
+                    {formatStyle === "mentor" ? (
+                      <>
+                        <td>{experiencesText}</td>
+                        <td>{inquiry}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{inquiry}</td>
+                        <td>{experiencesText}</td>
+                      </>
+                    )}
+                    <td>{resourcesText}</td>
                     <td>{week.assessment}</td>
                     <td>{week.remarks}</td>
                   </tr>

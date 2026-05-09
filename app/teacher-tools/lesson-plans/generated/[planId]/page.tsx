@@ -130,6 +130,15 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
 
         <div className="generated-lesson-block">
+          <h4>Assessment Methods</h4>
+          <ul>
+            {lessonPlan.assessmentMethods.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="generated-lesson-block">
           <h4>Introduction (5 mins)</h4>
           <p>{lessonSteps[0]}</p>
         </div>
