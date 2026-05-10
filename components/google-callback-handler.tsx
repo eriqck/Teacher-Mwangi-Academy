@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 type ApiResponse = {
@@ -13,7 +12,6 @@ type ApiResponse = {
 };
 
 export function GoogleCallbackHandler() {
-  const router = useRouter();
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -47,8 +45,7 @@ export function GoogleCallbackHandler() {
         }
 
         if (!cancelled) {
-          router.replace(data.data?.next ?? "/dashboard");
-          router.refresh();
+          window.location.assign(data.data?.next ?? "/dashboard");
         }
       } catch (error) {
         if (!cancelled) {
@@ -62,7 +59,7 @@ export function GoogleCallbackHandler() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
 
   return (
     <div className="panel-stack auth-form auth-form--login">

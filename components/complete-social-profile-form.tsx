@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 type ApiResponse = {
   ok?: boolean;
@@ -16,7 +15,6 @@ export function CompleteSocialProfileForm({
   email: string;
   fullName: string;
 }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -45,8 +43,7 @@ export function CompleteSocialProfileForm({
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    window.location.assign("/dashboard");
   }
 
   return (

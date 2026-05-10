@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type ApiResponse = {
@@ -11,7 +10,6 @@ type ApiResponse = {
 };
 
 export function PasswordResetForm({ email }: { email: string | null }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -60,8 +58,7 @@ export function PasswordResetForm({ email }: { email: string | null }) {
     }
 
     setMessage(data.message ?? "Password reset successful.");
-    router.push("/dashboard");
-    router.refresh();
+    window.location.assign("/dashboard");
   }
 
   return (

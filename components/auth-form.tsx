@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/google-auth-button";
 
 type Mode = "login" | "signup";
@@ -12,7 +12,6 @@ type AuthFormProps = {
 };
 
 export function AuthForm({ mode }: AuthFormProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -57,8 +56,8 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       setSuccess(data.message ?? "Success");
       const nextPath = searchParams.get("next") || "/dashboard";
-      router.push(nextPath);
-      router.refresh();
+      window.location.assign(nextPath);
+      return;
     } catch (error) {
       setError(
         error instanceof DOMException && error.name === "AbortError"
