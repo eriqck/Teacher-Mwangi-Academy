@@ -58,7 +58,7 @@ export function PasswordResetForm({ email }: { email: string | null }) {
     }
 
     setMessage(data.message ?? "Password reset successful.");
-    window.location.assign("/dashboard");
+    window.location.assign("/");
   }
 
   return (

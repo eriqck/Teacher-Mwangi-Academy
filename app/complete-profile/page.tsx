@@ -7,7 +7,7 @@ export default async function CompleteProfilePage() {
   const user = await getCurrentUser();
 
   if (user) {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   const pendingProfile = await getPendingSocialProfile();

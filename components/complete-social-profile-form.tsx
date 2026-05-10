@@ -43,7 +43,7 @@ export function CompleteSocialProfileForm({
       return;
     }
 
-    window.location.assign("/dashboard");
+    window.location.assign("/");
   }
 
   return (

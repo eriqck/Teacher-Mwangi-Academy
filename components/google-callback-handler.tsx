@@ -45,7 +45,7 @@ export function GoogleCallbackHandler() {
         }
 
         if (!cancelled) {
-          window.location.assign(data.data?.next ?? "/dashboard");
+          window.location.assign(data.data?.next ?? "/");
         }
       } catch (error) {
         if (!cancelled) {

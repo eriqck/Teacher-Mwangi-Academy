@@ -55,7 +55,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
 
       setSuccess(data.message ?? "Success");
-      const nextPath = searchParams.get("next") || "/dashboard";
+      const nextPath = searchParams.get("next") || "/";
       window.location.assign(nextPath);
       return;
     } catch (error) {
