@@ -8,11 +8,10 @@ import { assessmentSets } from "@/lib/assessment-sets";
 import { levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
-import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
-import { readAppData } from "@/lib/repository";
+import { listPaymentsForUser, listResources, listSubscriptionsForUser, readAppData } from "@/lib/repository";
 import { schemeTerms } from "@/lib/scheme-terms";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
-import type { ResourceRecord, SchemeTerm } from "@/lib/store";
+import type { ResourceRecord, SchemeTerm, SubscriptionPlan, UserRole } from "@/lib/store";
 
 function formatMoney(amount: number) {
   return `KSh ${amount}`;
@@ -79,66 +78,105 @@ export default async function DashboardPage({
   await searchParams;
 
   try {
-    await reconcilePaidPaystackPaymentsForUser(user.id);
     const latestUpdates = getLatestSiteUpdates(3);
+    let usersById = new Map<string, { fullName: string; email: string; phoneNumber: string }>();
+    let subscriptions: Awaited<ReturnType<typeof listSubscriptionsForUser>> = [];
+    let payments: Awaited<ReturnType<typeof listPaymentsForUser>> = [];
+    let adminSubscriptionRows: Array<{
+      id: string;
+      createdAt: string;
+      fullName: string;
+      email: string;
+      phoneNumber: string;
+      planName: string;
+      status: string;
+      amountLabel: string;
+      endDateLabel: string;
+      canGrantAccess: boolean;
+    }> = [];
+    let adminUserRows: Array<{
+      id: string;
+      fullName: string;
+      email: string;
+      phoneNumber: string;
+      role: UserRole;
+      selectedPlan: SubscriptionPlan | null;
+      planLabel: string;
+      subscriptionStatus: string;
+      accessEnds: string;
+      canManageMembership: boolean;
+    }> = [];
+    let resources: ResourceRecord[] = [];
 
-    const store = await readAppData();
-    const usersById = new Map(store.users.map((entry) => [entry.id, entry]));
-    const subscriptions = store.subscriptions
-      .filter((item) => item.userId === user.id)
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-    const payments = (user.role === "admin" ? store.payments : store.payments.filter((item) => item.userId === user.id))
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-    const allSubscriptions = store.subscriptions
-      .slice()
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-    const adminSubscriptionRows = allSubscriptions.map((subscription) => {
-      const subscriber = usersById.get(subscription.userId);
-      const planDetails = getPlanDetails(subscription.plan);
-
-      return {
-        id: subscription.id,
-        createdAt: subscription.createdAt,
-        fullName: subscriber?.fullName ?? subscription.userId,
-        email: subscriber?.email ?? "-",
-        phoneNumber: subscriber?.phoneNumber ?? "-",
-        planName: planDetails?.name ?? subscription.plan ?? "Unknown plan",
-        status: subscription.status,
-        amountLabel: formatMoney(subscription.amount),
-        endDateLabel: subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment",
-        canGrantAccess: subscription.status === "pending"
-      };
-    });
-    const latestSubscriptionByUserId = new Map<string, (typeof allSubscriptions)[number]>();
-    for (const subscription of allSubscriptions) {
-      if (!latestSubscriptionByUserId.has(subscription.userId)) {
-        latestSubscriptionByUserId.set(subscription.userId, subscription);
-      }
-    }
-    const adminUserRows = store.users
-      .slice()
-      .sort((left, right) => left.fullName.localeCompare(right.fullName))
-      .map((entry) => {
-        const latestSubscription = latestSubscriptionByUserId.get(entry.id);
-        const latestPlanDetails = getPlanDetails(latestSubscription?.plan);
-        const selectedPlan =
-          (latestPlanDetails ? latestSubscription?.plan : null) ??
-          (entry.role === "teacher" ? "teacher-monthly" : entry.role === "parent" ? "parent-monthly" : null);
-        const selectedPlanDetails = getPlanDetails(selectedPlan);
+    if (user.role === "admin") {
+      const store = await readAppData();
+      usersById = new Map(store.users.map((entry) => [entry.id, entry]));
+      subscriptions = store.subscriptions
+        .filter((item) => item.userId === user.id)
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+      payments = store.payments
+        .slice()
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+      const allSubscriptions = store.subscriptions
+        .slice()
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+      adminSubscriptionRows = allSubscriptions.map((subscription) => {
+        const subscriber = usersById.get(subscription.userId);
+        const planDetails = getPlanDetails(subscription.plan);
 
         return {
-          id: entry.id,
-          fullName: entry.fullName,
-          email: entry.email,
-          phoneNumber: entry.phoneNumber,
-          role: entry.role,
-          selectedPlan,
-          planLabel: selectedPlanDetails?.name ?? "No membership yet",
-          subscriptionStatus: latestSubscription?.status ?? "none",
-          accessEnds: latestSubscription?.endDate ? latestSubscription.endDate.slice(0, 10) : "Not granted",
-          canManageMembership: entry.role !== "admin"
+          id: subscription.id,
+          createdAt: subscription.createdAt,
+          fullName: subscriber?.fullName ?? subscription.userId,
+          email: subscriber?.email ?? "-",
+          phoneNumber: subscriber?.phoneNumber ?? "-",
+          planName: planDetails?.name ?? subscription.plan ?? "Unknown plan",
+          status: subscription.status,
+          amountLabel: formatMoney(subscription.amount),
+          endDateLabel: subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment",
+          canGrantAccess: subscription.status === "pending"
         };
       });
+      const latestSubscriptionByUserId = new Map<string, (typeof allSubscriptions)[number]>();
+      for (const subscription of allSubscriptions) {
+        if (!latestSubscriptionByUserId.has(subscription.userId)) {
+          latestSubscriptionByUserId.set(subscription.userId, subscription);
+        }
+      }
+      adminUserRows = store.users
+        .slice()
+        .sort((left, right) => left.fullName.localeCompare(right.fullName))
+        .map((entry) => {
+          const latestSubscription = latestSubscriptionByUserId.get(entry.id);
+          const latestPlanDetails = getPlanDetails(latestSubscription?.plan);
+          const selectedPlan =
+            (latestPlanDetails ? latestSubscription?.plan : null) ??
+            (entry.role === "teacher" ? "teacher-monthly" : entry.role === "parent" ? "parent-monthly" : null);
+          const selectedPlanDetails = getPlanDetails(selectedPlan);
+
+          return {
+            id: entry.id,
+            fullName: entry.fullName,
+            email: entry.email,
+            phoneNumber: entry.phoneNumber,
+            role: entry.role,
+            selectedPlan,
+            planLabel: selectedPlanDetails?.name ?? "No membership yet",
+            subscriptionStatus: latestSubscription?.status ?? "none",
+            accessEnds: latestSubscription?.endDate ? latestSubscription.endDate.slice(0, 10) : "Not granted",
+            canManageMembership: entry.role !== "admin"
+          };
+        });
+      resources = store.resources;
+    } else {
+      [subscriptions, payments, resources] = await Promise.all([
+        listSubscriptionsForUser(user.id),
+        listPaymentsForUser(user.id),
+        listResources()
+      ]);
+      subscriptions = subscriptions.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+      payments = payments.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    }
     const activeSubscription =
       subscriptions.find((item) => item.status === "active") ??
       subscriptions.find((item) => item.status === "pending") ??
@@ -146,14 +184,14 @@ export default async function DashboardPage({
     const activePlan = getPlanDetails(activeSubscription?.plan);
     const accessibleLevels =
       user.role === "admin"
-        ? []
+        ? levels
         : activePlan?.levelAccessMode === "all"
           ? levels
-          : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
+          : levels.filter((level) => activeSubscription?.levelAccess?.includes(level.id));
     const dashboardMaterialLevels = user.role === "admin" ? levels : accessibleLevels;
     const dashboardMaterialLevelTitles = new Set(dashboardMaterialLevels.map((level) => level.title));
     const dashboardMaterialYear = "2026";
-    const dashboardMaterials = store.resources.filter(
+    const dashboardMaterials = resources.filter(
       (resource) =>
         resource.category === "revision-material" &&
         (user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level)) &&
@@ -184,7 +222,7 @@ export default async function DashboardPage({
       };
     });
     const materialYearTotal = materialTermSummaries.reduce((sum, summary) => sum + summary.totalCount, 0);
-    const dashboardSearchResources = store.resources.filter((resource) => {
+    const dashboardSearchResources = resources.filter((resource) => {
       const levelMatches = user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level);
 
       if (!levelMatches) {

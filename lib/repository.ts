@@ -361,6 +361,42 @@ export async function readAppData(): Promise<DataStore> {
   };
 }
 
+export async function listSubscriptionsForUser(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.subscriptions.filter((subscription) => subscription.userId === userId);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("subscriptions").select("*").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapSubscription(row));
+}
+
+export async function listPaymentsForUser(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.payments.filter((payment) => payment.userId === userId);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("payments").select("*").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapPayment(row));
+}
+
+export async function listResources() {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.resources;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("resources").select("*");
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapResource(row));
+}
+
 export async function findUserByEmail(email: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
