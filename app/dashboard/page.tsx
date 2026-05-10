@@ -78,170 +78,171 @@ export default async function DashboardPage({
   const user = await requireUser();
   await searchParams;
 
-  await reconcilePaidPaystackPaymentsForUser(user.id);
-  const latestUpdates = getLatestSiteUpdates(3);
+  try {
+    await reconcilePaidPaystackPaymentsForUser(user.id);
+    const latestUpdates = getLatestSiteUpdates(3);
 
-  const store = await readAppData();
-  const usersById = new Map(store.users.map((entry) => [entry.id, entry]));
-  const subscriptions = store.subscriptions
-    .filter((item) => item.userId === user.id)
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  const payments = (user.role === "admin" ? store.payments : store.payments.filter((item) => item.userId === user.id))
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  const allSubscriptions = store.subscriptions
-    .slice()
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  const adminSubscriptionRows = allSubscriptions.map((subscription) => {
-    const subscriber = usersById.get(subscription.userId);
-    const planDetails = getPlanDetails(subscription.plan);
-
-    return {
-      id: subscription.id,
-      createdAt: subscription.createdAt,
-      fullName: subscriber?.fullName ?? subscription.userId,
-      email: subscriber?.email ?? "-",
-      phoneNumber: subscriber?.phoneNumber ?? "-",
-      planName: planDetails?.name ?? subscription.plan ?? "Unknown plan",
-      status: subscription.status,
-      amountLabel: formatMoney(subscription.amount),
-      endDateLabel: subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment",
-      canGrantAccess: subscription.status === "pending"
-    };
-  });
-  const latestSubscriptionByUserId = new Map<string, (typeof allSubscriptions)[number]>();
-  for (const subscription of allSubscriptions) {
-    if (!latestSubscriptionByUserId.has(subscription.userId)) {
-      latestSubscriptionByUserId.set(subscription.userId, subscription);
-    }
-  }
-  const adminUserRows = store.users
-    .slice()
-    .sort((left, right) => left.fullName.localeCompare(right.fullName))
-    .map((entry) => {
-      const latestSubscription = latestSubscriptionByUserId.get(entry.id);
-      const latestPlanDetails = getPlanDetails(latestSubscription?.plan);
-      const selectedPlan =
-        (latestPlanDetails ? latestSubscription?.plan : null) ??
-        (entry.role === "teacher" ? "teacher-monthly" : entry.role === "parent" ? "parent-monthly" : null);
-      const selectedPlanDetails = getPlanDetails(selectedPlan);
+    const store = await readAppData();
+    const usersById = new Map(store.users.map((entry) => [entry.id, entry]));
+    const subscriptions = store.subscriptions
+      .filter((item) => item.userId === user.id)
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    const payments = (user.role === "admin" ? store.payments : store.payments.filter((item) => item.userId === user.id))
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    const allSubscriptions = store.subscriptions
+      .slice()
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    const adminSubscriptionRows = allSubscriptions.map((subscription) => {
+      const subscriber = usersById.get(subscription.userId);
+      const planDetails = getPlanDetails(subscription.plan);
 
       return {
-        id: entry.id,
-        fullName: entry.fullName,
-        email: entry.email,
-        phoneNumber: entry.phoneNumber,
-        role: entry.role,
-        selectedPlan,
-        planLabel: selectedPlanDetails?.name ?? "No membership yet",
-        subscriptionStatus: latestSubscription?.status ?? "none",
-        accessEnds: latestSubscription?.endDate ? latestSubscription.endDate.slice(0, 10) : "Not granted",
-        canManageMembership: entry.role !== "admin"
+        id: subscription.id,
+        createdAt: subscription.createdAt,
+        fullName: subscriber?.fullName ?? subscription.userId,
+        email: subscriber?.email ?? "-",
+        phoneNumber: subscriber?.phoneNumber ?? "-",
+        planName: planDetails?.name ?? subscription.plan ?? "Unknown plan",
+        status: subscription.status,
+        amountLabel: formatMoney(subscription.amount),
+        endDateLabel: subscription.endDate ? subscription.endDate.slice(0, 10) : "Pending payment",
+        canGrantAccess: subscription.status === "pending"
       };
     });
-  const activeSubscription =
-    subscriptions.find((item) => item.status === "active") ??
-    subscriptions.find((item) => item.status === "pending") ??
-    subscriptions[0];
-  const activePlan = getPlanDetails(activeSubscription?.plan);
-  const accessibleLevels =
-    user.role === "admin"
-      ? []
-      : activePlan?.levelAccessMode === "all"
-        ? levels
-        : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
-  const dashboardMaterialLevels = user.role === "admin" ? levels : accessibleLevels;
-  const dashboardMaterialLevelTitles = new Set(dashboardMaterialLevels.map((level) => level.title));
-  const dashboardMaterialYear = "2026";
-  const dashboardMaterials = store.resources.filter(
-    (resource) =>
-      resource.category === "revision-material" &&
-      (user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level)) &&
-      getResourceYear(resource) === dashboardMaterialYear
-  );
-  const materialTermSummaries = schemeTerms.map((term) => {
-    const termResources = dashboardMaterials.filter((resource) => getResourceTerm(resource) === term.id);
-    const notesCount = termResources.filter(
-      (resource) => (resource.section ?? "notes") === "notes"
-    ).length;
-    const setSummaries = assessmentSets.map((assessmentSet) => ({
-      ...assessmentSet,
-      count: termResources.filter(
-        (resource) =>
-          resource.section === "assessment" &&
-          resource.assessmentSet === assessmentSet.id
-      ).length
-    }));
-
-    return {
-      term,
-      notesCount,
-      setSummaries,
-      levelTitles: Array.from(new Set(termResources.map((resource) => resource.level))).sort((left, right) =>
-        left.localeCompare(right)
-      ),
-      totalCount: notesCount + setSummaries.reduce((sum, item) => sum + item.count, 0)
-    };
-  });
-  const materialYearTotal = materialTermSummaries.reduce((sum, summary) => sum + summary.totalCount, 0);
-  const dashboardSearchResources = store.resources.filter((resource) => {
-    const levelMatches = user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level);
-
-    if (!levelMatches) {
-      return false;
+    const latestSubscriptionByUserId = new Map<string, (typeof allSubscriptions)[number]>();
+    for (const subscription of allSubscriptions) {
+      if (!latestSubscriptionByUserId.has(subscription.userId)) {
+        latestSubscriptionByUserId.set(subscription.userId, subscription);
+      }
     }
+    const adminUserRows = store.users
+      .slice()
+      .sort((left, right) => left.fullName.localeCompare(right.fullName))
+      .map((entry) => {
+        const latestSubscription = latestSubscriptionByUserId.get(entry.id);
+        const latestPlanDetails = getPlanDetails(latestSubscription?.plan);
+        const selectedPlan =
+          (latestPlanDetails ? latestSubscription?.plan : null) ??
+          (entry.role === "teacher" ? "teacher-monthly" : entry.role === "parent" ? "parent-monthly" : null);
+        const selectedPlanDetails = getPlanDetails(selectedPlan);
 
-    if (resource.category === "scheme-of-work") {
-      return user.role === "admin" || user.role === "teacher";
-    }
-
-    return true;
-  });
-  const dashboardSearchMaterials = dashboardSearchResources
-    .slice()
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-    .map((resource) => {
-      const level = levels.find((entry) => entry.title === resource.level);
-      const term = schemeTerms.find((entry) => entry.id === getResourceTerm(resource));
-      const assessmentSet = assessmentSets.find((entry) => entry.id === resource.assessmentSet);
-      const isAssessment = resource.category === "revision-material" && resource.section === "assessment";
-      const typeLabel =
-        resource.category === "scheme-of-work" ? "Scheme of Work" : isAssessment ? "Assessment" : "Notes";
+        return {
+          id: entry.id,
+          fullName: entry.fullName,
+          email: entry.email,
+          phoneNumber: entry.phoneNumber,
+          role: entry.role,
+          selectedPlan,
+          planLabel: selectedPlanDetails?.name ?? "No membership yet",
+          subscriptionStatus: latestSubscription?.status ?? "none",
+          accessEnds: latestSubscription?.endDate ? latestSubscription.endDate.slice(0, 10) : "Not granted",
+          canManageMembership: entry.role !== "admin"
+        };
+      });
+    const activeSubscription =
+      subscriptions.find((item) => item.status === "active") ??
+      subscriptions.find((item) => item.status === "pending") ??
+      subscriptions[0];
+    const activePlan = getPlanDetails(activeSubscription?.plan);
+    const accessibleLevels =
+      user.role === "admin"
+        ? []
+        : activePlan?.levelAccessMode === "all"
+          ? levels
+          : levels.filter((level) => activeSubscription?.levelAccess.includes(level.id));
+    const dashboardMaterialLevels = user.role === "admin" ? levels : accessibleLevels;
+    const dashboardMaterialLevelTitles = new Set(dashboardMaterialLevels.map((level) => level.title));
+    const dashboardMaterialYear = "2026";
+    const dashboardMaterials = store.resources.filter(
+      (resource) =>
+        resource.category === "revision-material" &&
+        (user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level)) &&
+        getResourceYear(resource) === dashboardMaterialYear
+    );
+    const materialTermSummaries = schemeTerms.map((term) => {
+      const termResources = dashboardMaterials.filter((resource) => getResourceTerm(resource) === term.id);
+      const notesCount = termResources.filter(
+        (resource) => (resource.section ?? "notes") === "notes"
+      ).length;
+      const setSummaries = assessmentSets.map((assessmentSet) => ({
+        ...assessmentSet,
+        count: termResources.filter(
+          (resource) =>
+            resource.section === "assessment" &&
+            resource.assessmentSet === assessmentSet.id
+        ).length
+      }));
 
       return {
-        id: resource.id,
-        title: resource.title,
-        description: resource.description,
-        level: resource.level,
-        subject: resource.subject,
-        typeLabel,
-        termLabel: term?.label ?? "Term 1",
-        year: getResourceYear(resource),
-        setLabel: isAssessment ? assessmentSet?.label ?? "Assessment" : null,
-        href: level ? `/levels/${level.id}` : "/dashboard"
+        term,
+        notesCount,
+        setSummaries,
+        levelTitles: Array.from(new Set(termResources.map((resource) => resource.level))).sort((left, right) =>
+          left.localeCompare(right)
+        ),
+        totalCount: notesCount + setSummaries.reduce((sum, item) => sum + item.count, 0)
       };
     });
-  const paidPayments = payments.filter((payment) => payment.status === "paid");
-  const pendingPayments = payments.filter((payment) => payment.status === "pending");
-  const failedPayments = payments.filter((payment) => payment.status === "failed");
-  const totalPaidAmount = paidPayments.reduce((sum, payment) => sum + payment.amount, 0);
-  const totalPendingAmount = pendingPayments.reduce((sum, payment) => sum + payment.amount, 0);
-  const totalFailedAmount = failedPayments.reduce((sum, payment) => sum + payment.amount, 0);
-  const paidSubscriptionsAmount = paidPayments
-    .filter((payment) => payment.kind === "subscription")
-    .reduce((sum, payment) => sum + payment.amount, 0);
-  const paidSchemesAmount = paidPayments
-    .filter((payment) => payment.kind === "scheme")
-    .reduce((sum, payment) => sum + payment.amount, 0);
-  const paidResourcesAmount = paidPayments
-    .filter((payment) => payment.kind === "resource")
-    .reduce((sum, payment) => sum + payment.amount, 0);
-  const paidGeneratedSchemesAmount = paidPayments
-    .filter((payment) => payment.kind === "generated-scheme" || payment.kind === "tool-access")
-    .reduce((sum, payment) => sum + payment.amount, 0);
+    const materialYearTotal = materialTermSummaries.reduce((sum, summary) => sum + summary.totalCount, 0);
+    const dashboardSearchResources = store.resources.filter((resource) => {
+      const levelMatches = user.role === "admin" || dashboardMaterialLevelTitles.has(resource.level);
 
-  return (
-    <main>
-      <SiteHeader />
+      if (!levelMatches) {
+        return false;
+      }
+
+      if (resource.category === "scheme-of-work") {
+        return user.role === "admin" || user.role === "teacher";
+      }
+
+      return true;
+    });
+    const dashboardSearchMaterials = dashboardSearchResources
+      .slice()
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+      .map((resource) => {
+        const level = levels.find((entry) => entry.title === resource.level);
+        const term = schemeTerms.find((entry) => entry.id === getResourceTerm(resource));
+        const assessmentSet = assessmentSets.find((entry) => entry.id === resource.assessmentSet);
+        const isAssessment = resource.category === "revision-material" && resource.section === "assessment";
+        const typeLabel =
+          resource.category === "scheme-of-work" ? "Scheme of Work" : isAssessment ? "Assessment" : "Notes";
+
+        return {
+          id: resource.id,
+          title: resource.title,
+          description: resource.description,
+          level: resource.level,
+          subject: resource.subject,
+          typeLabel,
+          termLabel: term?.label ?? "Term 1",
+          year: getResourceYear(resource),
+          setLabel: isAssessment ? assessmentSet?.label ?? "Assessment" : null,
+          href: level ? `/levels/${level.id}` : "/dashboard"
+        };
+      });
+    const paidPayments = payments.filter((payment) => payment.status === "paid");
+    const pendingPayments = payments.filter((payment) => payment.status === "pending");
+    const failedPayments = payments.filter((payment) => payment.status === "failed");
+    const totalPaidAmount = paidPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const totalPendingAmount = pendingPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const totalFailedAmount = failedPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const paidSubscriptionsAmount = paidPayments
+      .filter((payment) => payment.kind === "subscription")
+      .reduce((sum, payment) => sum + payment.amount, 0);
+    const paidSchemesAmount = paidPayments
+      .filter((payment) => payment.kind === "scheme")
+      .reduce((sum, payment) => sum + payment.amount, 0);
+    const paidResourcesAmount = paidPayments
+      .filter((payment) => payment.kind === "resource")
+      .reduce((sum, payment) => sum + payment.amount, 0);
+    const paidGeneratedSchemesAmount = paidPayments
+      .filter((payment) => payment.kind === "generated-scheme" || payment.kind === "tool-access")
+      .reduce((sum, payment) => sum + payment.amount, 0);
+
+    return (
+      <main>
+        <SiteHeader />
 
       <section className="page-shell section">
         <div className="section-head">
@@ -613,6 +614,68 @@ export default async function DashboardPage({
           ))}
         </div>
       </section>
-    </main>
-  );
+      </main>
+    );
+  } catch (error) {
+    console.error("Dashboard load failed", {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      error: error instanceof Error ? error.message : error
+    });
+
+    return (
+      <main>
+        <SiteHeader />
+
+        <section className="page-shell section">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Member dashboard</span>
+              <h2>Welcome back, {user.fullName}.</h2>
+            </div>
+            <p>Your account is signed in, but the full dashboard could not load right now.</p>
+          </div>
+
+          <div className="dashboard-grid">
+            <article className="dashboard-card">
+              <h3>Quick actions</h3>
+              <p className="subtle">
+                Try opening your learning materials or subscription area directly while we recover the
+                rest of the dashboard data.
+              </p>
+              <div className="hero-actions">
+                <Link href="/subscribe" className="button">
+                  Manage payments
+                </Link>
+                <Link href="/" className="button-secondary">
+                  Back to homepage
+                </Link>
+              </div>
+            </article>
+
+            <article className="dashboard-card">
+              <h3>Account overview</h3>
+              <div className="panel-stack">
+                <div className="dashboard-stat">
+                  <span className="subtle">Role</span>
+                  <strong style={{ textTransform: "capitalize" }}>
+                    {user.role === "admin" ? "admin" : user.role}
+                  </strong>
+                </div>
+                <div className="dashboard-stat">
+                  <span className="subtle">Email</span>
+                  <strong>{user.email}</strong>
+                </div>
+                <div className="dashboard-stat">
+                  <span className="subtle">Phone</span>
+                  <strong>{user.phoneNumber}</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    );
+  }
 }
