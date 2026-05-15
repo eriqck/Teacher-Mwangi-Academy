@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { academyName } from "@/lib/business";
+import type { UserRecord } from "@/lib/store";
 
-export async function SiteHeader() {
-  const user = await getCurrentUser();
+export async function SiteHeader({ user: initialUser }: { user?: UserRecord | null } = {}) {
+  const user = initialUser === undefined ? await getCurrentUser() : initialUser;
   const links = [
     { href: "#about", label: "About" },
     { href: "#levels", label: "Levels" },

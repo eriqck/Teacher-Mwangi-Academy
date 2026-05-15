@@ -3,7 +3,6 @@ import { SiteHeader } from "@/components/site-header";
 import { requireUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
 import { subscriptionPlans } from "@/lib/business";
-import { reconcileExpiredSubscriptionsForUser } from "@/lib/payments";
 import { listPaymentsForUser, listSubscriptionsForUser } from "@/lib/repository";
 import { getCurrentSubscription, getEffectiveSubscriptionStatus } from "@/lib/subscriptions";
 
@@ -23,13 +22,18 @@ function getPlanDetails(plan: string | null | undefined) {
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  let subscriptions = [] as Awaited<ReturnType<typeof listSubscriptionsForUser>>;
+  let payments = [] as Awaited<ReturnType<typeof listPaymentsForUser>>;
+  let dataUnavailable = false;
 
-  await reconcileExpiredSubscriptionsForUser(user.id);
-
-  const [subscriptions, payments] = await Promise.all([
-    listSubscriptionsForUser(user.id),
-    listPaymentsForUser(user.id)
-  ]);
+  try {
+    [subscriptions, payments] = await Promise.all([
+      listSubscriptionsForUser(user.id),
+      listPaymentsForUser(user.id)
+    ]);
+  } catch {
+    dataUnavailable = true;
+  }
 
   const sortedSubscriptions = subscriptions
     .slice()
@@ -57,7 +61,7 @@ export default async function DashboardPage() {
 
   return (
     <main>
-      <SiteHeader />
+      <SiteHeader user={user} />
 
       <section className="page-shell section">
         <div className="section-head">
@@ -67,6 +71,25 @@ export default async function DashboardPage() {
           </div>
           <p>Your account, subscription, and next steps are ready below.</p>
         </div>
+
+        {dataUnavailable ? (
+          <article className="dashboard-card">
+            <h3>Dashboard is temporarily unavailable</h3>
+            <p className="subtle">
+              We could not load your latest account records right now, but your sign-in is still active.
+            </p>
+            <div className="hero-actions">
+              <Link href="/subscribe" className="button-secondary">
+                Open payments
+              </Link>
+              {(user.role === "teacher" || user.role === "admin") ? (
+                <Link href="/teacher-tools" className="button">
+                  Open teacher tools
+                </Link>
+              ) : null}
+            </div>
+          </article>
+        ) : null}
 
         <div className="dashboard-grid">
           <article className="dashboard-card">

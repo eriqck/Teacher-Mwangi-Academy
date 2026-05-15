@@ -1,6 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
-import { reconcileExpiredSubscriptionsForUser } from "@/lib/payments";
 import {
   listResourcePurchasesForUser,
   listResourcesForLevel,
@@ -30,10 +29,6 @@ export async function getLevelPageData(levelId: string) {
 
   try {
     const user = await getCurrentUser();
-
-    if (user) {
-      await reconcileExpiredSubscriptionsForUser(user.id);
-    }
 
     const [resources, subscriptions, resourcePurchases, schemePurchases] = await Promise.all([
       listResourcesForLevel(level.title),
