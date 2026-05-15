@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { reconcilePaidPaystackPaymentsForUser } from "@/lib/payments";
 
 export default async function TeacherToolsLayout({
   children
@@ -9,10 +8,6 @@ export default async function TeacherToolsLayout({
 }) {
   const user = await getCurrentUser();
   const isTeacherWorkspaceUser = user?.role === "teacher" || user?.role === "admin";
-
-  if (user?.role === "teacher") {
-    await reconcilePaidPaystackPaymentsForUser(user.id);
-  }
 
   const teacherLinks = [
     { href: "/teacher-tools", label: "Dashboard" },

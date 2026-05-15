@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireTeacherUser } from "@/lib/auth";
-import { readAppData } from "@/lib/repository";
+import { listGeneratedSchemes, listGeneratedSchemesForUser } from "@/lib/repository";
 import { levels } from "@/lib/catalog";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
 
@@ -10,11 +10,16 @@ function getLevelTitle(levelId: string) {
 
 export default async function TeacherToolSchemesPage() {
   const user = await requireTeacherUser();
-  const store = await readAppData();
+  let schemes = [] as Awaited<ReturnType<typeof listGeneratedSchemes>>;
 
-  const schemes = store.generatedSchemes
-    .filter((scheme) => scheme.userId === user.id || user.role === "admin")
-    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  try {
+    schemes = (user.role === "admin"
+      ? await listGeneratedSchemes()
+      : await listGeneratedSchemesForUser(user.id)
+    ).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  } catch {
+    schemes = [];
+  }
 
   return (
     <section className="teacher-tools-content">

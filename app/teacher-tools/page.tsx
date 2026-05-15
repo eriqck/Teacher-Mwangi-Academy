@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/lib/auth";
-import { readAppData } from "@/lib/repository";
+import { listGeneratedSchemesForUser } from "@/lib/repository";
 import { teacherLessonPlanPrice, teacherSchemeGenerationPrice } from "@/lib/business";
 
 export default async function TeacherToolsDashboardPage({
@@ -15,10 +15,16 @@ export default async function TeacherToolsDashboardPage({
   const paymentState =
     typeof resolvedSearchParams.payment === "string" ? resolvedSearchParams.payment : null;
   const isTeacherWorkspaceUser = user?.role === "teacher" || user?.role === "admin";
-  const store = isTeacherWorkspaceUser ? await readAppData() : null;
-  const schemeCount = isTeacherWorkspaceUser && user
-    ? store?.generatedSchemes.filter((entry) => entry.userId === user.id).length ?? 0
-    : 0;
+  let schemeCount = 0;
+
+  if (isTeacherWorkspaceUser && user) {
+    try {
+      const schemes = await listGeneratedSchemesForUser(user.id);
+      schemeCount = schemes.length;
+    } catch {
+      schemeCount = 0;
+    }
+  }
 
   if (!isTeacherWorkspaceUser) {
     return (

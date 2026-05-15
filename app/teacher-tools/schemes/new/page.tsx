@@ -2,19 +2,22 @@ import Link from "next/link";
 import { SchemeGeneratorForm } from "@/components/scheme-generator-form";
 import { getCurrentUser } from "@/lib/auth";
 import { teacherSchemeGenerationPrice } from "@/lib/business";
-import { readAppData } from "@/lib/repository";
+import { listGeneratedSchemesForUser } from "@/lib/repository";
 
 export default async function TeacherToolNewSchemePage() {
   const user = await getCurrentUser();
   const canGenerate = user?.role === "teacher" || user?.role === "admin";
   const isAdmin = user?.role === "admin";
-  const store = user ? await readAppData() : null;
-  const firstGenerationFree = Boolean(
-    user &&
-      user.role === "teacher" &&
-      store &&
-      !store.generatedSchemes.some((scheme) => scheme.userId === user.id)
-  );
+  let firstGenerationFree = false;
+
+  if (user?.role === "teacher") {
+    try {
+      const schemes = await listGeneratedSchemesForUser(user.id);
+      firstGenerationFree = schemes.length === 0;
+    } catch {
+      firstGenerationFree = false;
+    }
+  }
 
   return (
     <section className="teacher-tools-content">

@@ -452,6 +452,30 @@ export async function listSchemePurchasesForUser(userId: string) {
   return (data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row));
 }
 
+export async function listGeneratedSchemesForUser(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedSchemes.filter((scheme) => scheme.userId === userId);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("generated_schemes").select("*").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row));
+}
+
+export async function listGeneratedSchemes() {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedSchemes;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("generated_schemes").select("*");
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row));
+}
+
 export async function findUserByEmail(email: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
