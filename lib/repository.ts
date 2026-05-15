@@ -416,6 +416,42 @@ export async function listResources() {
   return (data ?? []).map((row: Record<string, unknown>) => mapResource(row));
 }
 
+export async function listResourcesForLevel(levelTitle: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.resources.filter((resource) => resource.level === levelTitle);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("resources").select("*").eq("level", levelTitle);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapResource(row));
+}
+
+export async function listResourcePurchasesForUser(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.resourcePurchases.filter((purchase) => purchase.userId === userId);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("resource_purchases").select("*").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapResourcePurchase(row));
+}
+
+export async function listSchemePurchasesForUser(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.schemePurchases.filter((purchase) => purchase.userId === userId);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("scheme_purchases").select("*").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapSchemePurchase(row));
+}
+
 export async function findUserByEmail(email: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();

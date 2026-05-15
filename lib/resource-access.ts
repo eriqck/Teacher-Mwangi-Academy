@@ -1,7 +1,12 @@
 import { getCurrentUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
 import { reconcileExpiredSubscriptionsForUser } from "@/lib/payments";
-import { readAppData } from "@/lib/repository";
+import {
+  listResourcePurchasesForUser,
+  listResourcesForLevel,
+  listSchemePurchasesForUser,
+  listSubscriptionsForUser
+} from "@/lib/repository";
 import { getCurrentSubscription, isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 import type { ResourceRecord } from "@/lib/store";
 import { getLevelById } from "@/lib/levels";
@@ -30,11 +35,15 @@ export async function getLevelPageData(levelId: string) {
       await reconcileExpiredSubscriptionsForUser(user.id);
     }
 
-    const store = await readAppData();
-    const resources = store.resources.filter((resource) => resource.level === level.title);
+    const [resources, subscriptions, resourcePurchases, schemePurchases] = await Promise.all([
+      listResourcesForLevel(level.title),
+      user ? listSubscriptionsForUser(user.id) : Promise.resolve([]),
+      user ? listResourcePurchasesForUser(user.id) : Promise.resolve([]),
+      user ? listSchemePurchasesForUser(user.id) : Promise.resolve([])
+    ]);
 
     const activeSubscription = user
-      ? getCurrentSubscription(store.subscriptions.filter((subscription) => subscription.userId === user.id))
+      ? getCurrentSubscription(subscriptions)
       : null;
     const hasTeacherSubscription =
       user?.role === "teacher" &&
@@ -61,7 +70,7 @@ export async function getLevelPageData(levelId: string) {
         hasLevelAccess,
         hasPaidResource:
           !!user &&
-          store.resourcePurchases.some(
+          resourcePurchases.some(
             (purchase) =>
               purchase.userId === user.id &&
               purchase.status === "paid" &&
@@ -69,7 +78,7 @@ export async function getLevelPageData(levelId: string) {
           ),
         hasPaidScheme:
           !!user &&
-          store.schemePurchases.some(
+          schemePurchases.some(
             (purchase) =>
               purchase.userId === user.id &&
               purchase.status === "paid" &&
