@@ -8,9 +8,11 @@ import { assessmentSets } from "@/lib/assessment-sets";
 import { levels } from "@/lib/catalog";
 import { requireUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
+import { reconcileExpiredSubscriptionsForUser } from "@/lib/payments";
 import { listPaymentsForUser, listResources, listSubscriptionsForUser, readAppData } from "@/lib/repository";
 import { schemeTerms } from "@/lib/scheme-terms";
 import { getLatestSiteUpdates } from "@/lib/site-updates";
+import { getCurrentSubscription, getEffectiveSubscriptionStatus } from "@/lib/subscriptions";
 import type { ResourceRecord, SchemeTerm, SubscriptionPlan, UserRole } from "@/lib/store";
 
 function formatMoney(amount: number) {
@@ -78,6 +80,7 @@ export default async function DashboardPage({
   await searchParams;
 
   try {
+    await reconcileExpiredSubscriptionsForUser(user.id);
     const latestUpdates = getLatestSiteUpdates(3);
     let usersById = new Map<string, { fullName: string; email: string; phoneNumber: string }>();
     let subscriptions: Awaited<ReturnType<typeof listSubscriptionsForUser>> = [];
@@ -177,17 +180,19 @@ export default async function DashboardPage({
       subscriptions = subscriptions.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
       payments = payments.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
     }
-    const activeSubscription =
-      subscriptions.find((item) => item.status === "active") ??
-      subscriptions.find((item) => item.status === "pending") ??
-      subscriptions[0];
+    const activeSubscription = getCurrentSubscription(subscriptions);
     const activePlan = getPlanDetails(activeSubscription?.plan);
+    const activeSubscriptionStatus = activeSubscription
+      ? getEffectiveSubscriptionStatus(activeSubscription)
+      : null;
     const accessibleLevels =
       user.role === "admin"
         ? levels
-        : activePlan?.levelAccessMode === "all"
+        : activeSubscriptionStatus === "active" && activePlan?.levelAccessMode === "all"
           ? levels
-          : levels.filter((level) => activeSubscription?.levelAccess?.includes(level.id));
+          : activeSubscriptionStatus === "active"
+            ? levels.filter((level) => activeSubscription?.levelAccess?.includes(level.id))
+            : [];
     const dashboardMaterialLevels = user.role === "admin" ? levels : accessibleLevels;
     const dashboardMaterialLevelTitles = new Set(dashboardMaterialLevels.map((level) => level.title));
     const dashboardMaterialYear = "2026";
@@ -304,7 +309,7 @@ export default async function DashboardPage({
                 </div>
                 <div className="dashboard-stat">
                   <span className="subtle">Status</span>
-                  <span className="pill">{activeSubscription.status}</span>
+                  <span className="pill">{activeSubscriptionStatus ?? activeSubscription.status}</span>
                 </div>
                 <div className="dashboard-stat">
                   <span className="subtle">Amount</span>

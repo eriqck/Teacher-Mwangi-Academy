@@ -373,6 +373,25 @@ export async function listSubscriptionsForUser(userId: string) {
   return (data ?? []).map((row: Record<string, unknown>) => mapSubscription(row));
 }
 
+export async function updateSubscriptionById(
+  subscriptionId: string,
+  changes: Partial<SubscriptionRecord>
+) {
+  if (!isSupabaseConfigured()) {
+    await updateStore((current) => ({
+      ...current,
+      subscriptions: current.subscriptions.map((subscription) =>
+        subscription.id === subscriptionId ? { ...subscription, ...changes } : subscription
+      )
+    }));
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("subscriptions").update(toSubscriptionRow(changes)).eq("id", subscriptionId);
+  if (error) throw new Error(error.message);
+}
+
 export async function listPaymentsForUser(userId: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();

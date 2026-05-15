@@ -1,6 +1,8 @@
 import { getCurrentUser } from "@/lib/auth";
 import { subscriptionPlans } from "@/lib/business";
+import { reconcileExpiredSubscriptionsForUser } from "@/lib/payments";
 import { readAppData } from "@/lib/repository";
+import { getCurrentSubscription, isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 import type { ResourceRecord } from "@/lib/store";
 import { getLevelById } from "@/lib/levels";
 
@@ -22,19 +24,28 @@ export async function getLevelPageData(levelId: string) {
   }
 
   try {
-    const [store, user] = await Promise.all([readAppData(), getCurrentUser()]);
+    const user = await getCurrentUser();
+
+    if (user) {
+      await reconcileExpiredSubscriptionsForUser(user.id);
+    }
+
+    const store = await readAppData();
     const resources = store.resources.filter((resource) => resource.level === level.title);
 
     const activeSubscription = user
-      ? store.subscriptions.find(
-          (subscription) => subscription.userId === user.id && subscription.status === "active"
-        )
+      ? getCurrentSubscription(store.subscriptions.filter((subscription) => subscription.userId === user.id))
       : null;
-    const hasTeacherSubscription = user?.role === "teacher" && activeSubscription?.plan === "teacher-monthly";
+    const hasTeacherSubscription =
+      user?.role === "teacher" &&
+      !!activeSubscription &&
+      isSubscriptionCurrentlyActive(activeSubscription) &&
+      activeSubscription.plan === "teacher-monthly";
     const activeSubscriptionPlan = getPlanDetails(activeSubscription?.plan);
     const hasParentLevelAccess =
       user?.role === "parent" &&
       !!activeSubscription &&
+      isSubscriptionCurrentlyActive(activeSubscription) &&
       (activeSubscriptionPlan?.levelAccessMode === "all" ||
         activeSubscription.levelAccess.includes(level.id));
 

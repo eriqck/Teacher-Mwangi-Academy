@@ -26,13 +26,16 @@ import {
   saveGeneratedSchemeRecord,
   updateGeneratedLessonPlanRequestRecord,
   updateGeneratedSchemeRequestRecord,
+  updateSubscriptionById,
   updateUserRole,
-  updatePaymentById
+  updatePaymentById,
+  listSubscriptionsForUser
 } from "@/lib/repository";
 import { buildGeneratedLessonPlan } from "@/lib/lesson-plan-generator";
 import { buildSchemeNoteContext } from "@/lib/scheme-note-context";
 import { buildGeneratedScheme } from "@/lib/scheme-generator";
 import { schemeTerms } from "@/lib/scheme-terms";
+import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 
 function addDays(days: number) {
   const now = new Date();
@@ -726,6 +729,21 @@ export async function reconcilePaidPaystackPaymentsForUser(userId: string) {
   }
 }
 
+export async function reconcileExpiredSubscriptionsForUser(userId: string) {
+  const subscriptions = await listSubscriptionsForUser(userId);
+  const now = Date.now();
+  const updatedAt = new Date(now).toISOString();
+
+  for (const subscription of subscriptions) {
+    if (subscription.status === "active" && !isSubscriptionCurrentlyActive(subscription, now)) {
+      await updateSubscriptionById(subscription.id, {
+        status: "expired",
+        updatedAt
+      });
+    }
+  }
+}
+
 export async function manuallyGrantSubscriptionAccess(subscriptionId: string) {
   const store = await readAppData();
   const subscription = store.subscriptions.find((entry) => entry.id === subscriptionId);
@@ -734,7 +752,7 @@ export async function manuallyGrantSubscriptionAccess(subscriptionId: string) {
     throw new Error("Subscription not found.");
   }
 
-  if (subscription.status === "active") {
+  if (isSubscriptionCurrentlyActive(subscription)) {
     return subscription;
   }
 
