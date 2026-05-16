@@ -17,6 +17,22 @@ function isSchemeTerm(value: string): value is "term-1" | "term-2" | "term-3" {
   return value === "term-1" || value === "term-2" || value === "term-3";
 }
 
+function getSchemeGenerationErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : "Unable to generate scheme.";
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes("generated_schemes") ||
+    normalized.includes("generated_scheme_requests") ||
+    normalized.includes("payments_kind_check") ||
+    normalized.includes("violates check constraint")
+  ) {
+    return "Scheme generation is not fully enabled in Supabase yet. Run the generated-schemes SQL migrations first, then try again.";
+  }
+
+  return message;
+}
+
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
@@ -211,7 +227,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Unable to generate scheme."
+        error: getSchemeGenerationErrorMessage(error)
       },
       { status: 500 }
     );

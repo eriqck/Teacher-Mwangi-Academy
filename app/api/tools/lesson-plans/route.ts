@@ -24,6 +24,22 @@ function resolveLessonPlanTerm(value: string): SchemeTerm {
   return matched?.id ?? "term-1";
 }
 
+function getLessonPlanGenerationErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : "Unable to generate lesson plan.";
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes("generated_lesson_plans") ||
+    normalized.includes("generated_lesson_plan_requests") ||
+    normalized.includes("payments_kind_check") ||
+    normalized.includes("violates check constraint")
+  ) {
+    return "Lesson-plan generation is not fully enabled in Supabase yet. Run the generated lesson-plan SQL migrations first, then try again.";
+  }
+
+  return message;
+}
+
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
@@ -195,7 +211,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Unable to generate lesson plan."
+        error: getLessonPlanGenerationErrorMessage(error)
       },
       { status: 500 }
     );
