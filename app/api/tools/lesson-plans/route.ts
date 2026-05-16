@@ -7,7 +7,8 @@ import { createPendingLessonPlanGenerationPayment } from "@/lib/payments";
 import { buildSchemeNoteContext } from "@/lib/scheme-note-context";
 import { schemeTerms } from "@/lib/scheme-terms";
 import {
-  readAppData,
+  listGeneratedLessonPlansForUser,
+  listResources,
   saveGeneratedLessonPlanRecord,
   saveGeneratedLessonPlanRequestRecord,
   savePaymentRecord
@@ -79,16 +80,32 @@ export async function POST(request: Request) {
       tscNumber
     };
 
-    const store = await readAppData();
     const levelTitle = levels.find((entry) => entry.id === level)?.title ?? level;
-    const sourceNoteContext = await buildSchemeNoteContext({
-      resources: store.resources,
-      levelTitle,
-      subject,
-      term: resolveLessonPlanTerm(term)
-    });
-    const firstGenerationFree =
-      user.role === "teacher" && !store.generatedLessonPlans.some((plan) => plan.userId === user.id);
+    let sourceNoteContext = undefined;
+
+    try {
+      const resources = await listResources();
+      sourceNoteContext = await buildSchemeNoteContext({
+        resources,
+        levelTitle,
+        subject,
+        term: resolveLessonPlanTerm(term)
+      });
+    } catch {
+      sourceNoteContext = undefined;
+    }
+
+    let firstGenerationFree = false;
+
+    if (user.role === "teacher") {
+      try {
+        const generatedLessonPlans = await listGeneratedLessonPlansForUser(user.id);
+        firstGenerationFree = generatedLessonPlans.length === 0;
+      } catch {
+        firstGenerationFree = false;
+      }
+    }
+
     const canGenerateWithoutPayment = user.role === "admin" || firstGenerationFree;
 
     if (canGenerateWithoutPayment) {

@@ -5,7 +5,8 @@ import { createPendingSchemeGenerationPayment } from "@/lib/payments";
 import { buildSchemeNoteContext } from "@/lib/scheme-note-context";
 import { buildGeneratedScheme, normalizeLineList } from "@/lib/scheme-generator";
 import {
-  readAppData,
+  listGeneratedSchemesForUser,
+  listResources,
   saveGeneratedSchemeRecord,
   saveGeneratedSchemeRequestRecord,
   savePaymentRecord
@@ -98,16 +99,32 @@ export async function POST(request: Request) {
       notes
     };
 
-    const store = await readAppData();
     const levelTitle = levels.find((entry) => entry.id === level)?.title ?? level;
-    const sourceNoteContext = await buildSchemeNoteContext({
-      resources: store.resources,
-      levelTitle,
-      subject,
-      term
-    });
-    const firstGenerationFree =
-      user.role === "teacher" && !store.generatedSchemes.some((scheme) => scheme.userId === user.id);
+    let sourceNoteContext = undefined;
+
+    try {
+      const resources = await listResources();
+      sourceNoteContext = await buildSchemeNoteContext({
+        resources,
+        levelTitle,
+        subject,
+        term
+      });
+    } catch {
+      sourceNoteContext = undefined;
+    }
+
+    let firstGenerationFree = false;
+
+    if (user.role === "teacher") {
+      try {
+        const generatedSchemes = await listGeneratedSchemesForUser(user.id);
+        firstGenerationFree = generatedSchemes.length === 0;
+      } catch {
+        firstGenerationFree = false;
+      }
+    }
+
     const canGenerateWithoutPayment = user.role === "admin" || firstGenerationFree;
 
     if (canGenerateWithoutPayment) {

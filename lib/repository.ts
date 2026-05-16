@@ -476,6 +476,18 @@ export async function listGeneratedSchemes() {
   return (data ?? []).map((row: Record<string, unknown>) => mapGeneratedScheme(row));
 }
 
+export async function listGeneratedLessonPlansForUser(userId: string) {
+  if (!isSupabaseConfigured()) {
+    const store = await readStore();
+    return store.generatedLessonPlans.filter((plan) => plan.userId === userId);
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("generated_lesson_plans").select("*").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row: Record<string, unknown>) => mapGeneratedLessonPlan(row));
+}
+
 export async function findUserByEmail(email: string) {
   if (!isSupabaseConfigured()) {
     const store = await readStore();
