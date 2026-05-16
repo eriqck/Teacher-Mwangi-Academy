@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { assessmentSets } from "@/lib/assessment-sets";
+import { AdminResourceManager } from "@/components/admin-resource-manager";
 import { SiteHeader } from "@/components/site-header";
 import { teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
@@ -72,6 +73,7 @@ export default async function LevelPage({
   const assessments = resources.filter(
     (resource) => resource.category === "revision-material" && resource.section === "assessment"
   );
+  const adminManageableResources = resources.filter((resource) => resource.category === "revision-material");
   const revisionMaterials = [...notes, ...assessments];
   const materialYears = Array.from(new Set(revisionMaterials.map((resource) => getResourceYear(resource)))).sort(
     (left, right) => right.localeCompare(left)
@@ -286,15 +288,15 @@ export default async function LevelPage({
 
                       <div className="material-browser-groups">
                         {group.notes.length > 0 ? (
-                          <section className="material-browser-group">
-                            <div className="material-browser-group-head">
+                          <details className="material-browser-group" open>
+                            <summary className="material-browser-group-head">
                               <h4>Notes</h4>
                               <span className="pill">{group.notes.length}</span>
-                            </div>
+                            </summary>
                             <ul className="material-link-list">
                               {group.notes.map((resource) => renderRevisionResourceLink(resource, "Notes"))}
                             </ul>
-                          </section>
+                          </details>
                         ) : null}
 
                         {group.setGroups.length > 0 ? (
@@ -302,18 +304,22 @@ export default async function LevelPage({
                             <div className="material-browser-section-title">
                               <h4>Assessments</h4>
                             </div>
-                            {group.setGroups.map((assessmentSet) => (
-                              <section key={assessmentSet.id} className="material-browser-group">
-                                <div className="material-browser-group-head">
+                            {group.setGroups.map((assessmentSet, assessmentIndex) => (
+                              <details
+                                key={assessmentSet.id}
+                                className="material-browser-group"
+                                open={assessmentIndex === 0}
+                              >
+                                <summary className="material-browser-group-head">
                                   <h4>{assessmentSet.label}</h4>
                                   <span className="pill">{assessmentSet.resources.length}</span>
-                                </div>
+                                </summary>
                                 <ul className="material-link-list">
                                   {assessmentSet.resources.map((resource) =>
                                     renderRevisionResourceLink(resource, assessmentSet.label)
                                   )}
                                 </ul>
-                              </section>
+                              </details>
                             ))}
                           </section>
                         ) : null}
@@ -333,6 +339,20 @@ export default async function LevelPage({
           </article>
         )}
       </section>
+
+      {user?.role === "admin" ? (
+        <section className="page-shell section">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Admin tools</span>
+              <h2>Manage {level.title} notes and assessments.</h2>
+            </div>
+            <p>Update, reorganize, or delete uploaded notes and assessments for this level directly from here.</p>
+          </div>
+
+          <AdminResourceManager initialResources={adminManageableResources} />
+        </section>
+      ) : null}
 
     </main>
   );
