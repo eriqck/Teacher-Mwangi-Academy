@@ -874,6 +874,45 @@ main {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
+.material-link-item--managed {
+  display: grid;
+  gap: 12px;
+}
+
+.material-link-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.material-link-row .material-file-link {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.material-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.material-inline-button {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.86rem;
+}
+
+.material-inline-editor {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(19, 42, 28, 0.08);
+  background: rgba(255, 255, 255, 0.66);
+}
+
 .admin-table-wrap {
   overflow-x: auto;
   border-radius: 22px;
@@ -4370,5 +4409,15 @@ main {
   .home-brand {
     justify-content: center;
     text-align: center;
+  }
+
+  .material-link-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .material-inline-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }

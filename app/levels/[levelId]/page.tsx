@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { assessmentSets } from "@/lib/assessment-sets";
-import { AdminResourceManager } from "@/components/admin-resource-manager";
+import { LevelResourceItem } from "@/components/level-resource-item";
 import { SiteHeader } from "@/components/site-header";
 import { teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
@@ -73,7 +73,6 @@ export default async function LevelPage({
   const assessments = resources.filter(
     (resource) => resource.category === "revision-material" && resource.section === "assessment"
   );
-  const adminManageableResources = resources.filter((resource) => resource.category === "revision-material");
   const revisionMaterials = [...notes, ...assessments];
   const materialYears = Array.from(new Set(revisionMaterials.map((resource) => getResourceYear(resource)))).sort(
     (left, right) => right.localeCompare(left)
@@ -111,53 +110,15 @@ export default async function LevelPage({
     resource: (typeof resources)[number],
     label: string
   ) => {
-    const linkText = resource.fileName || resource.title;
-    const meta = `${resource.subject} - ${label}`;
-
-    if (resource.canOpen) {
-      return (
-        <li key={resource.id} className="material-link-item">
-          <a
-            href={resource.fileUrl}
-            className="material-file-link"
-            download={resource.fileName}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span className="material-file-badge">PDF</span>
-            <span>
-              <strong>{linkText}</strong>
-              <small>{meta}</small>
-            </span>
-          </a>
-        </li>
-      );
-    }
-
-    if (resource.canPurchase) {
-      return (
-        <li key={resource.id} className="material-link-item">
-          <Link href={`/purchases/materials/${resource.id}`} className="material-file-link material-file-link--locked">
-            <span className="material-file-badge material-file-badge--buy">BUY</span>
-            <span>
-              <strong>{linkText}</strong>
-              <small>{meta} - KSh {teacherMaterialPrice}</small>
-            </span>
-          </Link>
-        </li>
-      );
-    }
-
     return (
-      <li key={resource.id} className="material-link-item">
-        <Link href={user ? "/subscribe" : "/login"} className="material-file-link material-file-link--locked">
-          <span className="material-file-badge material-file-badge--lock">LOCK</span>
-          <span>
-            <strong>{linkText}</strong>
-            <small>{user ? "Subscribe to unlock download" : "Sign in to unlock download"}</small>
-          </span>
-        </Link>
-      </li>
+      <LevelResourceItem
+        key={resource.id}
+        resource={resource}
+        label={label}
+        isAdmin={user?.role === "admin"}
+        teacherMaterialPrice={teacherMaterialPrice}
+        loginHref={user ? "/subscribe" : "/login"}
+      />
     );
   };
 
@@ -339,20 +300,6 @@ export default async function LevelPage({
           </article>
         )}
       </section>
-
-      {user?.role === "admin" ? (
-        <section className="page-shell section">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Admin tools</span>
-              <h2>Manage {level.title} notes and assessments.</h2>
-            </div>
-            <p>Update, reorganize, or delete uploaded notes and assessments for this level directly from here.</p>
-          </div>
-
-          <AdminResourceManager initialResources={adminManageableResources} />
-        </section>
-      ) : null}
 
     </main>
   );
