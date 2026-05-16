@@ -1,7 +1,5 @@
 import { promises as fs } from "fs";
 import path from "path";
-import JSZip from "jszip";
-import { PDFParse } from "pdf-parse";
 import type { ResourceRecord, SchemeTerm } from "@/lib/store";
 
 export type SchemeSourceFormatStyle = "rationalized" | "mentor";
@@ -99,6 +97,13 @@ function isLikelyLearningSnippet(snippet: string) {
 }
 
 async function extractDocxText(buffer: Buffer) {
+  const jszipModule = await import("jszip").catch(() => null);
+  const JSZip = jszipModule?.default;
+
+  if (!JSZip) {
+    return "";
+  }
+
   const zip = await JSZip.loadAsync(buffer);
   const documentXml = await zip.file("word/document.xml")?.async("string");
 
@@ -110,18 +115,26 @@ async function extractDocxText(buffer: Buffer) {
 }
 
 async function extractPdfText(buffer: Buffer) {
-  const parser = new PDFParse({ data: buffer });
-
   try {
+    const pdfParseModule = await import("pdf-parse").catch(() => null);
+    const PDFParse = pdfParseModule?.PDFParse;
+
+    if (!PDFParse) {
+      return "";
+    }
+
+    const parser = new PDFParse({ data: buffer });
     const parsed = await parser.getText().catch(() => null);
+
+    await parser.destroy().catch(() => undefined);
 
     if (!parsed?.text) {
       return "";
     }
 
     return normalizeWhitespace(parsed.text);
-  } finally {
-    await parser.destroy().catch(() => undefined);
+  } catch {
+    return "";
   }
 }
 
