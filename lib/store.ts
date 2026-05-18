@@ -214,6 +214,8 @@ export type GeneratedLessonPlanRequestPayload = {
   unitTitle: string;
   subStrands: string[];
   selectedCount: number;
+  weekNumber?: string;
+  lessonNumber?: string;
   schoolName?: string;
   roll?: string;
   lessonTime?: string;

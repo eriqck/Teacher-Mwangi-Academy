@@ -60,6 +60,8 @@ export async function POST(request: Request) {
     const lessonTime = typeof body.lessonTime === "string" ? body.lessonTime.trim() : "";
     const year = typeof body.year === "string" ? body.year.trim() : "";
     const term = typeof body.term === "string" ? body.term.trim() : "";
+    const weekNumber = typeof body.weekNumber === "string" ? body.weekNumber.trim() : "";
+    const lessonNumber = typeof body.lessonNumber === "string" ? body.lessonNumber.trim() : "";
     const lessonDate = typeof body.lessonDate === "string" ? body.lessonDate.trim() : "";
     const teacherName = typeof body.teacherName === "string" ? body.teacherName.trim() : "";
     const tscNumber = typeof body.tscNumber === "string" ? body.tscNumber.trim() : "";
@@ -86,6 +88,8 @@ export async function POST(request: Request) {
       unitTitle,
       subStrands,
       selectedCount: subStrands.length,
+      weekNumber,
+      lessonNumber,
       schoolName,
       roll,
       lessonTime,

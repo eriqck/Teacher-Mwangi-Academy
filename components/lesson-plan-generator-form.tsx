@@ -30,6 +30,8 @@ type LessonPlanMeta = {
   lessonTime: string;
   year: string;
   term: string;
+  weekNumber: string;
+  lessonNumber: string;
   lessonDate: string;
   teacherName: string;
   tscNumber: string;
@@ -43,6 +45,8 @@ const initialMeta: LessonPlanMeta = {
   lessonTime: "",
   year: `${new Date().getFullYear()}`,
   term: "",
+  weekNumber: "1",
+  lessonNumber: "1",
   lessonDate: today,
   teacherName: "",
   tscNumber: ""
@@ -204,6 +208,8 @@ export function LessonPlanGeneratorForm({
         subject,
         unitTitle: selectedUnitTitle,
         subStrands: selectedSubStrands,
+        weekNumber: meta.weekNumber.trim(),
+        lessonNumber: meta.lessonNumber.trim(),
         schoolName: meta.schoolName.trim(),
         roll: meta.roll.trim(),
         lessonTime: meta.lessonTime.trim(),
@@ -350,6 +356,24 @@ export function LessonPlanGeneratorForm({
               type="date"
               value={meta.lessonDate}
               onChange={(event) => updateMeta("lessonDate", event.target.value)}
+            />
+          </label>
+
+          <label className="field">
+            <span>Week Number</span>
+            <input
+              value={meta.weekNumber}
+              onChange={(event) => updateMeta("weekNumber", event.target.value)}
+              placeholder="Eg. 1"
+            />
+          </label>
+
+          <label className="field">
+            <span>Lesson Number</span>
+            <input
+              value={meta.lessonNumber}
+              onChange={(event) => updateMeta("lessonNumber", event.target.value)}
+              placeholder="Eg. 1"
             />
           </label>
 

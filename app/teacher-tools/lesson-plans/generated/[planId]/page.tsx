@@ -3,6 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { PrintSchemeButton } from "@/components/print-scheme-button";
 import { requireTeacherUser } from "@/lib/auth";
 import { levels } from "@/lib/catalog";
+import {
+  getLessonPlanCompetencyBundle,
+  getLessonPlanConclusion,
+  getLessonPlanIntroduction
+} from "@/lib/lesson-plan-generator";
 import { readAppData } from "@/lib/repository";
 import { schemeTerms } from "@/lib/scheme-terms";
 
@@ -33,6 +38,11 @@ function formatTerm(value: string | undefined) {
   return schemeTerms.find((term) => term.id === value || term.label === value)?.label ?? value;
 }
 
+function sanitizeNumber(value: string | undefined, fallback: string) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : fallback;
+}
+
 export default async function TeacherToolGeneratedLessonPlanDetailPage({
   params
 }: {
@@ -58,9 +68,34 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
   const levelTitle = getLevelTitle(lessonPlan.level);
   const metadata = sourceRequest?.payload;
   const subStrand = lessonPlan.subStrands[0] ?? lessonPlan.unitTitle;
-  const lessonSteps = lessonPlan.learnerActivities.length > 0
-    ? lessonPlan.learnerActivities
-    : [`Guide learners through ${subStrand.toLowerCase()} using discussion, practice, and feedback.`];
+  const weekNumber = sanitizeNumber(metadata?.weekNumber, "1");
+  const lessonNumber = sanitizeNumber(metadata?.lessonNumber, "1");
+  const lessonSteps =
+    lessonPlan.learnerActivities.length > 0
+      ? lessonPlan.learnerActivities
+      : [`Guide learners through ${subStrand.toLowerCase()} using discussion, practice, and feedback.`];
+  const competencyBundle = getLessonPlanCompetencyBundle(lessonPlan.subject, subStrand);
+  const introduction = getLessonPlanIntroduction(
+    lessonPlan.subject,
+    lessonPlan.unitTitle,
+    subStrand,
+    lessonPlan.learningObjectives[0] ?? `understand ${subStrand}`
+  );
+  const conclusion = getLessonPlanConclusion(
+    lessonPlan.subject,
+    subStrand,
+    lessonPlan.learningObjectives,
+    lessonPlan.assessmentMethods
+  );
+  const learningArea = lessonPlan.subject;
+  const schoolName = metadata?.schoolName || "........................";
+  const roll = metadata?.roll || "........................";
+  const lessonTime = metadata?.lessonTime || "........................";
+  const lessonDate = metadata?.lessonDate ? formatDate(metadata.lessonDate) : "........................";
+  const yearValue = metadata?.year || new Date(lessonPlan.createdAt).getFullYear().toString();
+  const teacherName = metadata?.teacherName || user.fullName || "........................";
+  const tscNumber = metadata?.tscNumber || "........................";
+  const planHeading = `${levelTitle.toUpperCase()} ${lessonPlan.subject.toUpperCase()} LESSON PLAN: Week ${weekNumber}, Lesson ${lessonNumber}`;
 
   return (
     <section className="teacher-tools-content">
@@ -79,20 +114,44 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
 
       <article className="teacher-tools-card generated-scheme-sheet generated-lesson-plan-sheet">
         <div className="generated-lesson-title">
-          <h3>Lesson Plan</h3>
+          <h3>{planHeading}</h3>
         </div>
 
-        <div className="generated-lesson-meta-grid">
-          <div><span>School:</span><strong>{metadata?.schoolName || "Not specified"}</strong></div>
-          <div><span>Roll:</span><strong>{metadata?.roll || "Not specified"}</strong></div>
-          <div><span>Subject:</span><strong>{lessonPlan.subject}</strong></div>
-          <div><span>Time:</span><strong>{metadata?.lessonTime || "Not specified"}</strong></div>
-          <div><span>Year:</span><strong>{metadata?.year || new Date(lessonPlan.createdAt).getFullYear()}</strong></div>
-          <div><span>Grade:</span><strong>{levelTitle}</strong></div>
-          <div><span>Term:</span><strong>{formatTerm(metadata?.term)}</strong></div>
-          <div><span>Date:</span><strong>{metadata?.lessonDate ? formatDate(metadata.lessonDate) : formatDate(lessonPlan.createdAt)}</strong></div>
-          <div><span>Teacher's Name:</span><strong>{metadata?.teacherName || user.fullName}</strong></div>
-          <div><span>TSC No:</span><strong>{metadata?.tscNumber || "Not specified"}</strong></div>
+        <div className="generated-lesson-meta-banner">
+          <p>{`${levelTitle} ${lessonPlan.subject}`}</p>
+          <strong>{`WEEK ${weekNumber}: LESSON ${lessonNumber}`}</strong>
+        </div>
+
+        <div className="generated-scheme-meta-table-wrap">
+          <table className="generated-scheme-meta-table generated-lesson-meta-table">
+            <thead>
+              <tr>
+                <th>SCHOOL</th>
+                <th>LEVEL</th>
+                <th>LEARNING AREA</th>
+                <th>DATE</th>
+                <th>TIME</th>
+                <th>ROLL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{schoolName}</td>
+                <td>{levelTitle}</td>
+                <td>{learningArea}</td>
+                <td>{lessonDate}</td>
+                <td>{lessonTime}</td>
+                <td>{roll}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="generated-scheme-meta-strip generated-lesson-meta-strip">
+          <span><strong>Year:</strong> {yearValue}</span>
+          <span><strong>Term:</strong> {formatTerm(metadata?.term)}</span>
+          <span><strong>Teacher&apos;s Name:</strong> {teacherName}</span>
+          <span><strong>TSC No:</strong> {tscNumber}</span>
         </div>
 
         <div className="generated-lesson-block">
@@ -106,7 +165,7 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
 
         <div className="generated-lesson-block">
-          <h4>Lesson Learning Outcomes</h4>
+          <h4>Specific Learning Outcomes</h4>
           <p>By the end of the lesson, the learner should be able to:</p>
           <ol>
             {lessonPlan.learningObjectives.map((item) => (
@@ -116,7 +175,7 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
 
         <div className="generated-lesson-block">
-          <h4>KIQ</h4>
+          <h4>Key Inquiry Question(s)</h4>
           <ol>
             {lessonPlan.keyQuestions.map((item) => (
               <li key={item}>{item}</li>
@@ -125,30 +184,73 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
 
         <div className="generated-lesson-block">
+          <h4>Core Competencies, Values, and PCIs</h4>
+          <div className="generated-scheme-meta-table-wrap">
+            <table className="generated-scheme-meta-table generated-lesson-cvpi-table">
+              <thead>
+                <tr>
+                  <th>Core Competencies</th>
+                  <th>Values</th>
+                  <th>PCIs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({
+                  length: Math.max(
+                    competencyBundle.coreCompetencies.length,
+                    competencyBundle.values.length,
+                    competencyBundle.pcis.length
+                  )
+                }).map((_, index) => (
+                  <tr key={`cvpi-${index}`}>
+                    <td>{competencyBundle.coreCompetencies[index] ?? ""}</td>
+                    <td>{competencyBundle.values[index] ?? ""}</td>
+                    <td>{competencyBundle.pcis[index] ?? ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="generated-lesson-block">
           <h4>Learning Resources</h4>
           <p>{lessonPlan.resources.join(", ")}</p>
         </div>
 
         <div className="generated-lesson-block">
+          <h4>Organization of Learning</h4>
+          <div className="generated-lesson-organization">
+            <div className="generated-lesson-stage">
+              <h5>Introduction (5 minutes)</h5>
+              <p>{introduction}</p>
+            </div>
+
+            <div className="generated-lesson-stage">
+              <h5>Lesson Development (25 minutes)</h5>
+              <div className="generated-lesson-steps">
+                {lessonSteps.map((item, index) => (
+                  <div key={`${index}-${item}`}>
+                    <strong>Step {index + 1}:</strong>
+                    <p>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="generated-lesson-stage">
+              <h5>Conclusion (10 minutes)</h5>
+              <p>{conclusion}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="generated-lesson-block">
           <h4>Assessment Methods</h4>
-          <ul>
-            {lessonPlan.assessmentMethods.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="generated-lesson-block">
-          <h4>Introduction (5 mins)</h4>
-          <p>{lessonSteps[0]}</p>
-        </div>
-
-        <div className="generated-lesson-block">
-          <h4>Lesson Development</h4>
           <div className="generated-lesson-steps">
-            {lessonSteps.map((item, index) => (
+            {lessonPlan.assessmentMethods.map((item, index) => (
               <div key={`${index}-${item}`}>
-                <strong>Step {index + 1}</strong>
+                <strong>Method {index + 1}:</strong>
                 <p>{item}</p>
               </div>
             ))}
@@ -156,13 +258,13 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
         </div>
 
         <div className="generated-lesson-block">
-          <h4>Conclusion</h4>
-          <p>{lessonPlan.reflection}</p>
+          <h4>Extended Activities</h4>
+          <p>{lessonPlan.homework}</p>
         </div>
 
         <div className="generated-lesson-block">
-          <h4>Extended Activities</h4>
-          <p>{lessonPlan.homework}</p>
+          <h4>Teacher Self-Evaluation</h4>
+          <p>{lessonPlan.reflection}</p>
         </div>
       </article>
     </section>
