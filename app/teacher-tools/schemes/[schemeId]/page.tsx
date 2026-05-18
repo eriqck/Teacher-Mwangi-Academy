@@ -50,6 +50,7 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
   const levelTitle = getLevelTitle(scheme.level);
   const formatStyle = getSchemeFormatStyle(referenceBook, scheme.subject, scheme.notes);
   const tableHeaders = getSchemeTableHeaders(formatStyle);
+  const breakSummary = getSchemeNoteValue(scheme.notes, "Breaks") || "No breaks recorded for this term.";
   const documentHeading = getSchemeDisplayHeading({
     style: formatStyle,
     year: schemeYear,
@@ -70,7 +71,7 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
           <Link href="/teacher-tools/schemes" className="button-secondary">
             Back to My Schemes
           </Link>
-          <PrintSchemeButton />
+          <PrintSchemeButton downloadUrl={`/api/tools/schemes/${scheme.id}/word`} />
         </div>
       </div>
 
@@ -109,6 +110,13 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
               </table>
             </div>
           )}
+        </div>
+
+        <div className="generated-scheme-overview">
+          <div>
+            <h4>Breaks and Holidays</h4>
+            <p>{breakSummary}</p>
+          </div>
         </div>
 
         <div className="generated-scheme-table-wrap">

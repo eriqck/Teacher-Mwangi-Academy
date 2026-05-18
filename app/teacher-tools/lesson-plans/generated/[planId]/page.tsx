@@ -108,7 +108,7 @@ export default async function TeacherToolGeneratedLessonPlanDetailPage({
           <Link href="/teacher-tools/lesson-plans" className="button-secondary">
             Back to Lesson Plans
           </Link>
-          <PrintSchemeButton />
+          <PrintSchemeButton downloadUrl={`/api/tools/lesson-plans/${lessonPlan.id}/word`} />
         </div>
       </div>
 

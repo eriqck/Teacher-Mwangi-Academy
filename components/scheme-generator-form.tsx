@@ -20,7 +20,7 @@ type WizardStep = 1 | 2 | 3 | 4;
 type BreakItem = {
   id: string;
   title: string;
-  durationWeeks: string;
+  durationDays: string;
   week: number;
   lesson: number;
   resumeWeek: number;
@@ -64,7 +64,7 @@ const initialState: SchemeGeneratorFormState = {
     {
       id: "break-1",
       title: "",
-      durationWeeks: "",
+      durationDays: "",
       week: 5,
       lesson: 4,
       resumeWeek: 6,
@@ -387,7 +387,7 @@ export function SchemeGeneratorForm({
 
   function updateBreakItem(
     id: string,
-    key: "title" | "durationWeeks" | "week" | "lesson" | "resumeWeek" | "resumeLesson",
+    key: "title" | "durationDays" | "week" | "lesson" | "resumeWeek" | "resumeLesson",
     value: string | number
   ) {
     setPendingAuthResume(false);
@@ -406,7 +406,7 @@ export function SchemeGeneratorForm({
         {
           id: makeBreakId(current.breaks.length + 1),
           title: "",
-          durationWeeks: "",
+          durationDays: "",
           week: 5,
           lesson: Math.min(4, current.lessonsPerWeek),
           resumeWeek: 6,
@@ -425,7 +425,7 @@ export function SchemeGeneratorForm({
             {
               id: makeBreakId(1),
               title: "",
-              durationWeeks: "",
+              durationDays: "",
               week: 5,
               lesson: Math.min(4, current.lessonsPerWeek),
               resumeWeek: 6,
@@ -475,7 +475,7 @@ export function SchemeGeneratorForm({
       const hasInvalidBreak = formState.breaks.some(
         (item) =>
           !item.title.trim() ||
-          !item.durationWeeks ||
+          !item.durationDays ||
           item.week < 1 ||
           item.lesson < 1 ||
           item.lesson > formState.lessonsPerWeek ||
@@ -514,10 +514,10 @@ export function SchemeGeneratorForm({
     const breakSummary = formState.noBreaks
       ? "No breaks recorded for this term."
       : (() => {
-          const entries = formState.breaks
-            .filter((item) => item.title.trim() && item.durationWeeks)
+      const entries = formState.breaks
+            .filter((item) => item.title.trim() && item.durationDays)
             .map((item) =>
-              `${item.title.trim()} starts week ${item.week}, lesson ${item.lesson}; resumes week ${item.resumeWeek}, lesson ${item.resumeLesson} (${item.durationWeeks} week${item.durationWeeks === "1" ? "" : "s"})`
+              `${item.title.trim()} starts week ${item.week}, lesson ${item.lesson}; resumes week ${item.resumeWeek}, lesson ${item.resumeLesson} (${item.durationDays} day${item.durationDays === "1" ? "" : "s"})`
             );
 
           return entries.length > 0 ? entries.join("; ") : "No breaks recorded for this term.";
@@ -1038,11 +1038,11 @@ export function SchemeGeneratorForm({
 
                   <div className="scheme-wizard-grid">
                     <label className="field">
-                      <span>Title of Break/Interruption</span>
+                      <span>Title of Midterm / Holiday / Interruption</span>
                       <input
                         value={item.title}
                         onChange={(event) => updateBreakItem(item.id, "title", event.target.value)}
-                        placeholder="Eg. Midterm Break, Exams, Reporting, Revision"
+                        placeholder="Eg. Midterm Break, Madaraka Day, Exams, Reporting"
                       />
                     </label>
 
@@ -1103,17 +1103,14 @@ export function SchemeGeneratorForm({
                     </label>
 
                     <label className="field">
-                      <span>How long does the break span? *</span>
-                      <select
-                        value={item.durationWeeks}
-                        onChange={(event) => updateBreakItem(item.id, "durationWeeks", event.target.value)}
-                      >
-                        <option value="">--- Select ---</option>
-                        <option value="1">1 week</option>
-                        <option value="2">2 weeks</option>
-                        <option value="3">3 weeks</option>
-                        <option value="4">4 weeks</option>
-                      </select>
+                      <span>How many days does it take? *</span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.durationDays}
+                        onChange={(event) => updateBreakItem(item.id, "durationDays", event.target.value)}
+                        placeholder="Eg. 3"
+                      />
                     </label>
                   </div>
                 </article>
