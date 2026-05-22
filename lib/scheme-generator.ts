@@ -30,6 +30,14 @@ export type SchemeGenerationInput = {
 };
 
 export type SchemeFormatStyle = "rationalized" | "mentor";
+export type SchemeBreakEntry = {
+  title: string;
+  week: number;
+  lesson: number;
+  resumeWeek: number;
+  resumeLesson: number;
+  durationDays: number | null;
+};
 
 type SchemePlanningNotes = {
   academicYear: string;
@@ -115,6 +123,48 @@ export function getSchemeNoteValue(notes: string, label: string) {
     .find((entry) => entry.toLowerCase().startsWith(`${label.toLowerCase()}:`));
 
   return line?.split(":").slice(1).join(":").trim() || "";
+}
+
+export function parseSchemeBreakEntries(notes: string): SchemeBreakEntry[] {
+  const lines = notes.split(/\r?\n/);
+  const explicitEntries = lines
+    .filter((line) => line.toLowerCase().startsWith("break entry:"))
+    .map((line) => line.split(":").slice(1).join(":").trim())
+    .map((value) => value.split("|").map((part) => part.trim()))
+    .map((parts) => ({
+      title: parts[0] || "",
+      week: parseNumber(parts[1] || "", 0),
+      lesson: parseNumber(parts[2] || "", 0),
+      resumeWeek: parseNumber(parts[3] || "", 0),
+      resumeLesson: parseNumber(parts[4] || "", 0),
+      durationDays: parts[5] ? parseNumber(parts[5], 0) : null
+    }))
+    .filter((entry) => entry.title && entry.week > 0 && entry.lesson > 0);
+
+  if (explicitEntries.length > 0) {
+    return explicitEntries;
+  }
+
+  const summary = getSchemeNoteValue(notes, "Breaks");
+
+  if (!summary) {
+    return [];
+  }
+
+  const matches = Array.from(
+    summary.matchAll(
+      /(.+?) starts week (\d+), lesson (\d+); resumes week (\d+), lesson (\d+) \((\d+) day(?:s)?\)/gi
+    )
+  );
+
+  return matches.map((match) => ({
+    title: match[1].trim(),
+    week: parseNumber(match[2], 0),
+    lesson: parseNumber(match[3], 0),
+    resumeWeek: parseNumber(match[4], 0),
+    resumeLesson: parseNumber(match[5], 0),
+    durationDays: parseNumber(match[6], 0)
+  }));
 }
 
 function normalizeSentence(value: string, fallback: string) {

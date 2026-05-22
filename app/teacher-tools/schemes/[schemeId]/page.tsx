@@ -8,6 +8,7 @@ import {
   getSchemeDisplayHeading,
   getSchemeFormatStyle,
   getSchemeNoteValue,
+  parseSchemeBreakEntries,
   getSchemeTableHeaders
 } from "@/lib/scheme-generator";
 import { getSchemeTermLabel } from "@/lib/scheme-terms";
@@ -50,7 +51,7 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
   const levelTitle = getLevelTitle(scheme.level);
   const formatStyle = getSchemeFormatStyle(referenceBook, scheme.subject, scheme.notes);
   const tableHeaders = getSchemeTableHeaders(formatStyle);
-  const breakSummary = getSchemeNoteValue(scheme.notes, "Breaks") || "No breaks recorded for this term.";
+  const breakEntries = parseSchemeBreakEntries(scheme.notes);
   const documentHeading = getSchemeDisplayHeading({
     style: formatStyle,
     year: schemeYear,
@@ -112,13 +113,6 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
           )}
         </div>
 
-        <div className="generated-scheme-overview">
-          <div>
-            <h4>Breaks and Holidays</h4>
-            <p>{breakSummary}</p>
-          </div>
-        </div>
-
         <div className="generated-scheme-table-wrap">
           <table
             className={`mini-table generated-scheme-table ${
@@ -133,7 +127,7 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
               </tr>
             </thead>
             <tbody>
-              {scheme.weeklyPlan.map((week, index) => {
+              {scheme.weeklyPlan.flatMap((week, index) => {
                 const rowFocus = getSchemeRowFocus(week.focus, scheme.strand, scheme.subStrand);
                 const inquiry =
                   week.keyInquiryQuestion ||
@@ -147,8 +141,11 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
                 const strandLabel = previousFocus?.strand === rowFocus.strand ? "" : rowFocus.strand;
                 const experiencesText = week.learnerActivities.join("\n");
                 const resourcesText = week.resources.join("\n");
+                const rowBreaks = breakEntries.filter(
+                  (entry) => entry.week === week.weekNumber && entry.lesson === Number(week.lessonRange)
+                );
 
-                return (
+                return [
                   <tr key={`${week.weekNumber}-${week.lessonRange}-${week.focus}`}>
                     <td>{weekLabel}</td>
                     <td>{week.lessonRange}</td>
@@ -169,8 +166,18 @@ export default async function TeacherToolGeneratedSchemeDetailPage({
                     <td>{resourcesText}</td>
                     <td>{week.assessment}</td>
                     <td>{week.remarks}</td>
-                  </tr>
-                );
+                  </tr>,
+                  ...rowBreaks.map((entry) => (
+                    <tr
+                      key={`break-${entry.title}-${entry.week}-${entry.lesson}-${entry.resumeWeek}-${entry.resumeLesson}`}
+                      className="generated-scheme-break-row"
+                    >
+                      <td colSpan={tableHeaders.length}>
+                        {entry.title}
+                      </td>
+                    </tr>
+                  ))
+                ];
               })}
             </tbody>
           </table>

@@ -7,6 +7,7 @@ import {
   getSchemeDisplayHeading,
   getSchemeFormatStyle,
   getSchemeNoteValue,
+  parseSchemeBreakEntries,
   getSchemeTableHeaders
 } from "@/lib/scheme-generator";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
@@ -117,10 +118,10 @@ export function buildGeneratedSchemeWordHtml(input: {
     termLabel,
     referenceBook
   });
-  const breakSummary = getSchemeNoteValue(scheme.notes, "Breaks") || "No breaks recorded for this term.";
+  const breakEntries = parseSchemeBreakEntries(scheme.notes);
 
   const rows = scheme.weeklyPlan
-    .map((week, index) => {
+    .flatMap((week, index) => {
       const rowFocus = getSchemeRowFocus(week.focus, scheme.strand, scheme.subStrand);
       const inquiry =
         week.keyInquiryQuestion ||
@@ -132,8 +133,11 @@ export function buildGeneratedSchemeWordHtml(input: {
       const strandLabel = previousFocus?.strand === rowFocus.strand ? "" : rowFocus.strand;
       const experiencesText = week.learnerActivities.join("\n");
       const resourcesText = week.resources.join("\n");
+      const rowBreaks = breakEntries.filter(
+        (entry) => entry.week === week.weekNumber && entry.lesson === Number(week.lessonRange)
+      );
 
-      return `
+      const mainRow = `
         <tr>
           <td>${escapeHtml(weekLabel)}</td>
           <td>${escapeHtml(week.lessonRange)}</td>
@@ -150,6 +154,15 @@ export function buildGeneratedSchemeWordHtml(input: {
           <td>${nl2br(week.remarks)}</td>
         </tr>
       `;
+      const breakRows = rowBreaks.map(
+        (entry) => `
+          <tr>
+            <td colspan="${tableHeaders.length}" style="text-align:center;font-weight:700;background:#faf7ef;">${escapeHtml(entry.title)}</td>
+          </tr>
+        `
+      );
+
+      return [mainRow, ...breakRows];
     })
     .join("");
 
@@ -195,10 +208,6 @@ export function buildGeneratedSchemeWordHtml(input: {
                 </table>
               </div>`
         }
-        <div class="doc-block">
-          <h4>Breaks and Holidays</h4>
-          <p>${escapeHtml(breakSummary)}</p>
-        </div>
         <div class="doc-table-wrap">
           <table>
             <thead>

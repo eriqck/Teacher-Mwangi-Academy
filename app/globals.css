@@ -2021,6 +2021,13 @@ main {
   line-height: 1.5;
 }
 
+.generated-scheme-break-row td {
+  text-align: center;
+  font-weight: 800;
+  background: rgba(250, 247, 239, 0.94);
+  letter-spacing: 0.02em;
+}
+
 .generated-lesson-plan-sheet {
   gap: 18px;
   max-width: 980px;

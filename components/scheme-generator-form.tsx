@@ -514,7 +514,7 @@ export function SchemeGeneratorForm({
     const breakSummary = formState.noBreaks
       ? "No breaks recorded for this term."
       : (() => {
-      const entries = formState.breaks
+          const entries = formState.breaks
             .filter((item) => item.title.trim() && item.durationDays)
             .map((item) =>
               `${item.title.trim()} starts week ${item.week}, lesson ${item.lesson}; resumes week ${item.resumeWeek}, lesson ${item.resumeLesson} (${item.durationDays} day${item.durationDays === "1" ? "" : "s"})`
@@ -563,7 +563,17 @@ export function SchemeGeneratorForm({
         `Double lesson: ${formState.doubleLesson || "No double lesson"}.`,
         `Reference book: ${formState.referenceBook}.`,
         `Format style: ${formState.referenceBook.toLowerCase().includes("mentor") ? "mentor" : "rationalized"}`,
-        `Breaks: ${breakSummary}`
+        `Breaks: ${breakSummary}`,
+        ...(
+          formState.noBreaks
+            ? []
+            : formState.breaks
+                .filter((item) => item.title.trim() && item.durationDays)
+                .map(
+                  (item) =>
+                    `Break entry: ${item.title.trim()}|${item.week}|${item.lesson}|${item.resumeWeek}|${item.resumeLesson}|${item.durationDays}`
+                )
+        )
       ].join("\n")
     };
 
