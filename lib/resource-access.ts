@@ -33,7 +33,7 @@ export async function getLevelPageData(levelId: string) {
     const [resources, subscriptions, resourcePurchases, schemePurchases] = await Promise.all([
       listResourcesForLevel(level.title),
       user ? listSubscriptionsForUser(user.id) : Promise.resolve([]),
-      user ? listResourcePurchasesForUser(user.id) : Promise.resolve([]),
+      user?.role === "teacher" ? listResourcePurchasesForUser(user.id) : Promise.resolve([]),
       user ? listSchemePurchasesForUser(user.id) : Promise.resolve([])
     ]);
 
@@ -122,7 +122,7 @@ function canOpenResource(
     return input.userRole === "teacher" && input.hasPaidScheme;
   }
 
-  if ((input.userRole === "teacher" || input.userRole === "parent") && input.hasPaidResource) {
+  if (input.userRole === "teacher" && input.hasPaidResource) {
     return true;
   }
 
@@ -147,10 +147,6 @@ function canPurchaseResource(
 
   if (userRole === "teacher") {
     return resource.audience !== "parent";
-  }
-
-  if (userRole === "parent") {
-    return (resource.section ?? "notes") === "notes" && resource.audience !== "teacher";
   }
 
   return false;

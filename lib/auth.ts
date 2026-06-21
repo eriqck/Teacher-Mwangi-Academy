@@ -181,6 +181,7 @@ export async function requestPasswordReset(email: string) {
   if (!user) {
     return {
       requested: true,
+      deliveryNeeded: false,
       previewCode: null as string | null,
       deliverySent: false
     };
@@ -215,6 +216,7 @@ export async function requestPasswordReset(email: string) {
 
   return {
     requested: true,
+    deliveryNeeded: true,
     previewCode: process.env.NODE_ENV === "production" ? null : deliverySent ? null : otp,
     deliverySent
   };

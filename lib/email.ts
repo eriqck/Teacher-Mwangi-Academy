@@ -11,24 +11,44 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#39;");
 }
 
-function isSmtpConfigured() {
-  return !!process.env.SMTP_HOST && !!process.env.SMTP_PORT && !!process.env.SMTP_USER && !!process.env.SMTP_PASS && !!process.env.EMAIL_FROM;
+function getSmtpConfig() {
+  const host = process.env.SMTP_HOST?.trim() ?? "";
+  const port = Number(process.env.SMTP_PORT);
+  const user = process.env.SMTP_USER?.trim() ?? "";
+  const pass = process.env.SMTP_PASS?.replace(/\s+/g, "") ?? "";
+  const from = process.env.EMAIL_FROM?.trim() ?? "";
+
+  return {
+    host,
+    port,
+    secure: process.env.SMTP_SECURE === "true" || port === 465,
+    user,
+    pass,
+    from
+  };
+}
+
+export function isPasswordResetEmailConfigured() {
+  const config = getSmtpConfig();
+  return !!config.host && Number.isFinite(config.port) && config.port > 0 && !!config.user && !!config.pass && !!config.from;
 }
 
 function getTransporter() {
   if (!transporterPromise) {
+    const config = getSmtpConfig();
+
     transporterPromise = Promise.resolve(
       nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT),
-        secure: process.env.SMTP_SECURE === "true" || Number(process.env.SMTP_PORT) === 465,
+        host: config.host,
+        port: config.port,
+        secure: config.secure,
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000,
         dnsTimeout: 10000,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+          user: config.user,
+          pass: config.pass
         }
       })
     );
@@ -42,18 +62,20 @@ export async function sendPasswordResetOtp(input: {
   fullName: string;
   otp: string;
 }) {
-  if (!isSmtpConfigured()) {
+  if (!isPasswordResetEmailConfigured()) {
+    console.error("SMTP password reset send failed: SMTP env vars are incomplete.");
     return false;
   }
 
   const transporter = await getTransporter();
+  const config = getSmtpConfig();
   const safeName = escapeHtml(input.fullName);
   const safeOtp = escapeHtml(input.otp);
 
   try {
     await Promise.race([
       transporter.sendMail({
-        from: process.env.EMAIL_FROM,
+        from: config.from,
         to: input.email,
         subject: "Your Teacher Mwangi Academy password reset code",
         text: `Hello ${input.fullName},\n\nUse this one-time code to reset your Teacher Mwangi Academy password: ${input.otp}\n\nThis code expires in 15 minutes and can only be used once.\n\nIf you did not request this, you can ignore this message.`,

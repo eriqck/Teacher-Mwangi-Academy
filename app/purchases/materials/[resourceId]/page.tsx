@@ -17,7 +17,7 @@ export default async function ResourcePurchasePage({
     redirect("/login");
   }
 
-  if (user.role !== "teacher" && user.role !== "parent") {
+  if (user.role !== "teacher") {
     redirect("/subscribe");
   }
 
@@ -27,14 +27,7 @@ export default async function ResourcePurchasePage({
     redirect("/dashboard");
   }
 
-  if (user.role === "teacher" && selectedResource.audience === "parent") {
-    redirect("/dashboard");
-  }
-
-  if (
-    user.role === "parent" &&
-    (selectedResource.audience === "teacher" || selectedResource.section !== "notes")
-  ) {
+  if (selectedResource.audience === "parent") {
     redirect("/dashboard");
   }
 
@@ -45,7 +38,7 @@ export default async function ResourcePurchasePage({
       <section className="page-shell section">
         <div className="section-head">
           <div>
-            <span className="eyebrow">One-time material purchase</span>
+            <span className="eyebrow">Teacher material purchase</span>
             <h2>Buy this exact material.</h2>
           </div>
           <p>

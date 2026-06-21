@@ -13,6 +13,16 @@ export async function POST(request: NextRequest) {
 
     const result = await requestPasswordReset(body.email);
 
+    if (result.deliveryNeeded && !result.deliverySent) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Unable to send a reset code right now. Please try again."
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       ok: true,
       message:

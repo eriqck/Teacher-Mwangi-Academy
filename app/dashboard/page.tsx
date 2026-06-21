@@ -217,7 +217,7 @@ export default async function DashboardPage() {
           <article className="dashboard-card">
             <h3>Next step</h3>
             <p className="subtle">
-              Use the subscription page to renew, update your membership, or continue one-time purchases.
+              Use the subscription page to renew or update your membership.
             </p>
             <div className="hero-actions">
               <Link href="/subscribe" className="button">

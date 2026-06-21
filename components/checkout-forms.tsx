@@ -370,7 +370,7 @@ export function ResourceCheckoutForm({
   buyerRole
 }: {
   resource: SelectedResource | null;
-  buyerRole: "parent" | "teacher" | "admin";
+  buyerRole: "teacher" | "admin";
 }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -429,7 +429,7 @@ export function ResourceCheckoutForm({
           <span>{resource.subject}</span>
         </div>
         <p className="subtle">
-          One-time {buyerRole === "parent" ? "parent" : "teacher"} purchase at KSh {teacherMaterialPrice} per material.
+          One-time teacher purchase at KSh {teacherMaterialPrice} per material.
         </p>
       </div>
 
@@ -438,7 +438,7 @@ export function ResourceCheckoutForm({
         <input
           id="material-accountReference"
           name="accountReference"
-          placeholder={buyerRole === "parent" ? "Parent name or learner name" : "Teacher name or school"}
+          placeholder="Teacher name or school"
           required
         />
       </div>

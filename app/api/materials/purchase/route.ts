@@ -11,9 +11,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
     }
 
-    if (user.role !== "teacher" && user.role !== "parent") {
+    if (user.role !== "teacher") {
       return NextResponse.json(
-        { error: "Only teacher or parent accounts can make one-time material purchases." },
+        { error: "One-time material purchases are only available for teacher accounts. Parents should use the monthly subscription." },
         { status: 403 }
       );
     }
@@ -44,15 +44,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Material not found." }, { status: 404 });
       }
 
-      if (user.role === "teacher" && resource.audience === "parent") {
+      if (resource.audience === "parent") {
         return NextResponse.json({ error: "This material is not available for teacher one-time purchase." }, { status: 403 });
-      }
-
-      if (
-        user.role === "parent" &&
-        ((resource.section ?? "notes") !== "notes" || resource.audience === "teacher")
-      ) {
-        return NextResponse.json({ error: "Parents can only buy eligible notes one time." }, { status: 403 });
       }
 
       const alreadyPurchased = store.resourcePurchases.some(
