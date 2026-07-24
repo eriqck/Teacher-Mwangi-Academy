@@ -115,7 +115,7 @@ export type ResourcePurchaseRecord = {
 
 export type ResourceCategory = "revision-material" | "scheme-of-work";
 export type ResourceSection = "notes" | "assessment";
-export type AssessmentSet = "set-1" | "set-2" | "set-3" | "cekena-exams" | "kala-exams";
+export type AssessmentSet = "set-1" | "set-2" | "set-3" | "set-4" | "cekena-exams" | "kala-exams";
 
 export type GeneratedSchemeWeekRecord = {
   weekNumber: number;
