@@ -1,0 +1,9 @@
+{
+  "mode": "apply",
+  "rowsToImport": 15,
+  "created": 15,
+  "skippedExisting": 0,
+  "failed": 0,
+  "planPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-missing-products-import-plan-20260417-import-missing-optimized-apply.csv",
+  "resultsPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-missing-products-import-results-20260417-import-missing-optimized-apply.csv"
+}

@@ -1,0 +1,11 @@
+{
+  "mode": "preview",
+  "sourceCsvPath": "C:\\Users\\Eric\\Downloads\\WooCommerce_Import_Optimized.csv",
+  "missingCsvPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-import-live-relaxed-missing-20260417-optimized-import-relaxed-v2.csv",
+  "rowsToImport": 15,
+  "alreadyExists": 0,
+  "toCreate": 15,
+  "missingCategories": 15,
+  "validGtins": 1,
+  "planPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-missing-products-import-plan-20260417-import-missing-optimized-preview.csv"
+}

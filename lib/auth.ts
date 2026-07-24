@@ -24,6 +24,17 @@ const passwordResetDurationMs = 1000 * 60 * 15;
 const passwordResetMaxAttempts = 5;
 const socialProfileDurationMs = 1000 * 60 * 30;
 
+export class DeviceSessionConflictError extends Error {
+  constructor() {
+    super("This device is already signed in to another account. Please log out first, then sign in with a different account.");
+    this.name = "DeviceSessionConflictError";
+  }
+}
+
+export function isDeviceSessionConflictError(error: unknown) {
+  return error instanceof DeviceSessionConflictError;
+}
+
 function getSecret() {
   return process.env.JWT_SECRET || "teacher-mwangi-academy-dev-secret";
 }
@@ -273,6 +284,22 @@ export async function resetPasswordWithOtp(email: string, otp: string, password:
 }
 
 export async function createSession(userId: string) {
+  const cookieStore = await cookies();
+  const currentToken = decodeSessionToken(cookieStore.get(sessionCookieName)?.value);
+
+  if (currentToken) {
+    const currentSession = await findSessionByToken(currentToken).catch(() => null);
+
+    if (currentSession && new Date(currentSession.expiresAt).getTime() >= Date.now()) {
+      if (currentSession.userId !== userId) {
+        throw new DeviceSessionConflictError();
+      }
+    } else {
+      await deleteSessionByToken(currentToken).catch(() => undefined);
+      cookieStore.delete(sessionCookieName);
+    }
+  }
+
   const token = createId("session");
   const now = new Date();
   const session: SessionRecord = {
@@ -284,7 +311,6 @@ export async function createSession(userId: string) {
 
   await replaceSessionForUser(session);
 
-  const cookieStore = await cookies();
   cookieStore.set(sessionCookieName, encodeSessionToken(token), {
     httpOnly: true,
     sameSite: "lax",

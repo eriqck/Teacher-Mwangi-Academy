@@ -1,0 +1,10 @@
+{
+  "mode": "verify",
+  "expected": 15,
+  "found": 15,
+  "missing": 0,
+  "missingShortDescriptions": 0,
+  "missingLongDescriptions": 0,
+  "missingImages": 0,
+  "verifyPath": "C:\\Users\\Eric\\Documents\\New project\\repo-teacher-mwangi\\outputs\\hsp-missing-products-import-verify-20260417-import-missing-optimized-verify.csv"
+}
