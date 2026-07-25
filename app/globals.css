@@ -1522,6 +1522,30 @@ main {
   gap: 18px;
 }
 
+.join-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  margin-bottom: 4px;
+}
+
+.join-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--muted, #6b7280);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.join-tab-active {
+  color: var(--secondary, #1f6f5f);
+  border-bottom-color: var(--secondary, #1f6f5f);
+}
+
 .resource-admin-list {
   display: grid;
   gap: 18px;

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { SubscriptionCheckoutForm } from "@/components/checkout-forms";
+import { JoinAndSubscribeForm } from "@/components/join-subscribe-form";
 import { SiteHeader } from "@/components/site-header";
 import { academyName, schemeOfWorkPrice, teacherMaterialPrice } from "@/lib/business";
 import { getCurrentUser } from "@/lib/auth";
@@ -9,13 +10,11 @@ import { membershipPlans } from "@/lib/catalog";
 export default async function SubscribePage() {
   const user = await getCurrentUser();
 
-  if (!user) {
-    redirect("/signup");
-  }
-
-  if (user.role === "admin") {
+  if (user && user.role === "admin") {
     redirect("/admin");
   }
+
+  const subscriber = user && user.role !== "admin" ? user : null;
 
   return (
     <main>
@@ -28,8 +27,11 @@ export default async function SubscribePage() {
             <h2>Start subscriptions and teacher purchases with M-Pesa.</h2>
           </div>
           <p>
-            Signed in as {user.fullName}. {academyName} now saves customer, subscription, and
-            payment records before M-Pesa confirmation unlocks access across the right resources.
+            {user
+              ? `Signed in as ${user.fullName}. `
+              : "New here or renewing? Both take one form, right on this page. "}
+            {academyName} saves customer, subscription, and payment records before M-Pesa
+            confirmation unlocks access across the right resources.
           </p>
         </div>
 
@@ -54,7 +56,7 @@ export default async function SubscribePage() {
         <div className="dashboard-grid">
           <article className="dashboard-card">
             <h3>Monthly subscription checkout</h3>
-            <SubscriptionCheckoutForm role={user.role} />
+            {subscriber ? <SubscriptionCheckoutForm role={subscriber.role} /> : <JoinAndSubscribeForm />}
           </article>
 
           <article className="dashboard-card">
@@ -62,7 +64,7 @@ export default async function SubscribePage() {
             <p className="subtle">
               One-time teacher purchases now have their own dedicated checkout pages for a clearer flow.
             </p>
-            {user.role === "teacher" ? (
+            {subscriber?.role === "teacher" ? (
               <div className="hero-actions">
                 <Link href="/dashboard" className="button-secondary">
                   Go to dashboard

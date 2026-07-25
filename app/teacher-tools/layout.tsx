@@ -80,7 +80,7 @@ export default async function TeacherToolsLayout({
               <Link href="/login" className="teacher-tools-home-link">
                 Sign in
               </Link>
-              <Link href="/signup" className="teacher-tools-home-link">
+              <Link href="/subscribe" className="teacher-tools-home-link">
                 Create teacher account
               </Link>
             </div>

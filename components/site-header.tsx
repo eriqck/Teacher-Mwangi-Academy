@@ -47,7 +47,7 @@ export async function SiteHeader({ user: initialUser }: { user?: UserRecord | nu
             <Link href="/login" className="nav-link">
               Sign in
             </Link>
-            <Link href="/signup" className="button">
+            <Link href="/subscribe" className="button">
               Create account
             </Link>
           </>
