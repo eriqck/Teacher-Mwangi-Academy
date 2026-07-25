@@ -14,7 +14,8 @@ export default async function SubscribePage() {
     redirect("/admin");
   }
 
-  const subscriber = user && user.role !== "admin" ? user : null;
+  const subscriber =
+    user && (user.role === "parent" || user.role === "teacher") ? user : null;
 
   return (
     <main>
