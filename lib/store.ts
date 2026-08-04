@@ -288,20 +288,6 @@ export type PropertyRecord = {
   updatedAt: string;
 };
 
-export type MentorshipRegistrationRecord = {
-  id: string;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  childClass: string;
-  sessionTitle: string;
-  sessionDate: string;
-  meetLink: string;
-  confirmationSent: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export type DataStore = {
   users: UserRecord[];
   sessions: SessionRecord[];
@@ -316,7 +302,6 @@ export type DataStore = {
   generatedLessonPlans: GeneratedLessonPlanRecord[];
   resources: ResourceRecord[];
   properties: PropertyRecord[];
-  mentorshipRegistrations: MentorshipRegistrationRecord[];
 };
 
 const storePath = path.join(process.cwd(), "data", "store.json");
@@ -344,8 +329,7 @@ async function ensureStoreFile() {
           generatedLessonPlanRequests: [],
           generatedLessonPlans: [],
           resources: [],
-          properties: [],
-          mentorshipRegistrations: []
+          properties: []
         } satisfies DataStore,
         null,
         2
@@ -372,8 +356,7 @@ export async function readStore(): Promise<DataStore> {
     generatedLessonPlanRequests: parsed.generatedLessonPlanRequests ?? [],
     generatedLessonPlans: parsed.generatedLessonPlans ?? [],
     resources: parsed.resources ?? [],
-    properties: parsed.properties ?? [],
-    mentorshipRegistrations: parsed.mentorshipRegistrations ?? []
+    properties: parsed.properties ?? []
   };
 }
 

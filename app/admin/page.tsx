@@ -102,10 +102,6 @@ export default async function AdminPage() {
   const paidTotal = paidPayments.reduce((sum, payment) => sum + payment.amount, 0);
   const pendingTotal = pendingPayments.reduce((sum, payment) => sum + payment.amount, 0);
   const recentPayments = payments.slice(0, 12);
-  const mentorshipRegistrations = store.mentorshipRegistrations
-    .slice()
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  const recentMentorshipRegistrations = mentorshipRegistrations.slice(0, 20);
 
   return (
     <main>
@@ -247,70 +243,6 @@ export default async function AdminPage() {
               </div>
             ) : (
               <p className="subtle">No payments have been saved yet.</p>
-            )}
-          </article>
-        </div>
-      </section>
-
-      <section className="page-shell section">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Mentorship</span>
-            <h2>Parent mentorship registrations.</h2>
-          </div>
-          <p>Track parents who registered for the mentorship page and follow up by email or WhatsApp.</p>
-        </div>
-
-        <div className="dashboard-grid">
-          <article className="dashboard-card">
-            <h3>Registration summary</h3>
-            <div className="panel-stack">
-              <div className="dashboard-stat">
-                <span className="subtle">Total registrations</span>
-                <strong>{mentorshipRegistrations.length}</strong>
-              </div>
-              <div className="dashboard-stat">
-                <span className="subtle">Confirmation emails sent</span>
-                <strong>
-                  {mentorshipRegistrations.filter((registration) => registration.confirmationSent).length}
-                </strong>
-              </div>
-            </div>
-          </article>
-
-          <article className="dashboard-card admin-panel-card">
-            <h3>Recent registrations</h3>
-            {recentMentorshipRegistrations.length > 0 ? (
-              <div className="admin-table-wrap">
-                <table className="mini-table admin-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Class / school</th>
-                      <th>Session</th>
-                      <th>Email sent</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentMentorshipRegistrations.map((registration) => (
-                      <tr key={registration.id}>
-                        <td>{formatDateLabel(registration.createdAt)}</td>
-                        <td>{registration.fullName}</td>
-                        <td>{registration.email}</td>
-                        <td>{registration.phoneNumber}</td>
-                        <td>{registration.childClass || "Not provided"}</td>
-                        <td>{registration.sessionDate}</td>
-                        <td>{registration.confirmationSent ? "Yes" : "No"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="subtle">No mentorship registrations yet.</p>
             )}
           </article>
         </div>

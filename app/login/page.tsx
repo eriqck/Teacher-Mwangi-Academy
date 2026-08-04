@@ -46,7 +46,7 @@ export default async function LoginPage() {
               <li>Teachers can buy single notes and assessments at KSh {teacherMaterialPrice} per material.</li>
             </ul>
             <div className="hero-actions">
-              <Link href="/subscribe" className="button">
+              <Link href="/signup" className="button">
                 Create account
               </Link>
             </div>

@@ -9,7 +9,6 @@ export async function SiteHeader({ user: initialUser }: { user?: UserRecord | nu
     { href: "#about", label: "About" },
     { href: "#levels", label: "Levels" },
     { href: "#membership", label: "Membership" },
-    { href: "/mentorship", label: "Mentorship" },
     { href: "#team", label: "Team" },
     { href: "/dashboard", label: "Dashboard" },
     ...(user?.role === "teacher" || user?.role === "admin"
@@ -48,7 +47,7 @@ export async function SiteHeader({ user: initialUser }: { user?: UserRecord | nu
             <Link href="/login" className="nav-link">
               Sign in
             </Link>
-            <Link href="/subscribe" className="button">
+            <Link href="/signup" className="button">
               Create account
             </Link>
           </>

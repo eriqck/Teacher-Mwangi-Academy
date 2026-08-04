@@ -12,7 +12,6 @@ import type {
   GeneratedLessonPlanRequestRecord,
   GeneratedSchemeRecord,
   GeneratedSchemeRequestRecord,
-  MentorshipRegistrationRecord,
   PaymentRecord,
   PasswordResetTokenRecord,
   PropertyRecord,
@@ -243,22 +242,6 @@ function mapGeneratedLessonPlanRequest(row: Record<string, unknown>): GeneratedL
   };
 }
 
-function mapMentorshipRegistration(row: Record<string, unknown>): MentorshipRegistrationRecord {
-  return {
-    id: `${row.id}`,
-    fullName: `${row.full_name}`,
-    email: `${row.email}`,
-    phoneNumber: `${row.phone_number}`,
-    childClass: `${row.child_class ?? ""}`,
-    sessionTitle: `${row.session_title}`,
-    sessionDate: `${row.session_date}`,
-    meetLink: `${row.meet_link ?? ""}`,
-    confirmationSent: Boolean(row.confirmation_sent),
-    createdAt: `${row.created_at}`,
-    updatedAt: `${row.updated_at}`
-  };
-}
-
 function isMissingSupabaseTable(
   error: { message?: string | null; code?: string | null } | null,
   tableName: string
@@ -296,8 +279,7 @@ export async function readAppData(): Promise<DataStore> {
     generatedSchemes,
     generatedSchemeRequests,
     generatedLessonPlans,
-    generatedLessonPlanRequests,
-    mentorshipRegistrations
+    generatedLessonPlanRequests
   ] = await Promise.all([
     supabase.from("users").select("*"),
     supabase.from("sessions").select("*"),
@@ -309,8 +291,7 @@ export async function readAppData(): Promise<DataStore> {
     supabase.from("generated_schemes").select("*"),
     supabase.from("generated_scheme_requests").select("*"),
     supabase.from("generated_lesson_plans").select("*"),
-    supabase.from("generated_lesson_plan_requests").select("*"),
-    supabase.from("mentorship_registrations").select("*")
+    supabase.from("generated_lesson_plan_requests").select("*")
   ]);
 
   if (
@@ -326,9 +307,7 @@ export async function readAppData(): Promise<DataStore> {
       !isMissingSupabaseTable(generatedSchemeRequests.error, "generated_scheme_requests")) ||
     (generatedLessonPlans.error && !isMissingSupabaseTable(generatedLessonPlans.error, "generated_lesson_plans")) ||
     (generatedLessonPlanRequests.error &&
-      !isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests")) ||
-    (mentorshipRegistrations.error &&
-      !isMissingSupabaseTable(mentorshipRegistrations.error, "mentorship_registrations"))
+      !isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests"))
   ) {
     throw new Error(
       users.error?.message ||
@@ -348,9 +327,6 @@ export async function readAppData(): Promise<DataStore> {
         (isMissingSupabaseTable(generatedLessonPlanRequests.error, "generated_lesson_plan_requests")
           ? null
           : generatedLessonPlanRequests.error?.message) ||
-        (isMissingSupabaseTable(mentorshipRegistrations.error, "mentorship_registrations")
-          ? null
-          : mentorshipRegistrations.error?.message) ||
         "Failed to read Supabase data."
     );
   }
@@ -381,10 +357,7 @@ export async function readAppData(): Promise<DataStore> {
       ? localStore.generatedLessonPlans ?? []
       : (generatedLessonPlans.data ?? []).map((row: Record<string, unknown>) => mapGeneratedLessonPlan(row)),
     resources: (resources.data ?? []).map((row: Record<string, unknown>) => mapResource(row)),
-    properties: localStore.properties ?? [],
-    mentorshipRegistrations: isMissingSupabaseTable(mentorshipRegistrations.error, "mentorship_registrations")
-      ? localStore.mentorshipRegistrations ?? []
-      : (mentorshipRegistrations.data ?? []).map((row: Record<string, unknown>) => mapMentorshipRegistration(row))
+    properties: localStore.properties ?? []
   };
 }
 
@@ -1278,34 +1251,6 @@ export async function deletePropertyRecord(propertyId: string) {
   }));
 
   return deletedProperty;
-}
-
-export async function saveMentorshipRegistrationRecord(registration: MentorshipRegistrationRecord) {
-  if (!isSupabaseConfigured()) {
-    await updateStore((current) => ({
-      ...current,
-      mentorshipRegistrations: [registration, ...current.mentorshipRegistrations]
-    }));
-    return registration;
-  }
-
-  const supabase = getSupabaseAdmin();
-  const { error } = await supabase.from("mentorship_registrations").insert({
-    id: registration.id,
-    full_name: registration.fullName,
-    email: registration.email,
-    phone_number: registration.phoneNumber,
-    child_class: registration.childClass,
-    session_title: registration.sessionTitle,
-    session_date: registration.sessionDate,
-    meet_link: registration.meetLink,
-    confirmation_sent: registration.confirmationSent,
-    created_at: registration.createdAt,
-    updated_at: registration.updatedAt
-  });
-
-  if (error) throw new Error(error.message);
-  return registration;
 }
 
 export async function uploadResourceFile(filePath: string, fileBuffer: Buffer, mimeType: string) {
