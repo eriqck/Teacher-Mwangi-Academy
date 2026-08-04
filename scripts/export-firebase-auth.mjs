@@ -3,10 +3,16 @@ import { createReadStream, promises as fs } from "fs";
 import path from "path";
 import readline from "readline";
 
-const [, , backupPath, outputPath = "firebase-auth-users.json"] = process.argv;
+const [, , backupPath, outputPath = "firebase-auth-users.json", limitArg] = process.argv;
+const limit = limitArg ? Number(limitArg) : null;
 
 if (!backupPath) {
-  console.error("Usage: node scripts/export-firebase-auth.mjs <db-backup.gz> [output.json]");
+  console.error("Usage: node scripts/export-firebase-auth.mjs <db-backup.gz> [output.json] [limit]");
+  process.exit(1);
+}
+
+if (limit !== null && (!Number.isInteger(limit) || limit < 1)) {
+  console.error("The optional limit must be a positive whole number.");
   process.exit(1);
 }
 
@@ -113,6 +119,10 @@ async function exportUsers() {
       role: row.role,
       createdAt: row.created_at
     });
+
+    if (limit !== null && users.length >= limit) {
+      break;
+    }
   }
 
   const resolvedOutputPath = path.resolve(outputPath);
