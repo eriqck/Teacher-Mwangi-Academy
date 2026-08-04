@@ -51,34 +51,59 @@ export function MentorshipRegistrationForm() {
   }
 
   return (
-    <form className="panel-stack auth-form" onSubmit={handleSubmit}>
-      <div className="form-grid">
-        <div className="field">
-          <label htmlFor="fullName">Full name</label>
-          <input id="fullName" name="fullName" placeholder="Parent name" required />
-        </div>
-        <div className="field">
-          <label htmlFor="phoneNumber">Phone / WhatsApp number</label>
-          <input id="phoneNumber" name="phoneNumber" placeholder="07XXXXXXXX" required />
-        </div>
+    <form className="mentorship-form" onSubmit={handleSubmit}>
+      <div className="mentorship-field">
+        <label htmlFor="fullName" className="mentorship-sr">Name</label>
+        <input id="fullName" name="fullName" placeholder="Name *" required />
       </div>
 
-      <div className="form-grid">
-        <div className="field">
-          <label htmlFor="email">Email address</label>
-          <input id="email" name="email" type="email" placeholder="you@example.com" required />
-        </div>
-        <div className="field">
-          <label htmlFor="childClass">Child&apos;s class or school</label>
-          <input id="childClass" name="childClass" placeholder="Example: Grade 8, optional" />
-        </div>
+      <div className="mentorship-field">
+        <label htmlFor="email" className="mentorship-sr">Email</label>
+        <input id="email" name="email" type="email" placeholder="Email *" required />
       </div>
+
+      <div className="mentorship-field">
+        <label htmlFor="sessionDate" className="mentorship-sr">Select Date</label>
+        <select id="sessionDate" name="sessionDate" defaultValue="" required>
+          <option value="" disabled>
+            Select Date
+          </option>
+          <option value="This Saturday">This Saturday</option>
+          <option value="Next Saturday">Next Saturday</option>
+          <option value="I will confirm later">I will confirm later</option>
+        </select>
+      </div>
+
+      <div className="mentorship-field">
+        <label htmlFor="sessionTime" className="mentorship-sr">Select Time</label>
+        <select id="sessionTime" name="sessionTime" defaultValue="" required>
+          <option value="" disabled>
+            Select Time
+          </option>
+          <option value="8:00 PM">8:00 PM</option>
+          <option value="7:30 PM">7:30 PM</option>
+          <option value="9:00 PM">9:00 PM</option>
+        </select>
+      </div>
+
+      <div className="mentorship-phone-row">
+        <span className="mentorship-country-code">KE</span>
+        <input
+          id="phoneNumber"
+          name="phoneNumber"
+          placeholder="Enter a phone number"
+          aria-label="Phone number"
+          required
+        />
+      </div>
+
+      <input type="hidden" name="childClass" value="" />
 
       {message ? <div className="message message-success">{message}</div> : null}
       {error ? <div className="message message-error">{error}</div> : null}
 
-      <button className="button" type="submit" disabled={loading}>
-        {loading ? "Registering..." : "Register for mentorship"}
+      <button className="mentorship-submit" type="submit" disabled={loading}>
+        {loading ? "Reserving..." : "Reserve my spot now"}
       </button>
     </form>
   );

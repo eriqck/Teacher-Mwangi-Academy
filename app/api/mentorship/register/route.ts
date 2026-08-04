@@ -22,13 +22,19 @@ export async function POST(request: NextRequest) {
       email?: string;
       phoneNumber?: string;
       childClass?: string;
+      sessionDate?: string;
+      sessionTime?: string;
     };
     const fullName = normalize(body.fullName);
     const email = normalize(body.email).toLowerCase();
     const phoneNumber = normalize(body.phoneNumber);
     const childClass = normalize(body.childClass);
+    const selectedDate = normalize(body.sessionDate);
+    const selectedTime = normalize(body.sessionTime);
     const sessionTitle = process.env.MENTORSHIP_SESSION_TITLE?.trim() || defaultSessionTitle;
-    const sessionDate = process.env.MENTORSHIP_SESSION_DATE?.trim() || defaultSessionDate;
+    const selectedSessionDate = selectedDate && selectedTime ? `${selectedDate} at ${selectedTime}` : "";
+    const sessionDate =
+      selectedSessionDate || process.env.MENTORSHIP_SESSION_DATE?.trim() || defaultSessionDate;
     const meetLink = process.env.MENTORSHIP_MEET_LINK?.trim() || "";
 
     if (!fullName || !email || !phoneNumber) {

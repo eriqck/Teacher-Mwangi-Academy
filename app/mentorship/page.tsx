@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { MentorshipRegistrationForm } from "@/components/mentorship-registration-form";
-import { SiteHeader } from "@/components/site-header";
 
 const defaultSessionTitle = "Parent Mentorship Session";
 const defaultSessionDate = "Saturday at 8:00 PM";
@@ -17,78 +16,54 @@ export default function MentorshipPage() {
   const sessionDate = process.env.MENTORSHIP_SESSION_DATE?.trim() || defaultSessionDate;
 
   return (
-    <main>
-      <SiteHeader />
-
-      <section className="page-shell section">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">Parent mentorship</span>
-            <h2>Register once. Receive session details automatically.</h2>
-          </div>
+    <main className="mentorship-page">
+      <section className="mentorship-shell">
+        <div className="mentorship-hero-copy">
+          <p className="mentorship-kicker">Free parent masterclass</p>
+          <h1>Help your child beat academic overwhelm and study with focus.</h1>
           <p>
-            A simple mentorship space for parents who want practical guidance on supporting CBE
-            learners at home.
+            Discover practical ways to guide revision, use CBE materials correctly, and build
+            consistent study habits at home.
           </p>
         </div>
 
-        <div className="dashboard-grid">
-          <article className="dashboard-card">
-            <h3>{sessionTitle}</h3>
-            <div className="panel-stack">
-              <div className="dashboard-stat">
-                <span className="subtle">Next session</span>
-                <strong>{sessionDate}</strong>
+        <div className="mentorship-layout">
+          <div className="mentorship-video-card">
+            <div className="mentorship-video-frame">
+              <Image
+                src="/teacher-mwangi-profile.png"
+                alt="Teacher Mwangi mentorship session"
+                fill
+                priority
+                sizes="(max-width: 900px) 100vw, 680px"
+                className="mentorship-video-image"
+              />
+              <div className="mentorship-play-button" aria-hidden="true">
+                TM
               </div>
-              <p className="subtle">
-                Parents will learn how to guide study routines, understand assessment needs, and
-                support learners without confusion or pressure.
+            </div>
+            <p>With Teacher Mwangi, CBE learning support for parents and learners.</p>
+          </div>
+
+          <aside className="mentorship-register-card">
+            <div className="mentorship-card-banner">
+              <span aria-hidden="true">[]</span>
+              <strong>Playing for a limited time only</strong>
+            </div>
+            <div className="mentorship-card-body">
+              <p className="mentorship-local-time">All times shown in your local time</p>
+              <MentorshipRegistrationForm />
+              <p className="mentorship-fine-print">
+                By registering, you agree to receive mentorship session updates from Teacher Mwangi
+                Academy. You can unsubscribe from future updates anytime.
               </p>
-              <ul className="list">
-                <li>Study planning and consistency at home</li>
-                <li>How to use notes and assessments effectively</li>
-                <li>Parent questions and practical guidance</li>
-              </ul>
             </div>
-          </article>
-
-          <article className="dashboard-card">
-            <h3>Register for the next session</h3>
-            <p className="subtle">
-              Fill in your details below. We will save your registration and send session details
-              before the meeting.
-            </p>
-            <MentorshipRegistrationForm />
-          </article>
+          </aside>
         </div>
-      </section>
 
-      <section className="page-shell section">
-        <div className="dashboard-grid">
-          <article className="dashboard-card">
-            <h3>How it works</h3>
-            <ul className="list">
-              <li>Register using the form on this page.</li>
-              <li>Receive confirmation by email when email delivery is configured.</li>
-              <li>Join the Google Meet session using the shared link.</li>
-              <li>Get follow-up information after the session when available.</li>
-            </ul>
-          </article>
-
-          <article className="dashboard-card">
-            <h3>Need learning materials too?</h3>
-            <p className="subtle">
-              You can also browse notes and assessment materials by grade from the main academy.
-            </p>
-            <div className="hero-actions">
-              <Link href="/levels/grade-6" className="button-secondary">
-                Browse materials
-              </Link>
-              <Link href="/subscribe" className="button">
-                Register or renew
-              </Link>
-            </div>
-          </article>
+        <div className="mentorship-session-note">
+          <span>{sessionTitle}</span>
+          <strong>{sessionDate}</strong>
         </div>
       </section>
     </main>
