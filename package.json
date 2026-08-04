@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "make-admin": "node scripts/make-admin.mjs",
     "migrate-supabase": "node scripts/migrate-supabase.mjs",
-    "migrate-storage-r2": "node scripts\\migrate-storage-to-r2.mjs"
+    "migrate-storage-r2": "node scripts\\migrate-storage-to-r2.mjs",
+    "export-firebase-auth": "node scripts/export-firebase-auth.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",
