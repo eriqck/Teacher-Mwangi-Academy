@@ -9,6 +9,7 @@ export async function SiteHeader({ user: initialUser }: { user?: UserRecord | nu
     { href: "#about", label: "About" },
     { href: "#levels", label: "Levels" },
     { href: "#membership", label: "Membership" },
+    { href: "/mentorship", label: "Mentorship" },
     { href: "#team", label: "Team" },
     { href: "/dashboard", label: "Dashboard" },
     ...(user?.role === "teacher" || user?.role === "admin"

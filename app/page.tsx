@@ -16,6 +16,7 @@ const heroCards = [
 const serviceSlides = [
   { title: "Scheme generation", href: "/teacher-tools/schemes" },
   { title: "Lesson plans", href: "/teacher-tools/lesson-plans" },
+  { title: "Parent mentorship", href: "/mentorship" },
   { title: "Assessments", href: "/levels/grade-6" },
   { title: "Notes", href: "/levels/grade-6" },
   { title: "Ready schemes", href: "/levels/grade-6/schemes" }
@@ -49,6 +50,7 @@ export default async function HomePage() {
   const navLinks = [
     { href: "#levels", label: "Levels" },
     { href: "#plans", label: "Plans" },
+    { href: "/mentorship", label: "Mentorship" },
     { href: "#results", label: "Results" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];
