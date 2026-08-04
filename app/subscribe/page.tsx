@@ -14,11 +14,7 @@ export default async function SubscribePage() {
     redirect("/admin");
   }
 
-<<<<<<< HEAD
-=======
   const subscriber = user && user.role !== "admin" ? user : null;
-
->>>>>>> 38bce97 (subscription for new members and existing members simplification)
   return (
     <main>
       <SiteHeader />
@@ -59,15 +55,11 @@ export default async function SubscribePage() {
         <div className="dashboard-grid">
           <article className="dashboard-card">
             <h3>Monthly subscription checkout</h3>
-<<<<<<< HEAD
-            {user ? (
-              <SubscriptionCheckoutForm role={user.role as "parent" | "teacher"} />
+            {subscriber ? (
+              <SubscriptionCheckoutForm role={subscriber.role as "parent" | "teacher"} />
             ) : (
               <JoinAndSubscribeForm />
             )}
-=======
-            {subscriber ? <SubscriptionCheckoutForm role={subscriber.role} /> : <JoinAndSubscribeForm />}
->>>>>>> 38bce97 (subscription for new members and existing members simplification)
           </article>
 
           <article className="dashboard-card">
@@ -75,11 +67,7 @@ export default async function SubscribePage() {
             <p className="subtle">
               One-time teacher purchases now have their own dedicated checkout pages for a clearer flow.
             </p>
-<<<<<<< HEAD
-            {user?.role === "teacher" ? (
-=======
             {subscriber?.role === "teacher" ? (
->>>>>>> 38bce97 (subscription for new members and existing members simplification)
               <div className="hero-actions">
                 <Link href="/dashboard" className="button-secondary">
                   Go to dashboard
