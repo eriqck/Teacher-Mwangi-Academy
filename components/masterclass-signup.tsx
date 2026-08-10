@@ -36,14 +36,12 @@ export function MasterclassSignup() {
     event.preventDefault();
     setError("");
 
-    // Validate required fields
     if (!fullName || !email || !phone || !childGrade) {
       setError("Please fill in all required fields");
       return;
     }
 
     try {
-      // Store registration data
       const response = await fetch("/api/masterclass-register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,7 +60,6 @@ export function MasterclassSignup() {
 
       const data = await response.json();
       
-      // Redirect to payment
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
@@ -74,256 +71,216 @@ export function MasterclassSignup() {
   }
 
   return (
-    <div className="masterclass-container">
-      <div className="masterclass-layout">
-        {/* Left Section */}
-        <div className="masterclass-left">
-          <div className="masterclass-header">
-            <span className="eyebrow">Join our masterclass</span>
-            <h1>One-on-One with KJSEA Examiners</h1>
-          </div>
+    <div className="masterclass-layout">
+      {/* Left Section */}
+      <div className="masterclass-left">
+        <span className="eyebrow">Join our Masterclass</span>
+        <h1>One-on-One with KJSEA Examiners</h1>
 
-          <div className="masterclass-questions">
-            <h3>How do you present your work for examination?</h3>
-            <h3>How are marks actually scored?</h3>
-          </div>
-
-          <div className="masterclass-content">
-            <p>
-              Did you know you can have the correct answer and still fail to score—simply because of how you present it?
-            </p>
-            <p>
-              <strong>Join us on Tr Mwangi Academy as we engage KJSEA Examiners one-on-one and learn what truly matters in exams.</strong>
-            </p>
-          </div>
-
-          <div className="countdown-section">
-            <strong>Masterclass Starts In</strong>
-            <div className="countdown-display">
-              <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.days)}</span>
-                <span className="countdown-label">Days</span>
-              </div>
-              <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.hours)}</span>
-                <span className="countdown-label">Hours</span>
-              </div>
-              <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.minutes)}</span>
-                <span className="countdown-label">Minutes</span>
-              </div>
-              <div className="countdown-item">
-                <span className="countdown-number">{pad(countdown.seconds)}</span>
-                <span className="countdown-label">Seconds</span>
-              </div>
-            </div>
-          </div>
+        <div className="masterclass-questions">
+          <h3>How do you present your work for examination?</h3>
+          <h3>How are marks actually scored?</h3>
         </div>
 
-        {/* Right Section */}
-        <div className="masterclass-right">
-          <div className="registration-card">
-            <h2>Register for the Masterclass</h2>
-            <div className="price-tag">
-              <strong>Only KSh {PRICE_KSH}</strong>
+        <div className="masterclass-content">
+          <p>
+            Did you know you can have the correct answer and still fail to score—simply because of how you present it?
+          </p>
+          <p>
+            <strong>Join us on Tr Mwangi Academy as we engage KJSEA Examiners one-on-one and learn what truly matters in exams.</strong>
+          </p>
+        </div>
+
+        <div className="masterclass-countdown panel">
+          <p className="masterclass-countdown-label">Masterclass Starts In</p>
+          <div className="countdown-timer">
+            <div className="countdown-box">
+              <span className="countdown-value">{pad(countdown.days)}</span>
+              <span className="countdown-unit">Days</span>
             </div>
-
-            {submitted ? (
-              <div className="message message-success">
-                <p>Thank you for registering! Check your email for the masterclass details.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="masterclass-form">
-                {error && <div className="message message-error">{error}</div>}
-
-                <div className="form-group">
-                  <label htmlFor="fullName">
-                    <strong>Full Name</strong>
-                    <span className="required">*</span>
-                  </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="email">
-                    <strong>Email Address</strong>
-                    <span className="required">*</span>
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="phone">
-                    <strong>Phone Number</strong>
-                    <span className="required">*</span>
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    placeholder="07XX XXX XXX"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="childGrade">
-                    <strong>Child's Grade</strong>
-                    <span className="required">*</span>
-                  </label>
-                  <select
-                    id="childGrade"
-                    value={childGrade}
-                    onChange={(e) => setChildGrade(e.target.value)}
-                    required
-                  >
-                    <option value="">Select grade</option>
-                    <option value="Grade 1">Grade 1</option>
-                    <option value="Grade 2">Grade 2</option>
-                    <option value="Grade 3">Grade 3</option>
-                    <option value="Grade 4">Grade 4</option>
-                    <option value="Grade 5">Grade 5</option>
-                    <option value="Grade 6">Grade 6</option>
-                    <option value="Grade 7">Grade 7</option>
-                    <option value="Grade 8">Grade 8</option>
-                    <option value="Grade 9">Grade 9</option>
-                    <option value="Grade 10">Grade 10</option>
-                    <option value="Grade 11">Grade 11</option>
-                    <option value="Grade 12">Grade 12</option>
-                  </select>
-                </div>
-
-                <button type="submit" className="button button-primary button-large">
-                  CONTINUE TO PAYMENT
-                </button>
-              </form>
-            )}
+            <div className="countdown-box">
+              <span className="countdown-value">{pad(countdown.hours)}</span>
+              <span className="countdown-unit">Hours</span>
+            </div>
+            <div className="countdown-box">
+              <span className="countdown-value">{pad(countdown.minutes)}</span>
+              <span className="countdown-unit">Minutes</span>
+            </div>
+            <div className="countdown-box">
+              <span className="countdown-value">{pad(countdown.seconds)}</span>
+              <span className="countdown-unit">Seconds</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        .masterclass-container {
-          width: 100%;
-        }
+      {/* Right Section */}
+      <aside className="masterclass-right">
+        <div className="panel masterclass-panel">
+          <h2>Register for the Masterclass</h2>
+          <div className="masterclass-price">Only KSh {PRICE_KSH}</div>
 
+          {submitted ? (
+            <div className="message message-success">
+              Thank you for registering! Check your email for masterclass details.
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="panel-stack">
+              {error && <div className="message message-error">{error}</div>}
+
+              <div className="field">
+                <label htmlFor="fullName">Full Name</label>
+                <input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  id="phone"
+                  type="tel"
+                  placeholder="07XX XXX XXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="childGrade">Child's Grade</label>
+                <select
+                  id="childGrade"
+                  value={childGrade}
+                  onChange={(e) => setChildGrade(e.target.value)}
+                  required
+                >
+                  <option value="">Select grade</option>
+                  <option value="Grade 1">Grade 1</option>
+                  <option value="Grade 2">Grade 2</option>
+                  <option value="Grade 3">Grade 3</option>
+                  <option value="Grade 4">Grade 4</option>
+                  <option value="Grade 5">Grade 5</option>
+                  <option value="Grade 6">Grade 6</option>
+                  <option value="Grade 7">Grade 7</option>
+                  <option value="Grade 8">Grade 8</option>
+                  <option value="Grade 9">Grade 9</option>
+                  <option value="Grade 10">Grade 10</option>
+                  <option value="Grade 11">Grade 11</option>
+                  <option value="Grade 12">Grade 12</option>
+                </select>
+              </div>
+
+              <button type="submit" className="button button-buy" style={{ width: "100%", marginTop: "8px" }}>
+                CONTINUE TO PAYMENT
+              </button>
+            </form>
+          )}
+        </div>
+      </aside>
+
+      <style jsx>{`
         .masterclass-layout {
           display: grid;
-          grid-template-columns: 1fr 400px;
-          gap: 40px;
-          align-items: flex-start;
+          grid-template-columns: 1fr 380px;
+          gap: 32px;
+          align-items: start;
         }
 
         .masterclass-left {
-          padding: 0;
+          display: grid;
+          gap: 20px;
         }
 
-        .masterclass-header {
-          margin-bottom: 24px;
-        }
-
-        .masterclass-header .eyebrow {
-          display: inline-block;
-          color: #0066cc;
-          font-weight: 600;
-          font-size: 0.875rem;
-          text-transform: uppercase;
-          margin-bottom: 8px;
-        }
-
-        .masterclass-header h1 {
-          font-size: 2rem;
-          font-weight: 700;
-          line-height: 1.2;
+        .masterclass-left h1 {
           margin: 0;
-          color: #0f172a;
+          font-size: clamp(2rem, 5vw, 3.2rem);
+          line-height: 1.1;
         }
 
         .masterclass-questions {
-          margin: 32px 0;
+          display: grid;
+          gap: 12px;
         }
 
         .masterclass-questions h3 {
+          margin: 0;
           font-size: 1.25rem;
-          font-weight: 600;
-          margin: 12px 0;
-          color: #1e293b;
           line-height: 1.3;
         }
 
         .masterclass-content {
-          margin: 24px 0;
-          line-height: 1.6;
-          color: #475569;
-          font-size: 0.95rem;
+          display: grid;
+          gap: 12px;
+          color: var(--muted);
+          line-height: 1.65;
+          font-size: 1rem;
         }
 
         .masterclass-content p {
-          margin: 12px 0;
+          margin: 0;
         }
 
-        .masterclass-content p strong {
-          color: #0f172a;
+        .masterclass-countdown {
+          padding: 28px;
+          background: linear-gradient(135deg, rgba(31, 111, 95, 0.12), rgba(214, 164, 25, 0.08));
+          border: 1px solid rgba(31, 111, 95, 0.15);
         }
 
-        .countdown-section {
-          margin-top: 40px;
-          padding: 24px;
-          background: #f8fafc;
-          border-radius: 12px;
+        .masterclass-countdown-label {
+          margin: 0 0 16px;
+          font-weight: 700;
+          font-size: 1rem;
         }
 
-        .countdown-section strong {
-          display: block;
-          margin-bottom: 16px;
-          color: #0f172a;
-          font-size: 0.95rem;
-        }
-
-        .countdown-display {
+        .countdown-timer {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
+          gap: 10px;
         }
 
-        .countdown-item {
+        .countdown-box {
+          background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: var(--radius-md);
+          padding: 14px 8px;
           text-align: center;
-          background: white;
-          padding: 12px 8px;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
+          display: grid;
+          gap: 4px;
         }
 
-        .countdown-number {
+        .countdown-value {
           display: block;
-          font-size: 1.75rem;
+          font-size: 1.6rem;
           font-weight: 700;
-          color: #0066cc;
+          color: var(--secondary);
           line-height: 1;
-          margin-bottom: 4px;
         }
 
-        .countdown-label {
+        .countdown-unit {
           display: block;
-          font-size: 0.75rem;
-          color: #64748b;
-          text-transform: uppercase;
+          font-size: 0.7rem;
           font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--muted);
         }
 
         .masterclass-right {
@@ -331,113 +288,25 @@ export function MasterclassSignup() {
           top: 20px;
         }
 
-        .registration-card {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 28px 24px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        .masterclass-panel {
+          padding: 24px;
         }
 
-        .registration-card h2 {
-          font-size: 1.25rem;
-          font-weight: 700;
-          margin: 0 0 16px 0;
-          color: #0f172a;
+        .masterclass-panel h2 {
+          margin: 0 0 12px;
+          font-size: 1.3rem;
           text-align: center;
         }
 
-        .price-tag {
+        .masterclass-price {
           text-align: center;
-          margin-bottom: 24px;
+          background: rgba(31, 111, 95, 0.12);
           padding: 12px;
-          background: #f0f9ff;
-          border-radius: 8px;
-        }
-
-        .price-tag strong {
-          color: #0066cc;
-          font-size: 1.1rem;
-          display: block;
-        }
-
-        .masterclass-form {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .form-group label {
-          font-weight: 600;
-          color: #0f172a;
-          font-size: 0.9rem;
-        }
-
-        .required {
-          color: #dc2626;
-          margin-left: 2px;
-        }
-
-        .form-group input,
-        .form-group select {
-          padding: 10px 12px;
-          border: 1px solid #cbd5e1;
-          border-radius: 6px;
-          font-size: 0.95rem;
-          font-family: inherit;
-          transition: border-color 0.2s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-          outline: none;
-          border-color: #0066cc;
-          box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-        }
-
-        .form-group input::placeholder {
-          color: #94a3b8;
-        }
-
-        .button-primary {
-          background: #0066cc;
-          color: white;
-          font-weight: 600;
-          margin-top: 8px;
-        }
-
-        .button-primary:hover {
-          background: #0052a3;
-        }
-
-        .button-large {
-          padding: 12px 20px;
-          font-size: 0.95rem;
-        }
-
-        .message {
-          padding: 12px 16px;
-          border-radius: 8px;
-          margin-bottom: 16px;
-          font-size: 0.9rem;
-        }
-
-        .message-success {
-          background: #f0fdf4;
-          color: #166534;
-          border: 1px solid #86efac;
-        }
-
-        .message-error {
-          background: #fef2f2;
-          color: #991b1b;
-          border: 1px solid #fca5a5;
+          border-radius: var(--radius-md);
+          font-weight: 700;
+          color: var(--secondary);
+          font-size: 1.05rem;
+          margin-bottom: 20px;
         }
 
         @media (max-width: 1024px) {
@@ -450,34 +319,35 @@ export function MasterclassSignup() {
             position: static;
           }
 
-          .masterclass-header h1 {
-            font-size: 1.75rem;
+          .masterclass-left h1 {
+            font-size: 2.2rem;
           }
 
-          .countdown-display {
+          .countdown-timer {
             grid-template-columns: repeat(2, 1fr);
           }
         }
 
         @media (max-width: 640px) {
-          .masterclass-header h1 {
-            font-size: 1.5rem;
+          .masterclass-left h1 {
+            font-size: 1.6rem;
           }
 
           .masterclass-questions h3 {
             font-size: 1rem;
           }
 
-          .countdown-number {
-            font-size: 1.5rem;
+          .countdown-value {
+            font-size: 1.3rem;
           }
 
-          .registration-card {
-            padding: 20px 16px;
+          .countdown-timer {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
           }
 
-          .masterclass-layout {
-            gap: 16px;
+          .countdown-box {
+            padding: 10px 6px;
           }
         }
       `}</style>
