@@ -2,10 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import { createId } from "@/lib/auth";
 import { getPaystackCallbackUrl, initializePaystackTransaction } from "@/lib/paystack";
 import { savePaymentRecord } from "@/lib/repository";
+import { isSupabaseConfigured } from "@/lib/supabase";
 import type { PaymentRecord } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
+    const paystackSecret = process.env.PAYSTACK_SECRET_KEY?.trim();
+
+    if (!paystackSecret) {
+      return NextResponse.json(
+        {
+          error:
+            "PAYSTACK_SECRET_KEY is not configured. Please add it to your environment variables."
+        },
+        { status: 500 }
+      );
+    }
+
+    if (process.env.NODE_ENV === "production" && !isSupabaseConfigured()) {
+      return NextResponse.json(
+        {
+          error:
+            "Payments in production require SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
+        },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { fullName, email, phone, childGrade, amount } = body;
 
@@ -71,7 +94,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Masterclass registration error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Internal server error"
+      },
       { status: 500 }
     );
   }
