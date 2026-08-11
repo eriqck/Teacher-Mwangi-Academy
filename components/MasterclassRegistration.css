@@ -354,17 +354,33 @@
 }
 
 
-.time-number {
-  height: 64px;
+  .payment-only-panel {
+    margin-top: 25px;
+    padding: 24px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  }
 
-  display: flex;
+  .payment-only-panel p {
+    margin: 0 0 20px;
+    color: #203a5f;
+    font-size: 15px;
+    line-height: 1.6;
+  }
 
-  align-items: center;
+  .form-error {
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #fdecea;
+    color: #b42318;
+    font-size: 13px;
+  }
 
-  justify-content: center;
-
-  border: 1px solid #d5e0ec;
-
+  .secure-payment {
+    margin-top: 18px;
+  }
   border-radius: 7px;
 
   background: white;
@@ -770,14 +786,62 @@
 
   .content-wrapper {
     padding:
-      15px 30px
-      40px;
+      15px 20px
+      30px;
   }
 
 
   .content-wrapper h1 {
-    font-size: 34px;
+    font-size: 32px;
   }
+
+
+  .event-info {
+    gap: 16px;
+    flex-direction: column;
+  }
+
+
+  .countdown {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+
+  .time-number {
+    height: 52px;
+    font-size: 18px;
+  }
+
+
+  .time-item span {
+    font-size: 10px;
+  }
+
+
+  .payment-only-panel {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+
+  .payment-button {
+    font-size: 15px;
+    padding: 0 16px;
+    height: 50px;
+  }
+
+
+  .registration-section {
+    padding: 30px 20px 25px;
+  }
+
+
+  .secure-payment {
+    gap: 8px;
+    font-size: 11px;
+  }
+}
 
 
   .questions p {
