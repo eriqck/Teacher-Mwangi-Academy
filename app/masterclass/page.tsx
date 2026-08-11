@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import MasterclassRegistration from "@/components/MasterclassRegistration";
 import Link from "next/link";
 
@@ -17,7 +18,9 @@ export default function MasterclassPage() {
       </nav>
 
       <article className="teacher-tools-card">
-        <MasterclassRegistration />
+        <Suspense fallback={<p>Loading masterclass registration…</p>}>
+          <MasterclassRegistration />
+        </Suspense>
       </article>
     </section>
   );
