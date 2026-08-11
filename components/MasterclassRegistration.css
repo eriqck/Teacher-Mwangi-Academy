@@ -842,38 +842,3 @@
     font-size: 11px;
   }
 }
-
-
-  .questions p {
-    font-size: 16px;
-  }
-
-
-  .event-info {
-    gap: 20px;
-
-    flex-direction: column;
-  }
-
-
-  .countdown {
-    gap: 6px;
-  }
-
-
-  .time-number {
-    height: 55px;
-
-    font-size: 20px;
-  }
-
-
-  .time-item span {
-    font-size: 9px;
-  }
-
-
-  .registration-section {
-    padding: 35px 25px;
-  }
-}
