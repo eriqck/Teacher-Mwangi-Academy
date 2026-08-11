@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import "./MasterclassRegistration.css";
 
 const MASTERCLASS_DATE = new Date(
@@ -79,7 +80,12 @@ export default function MasterclassRegistration() {
     grade: "",
   });
 
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const paymentStatus = searchParams.get("payment");
+  const paymentSuccess = paymentStatus === "success";
+  const paymentFailed = paymentStatus === "failed";
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -102,24 +108,47 @@ export default function MasterclassRegistration() {
     }));
   };
 
-  const handleSubmit = (
+  const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
+    setRequestError(null);
+    setIsSubmitting(true);
 
-    console.log("Masterclass registration:", formData);
+    try {
+      const response = await fetch("/api/masterclass-register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fullName: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          childGrade: formData.grade,
+          amount: 100
+        })
+      });
 
-    /*
-      Later we will replace this with:
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? "Payment initialization failed.");
+      }
 
-      1. Send registration to Go backend
-      2. Save parent details in PostgreSQL
-      3. Initiate KSh 100 M-Pesa payment
-      4. Confirm payment
-      5. Send masterclass details by email
-    */
+      const payload = await response.json();
+      if (payload.paymentUrl) {
+        window.location.href = payload.paymentUrl;
+        return;
+      }
 
-    setSubmitted(true);
+      throw new Error("Unable to start payment. Please try again.");
+    } catch (error) {
+      setRequestError(
+        error instanceof Error ? error.message : "An unexpected error occurred."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -190,16 +219,47 @@ export default function MasterclassRegistration() {
         </section>
 
         <section className="registration-section">
-          {!submitted ? (
-            <div className="registration-form">
-              <div className="form-header">
-                <h2>Register now</h2>
-                <div className="price">
-                  <span>KSh</span> 100
-                </div>
-                <p>Secure your place in this exclusive masterclass.</p>
+          <div className="registration-form">
+            <div className="form-header">
+              <h2>Register now</h2>
+              <div className="price">
+                <span>KSh</span> 100
               </div>
+              <p>Secure your place in this exclusive masterclass.</p>
+            </div>
 
+            {paymentSuccess ? (
+              <div className="success-state">
+                <div className="success-icon">✓</div>
+                <h2>Payment received!</h2>
+                <p>Thank you, <strong>{formData.name || "participant"}</strong>.</p>
+                <p>
+                  Your registration is confirmed. A Google Meet link has been sent to your email.
+                </p>
+
+                <div className="success-details">
+                  <div>
+                    <span>Masterclass</span>
+                    <strong>One-on-One with KJSEA Examiners</strong>
+                  </div>
+
+                  <div>
+                    <span>Date</span>
+                    <strong>August 12, 2026</strong>
+                  </div>
+
+                  <div>
+                    <span>Time</span>
+                    <strong>8:00 PM EAT</strong>
+                  </div>
+
+                  <div>
+                    <span>Registration fee</span>
+                    <strong>KSh 100</strong>
+                  </div>
+                </div>
+              </div>
+            ) : (
               <form onSubmit={handleSubmit}>
                 <div className="input-group">
                   <label htmlFor="name">Full Name</label>
@@ -259,60 +319,35 @@ export default function MasterclassRegistration() {
                   </select>
                 </div>
 
-                <button type="submit" className="payment-button">
-                  Continue to Payment
+                {requestError ? (
+                  <div className="form-error">{requestError}</div>
+                ) : null}
+
+                {paymentFailed ? (
+                  <div className="form-error">
+                    Payment was not completed. Please try again.
+                  </div>
+                ) : null}
+
+                <button
+                  type="submit"
+                  className="payment-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Redirecting to payment…" : "Continue to Payment"}
                   <span>→</span>
                 </button>
               </form>
+            )}
 
-              <div className="secure-payment">
-                <span>🔒</span>
-                <div>
-                  <strong>Secure registration</strong>
-                  <small>Registration fee: KSh 100</small>
-                </div>
+            <div className="secure-payment">
+              <span>🔒</span>
+              <div>
+                <strong>Secure registration</strong>
+                <small>Registration fee: KSh 100</small>
               </div>
             </div>
-          ) : (
-            <div className="success-state">
-              <div className="success-icon">✓</div>
-              <h2>Registration received!</h2>
-              <p>Thank you, <strong>{formData.name}</strong>.</p>
-              <p>Complete your payment of KSh 100 to confirm your registration.</p>
-
-              <div className="success-details">
-                <div>
-                  <span>Masterclass</span>
-                  <strong>One-on-One with KJSEA Examiners</strong>
-                </div>
-
-                <div>
-                  <span>Date</span>
-                  <strong>August 12, 2026</strong>
-                </div>
-
-                <div>
-                  <span>Time</span>
-                  <strong>8:00 PM EAT</strong>
-                </div>
-
-                <div>
-                  <span>Registration fee</span>
-                  <strong>KSh 100</strong>
-                </div>
-              </div>
-
-              <button
-                className="payment-button"
-                onClick={() => {
-                  alert("M-Pesa payment integration will be connected here.");
-                }}
-              >
-                Pay KSh 100
-                <span>→</span>
-              </button>
-            </div>
-          )}
+          </div>
         </section>
       </div>
     </main>

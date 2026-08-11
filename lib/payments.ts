@@ -586,6 +586,27 @@ async function applyVerifiedPaystackPaymentOutcome(
 
   let redirectPath = `/dashboard?payment=${paid ? "success" : "failed"}`;
 
+  if (payment.kind === "masterclass") {
+    if (paid) {
+      try {
+        const email = result.customer?.email ?? "";
+        const fullName = typeof result.metadata?.fullName === "string" ? result.metadata.fullName : "Parent";
+        if (email) {
+          const { sendMasterclassInviteEmail } = await import("@/lib/email");
+          await sendMasterclassInviteEmail({
+            email,
+            fullName
+          });
+        }
+      } catch (emailError) {
+        console.error("Failed to send masterclass invite email:", emailError);
+      }
+      redirectPath = "/masterclass?payment=success";
+    } else {
+      redirectPath = "/masterclass?payment=failed";
+    }
+  }
+
   if (payment.kind === "generated-scheme" || payment.kind === "tool-access") {
     const request = await findGeneratedSchemeRequestByPaymentId(payment.id);
 

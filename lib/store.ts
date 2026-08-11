@@ -54,7 +54,8 @@ export type PaymentKind =
   | "resource"
   | "tool-access"
   | "generated-scheme"
-  | "generated-lesson-plan";
+  | "generated-lesson-plan"
+  | "masterclass";
 export type SchemeTerm = "term-1" | "term-2" | "term-3";
 
 export type PaymentRecord = {

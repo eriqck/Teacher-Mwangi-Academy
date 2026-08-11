@@ -31,6 +31,9 @@ type PaystackVerifyResponse = {
     customer?: {
       email?: string;
     };
+    metadata?: {
+      [key: string]: unknown;
+    };
   };
 };
 
