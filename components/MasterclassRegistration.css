@@ -180,13 +180,42 @@
 .eyebrow {
   margin-bottom: 14px;
 
-  color: #65b6ff;
-
-  font-size: 15px;
-
+  display: inline-block;
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 13px;
   font-weight: 800;
-
   letter-spacing: 1px;
+  border-radius: 20px;
+}
+
+/* Breadcrumb / nav buttons for masterclass page */
+.teacher-tools-breadcrumbs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(20, 45, 80, 0.06);
+  margin-bottom: 18px;
+}
+
+.teacher-tools-breadcrumbs .crumb {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #1976d2;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.teacher-tools-breadcrumbs .crumb.active {
+  background: #1976d2;
+  color: white;
+  box-shadow: 0 6px 18px rgba(25, 118, 210, 0.16);
 }
 
 
@@ -418,19 +447,15 @@
 
 .registration-section {
   display: flex;
-
-  align-items: center;
-
+  align-items: flex-start;
   justify-content: center;
-
   padding: 45px;
 }
 
 
 .registration-form {
   width: 100%;
-
-  max-width: 360px;
+  max-width: 420px;
 }
 
 

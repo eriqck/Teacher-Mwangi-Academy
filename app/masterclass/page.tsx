@@ -12,9 +12,12 @@ export default function MasterclassPage() {
   return (
     <section className="teacher-tools-content">
       <nav className="teacher-tools-breadcrumbs" aria-label="Breadcrumb">
-        <Link href="/">Home</Link>
-        <span>/</span>
-        <Link href="/masterclass">Masterclass</Link>
+        <Link href="/" className="crumb">
+          Home
+        </Link>
+        <Link href="/masterclass" className="crumb active">
+          Masterclass
+        </Link>
       </nav>
 
       <article className="teacher-tools-card">
