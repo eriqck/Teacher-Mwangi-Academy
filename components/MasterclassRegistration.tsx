@@ -132,7 +132,7 @@ export default function MasterclassRegistration() {
                 <span className="event-icon">📅</span>
                 <div>
                   <small>DATE</small>
-                  <strong>Tomorrow, August 12</strong>
+                  <strong>Thursday, August 13</strong>
                 </div>
               </div>
 
@@ -140,7 +140,7 @@ export default function MasterclassRegistration() {
                 <span className="event-icon">🕗</span>
                 <div>
                   <small>TIME</small>
-                  <strong>8:00 PM EAT</strong>
+                  <strong>7:00 PM EAT</strong>
                 </div>
               </div>
             </div>
