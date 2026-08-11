@@ -57,6 +57,67 @@ function getTransporter() {
   return transporterPromise;
 }
 
+export async function sendEmail(input: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}) {
+  if (!isPasswordResetEmailConfigured()) {
+    console.error("SMTP send failed: SMTP env vars are incomplete.");
+    throw new Error("SMTP is not configured correctly.");
+  }
+
+  const transporter = await getTransporter();
+  const config = getSmtpConfig();
+
+  try {
+    await Promise.race([
+      transporter.sendMail({
+        from: config.from,
+        to: input.to,
+        subject: input.subject,
+        text: input.text,
+        html: input.html
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("SMTP send timed out.")), 20000)
+      )
+    ]);
+  } catch (error) {
+    transporterPromise = null;
+    console.error("SMTP send failed:", error);
+    throw error;
+  }
+}
+
+export async function sendMasterclassInviteEmail(input: {
+  email: string;
+  fullName: string;
+}) {
+  const safeName = escapeHtml(input.fullName);
+  const meetLink = "https://meet.google.com/xei-dzzz-skv";
+
+  return sendEmail({
+    to: input.email,
+    subject: "Your Masterclass link: KJSEA Examiner Session",
+    text: `Hello ${input.fullName},\n\nThank you for registering for the KJSEA Examiner masterclass. Join the session using this link:\n${meetLink}\n\nSee you there!`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2a2e;">
+        <p>Hello ${safeName},</p>
+        <p>Thank you for registering for the KJSEA Examiner masterclass.</p>
+        <p>
+          Join the session using this link:<br />
+          <a href="${meetLink}" target="_blank" rel="noreferrer" style="color: #166534; font-weight: 700;">
+            ${meetLink}
+          </a>
+        </p>
+        <p>We look forward to seeing you at the masterclass.</p>
+      </div>
+    `
+  });
+}
+
 export async function sendPasswordResetOtp(input: {
   email: string;
   fullName: string;

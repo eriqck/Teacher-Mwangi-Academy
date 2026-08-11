@@ -17,6 +17,7 @@ export function MasterclassSignup() {
   const [childGrade, setChildGrade] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -35,9 +36,11 @@ export function MasterclassSignup() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     if (!fullName || !email || !phone || !childGrade) {
       setError("Please fill in all required fields");
+      setIsSubmitting(false);
       return;
     }
 
@@ -67,6 +70,8 @@ export function MasterclassSignup() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -122,7 +127,7 @@ export function MasterclassSignup() {
 
           {submitted ? (
             <div className="message message-success">
-              Thank you for registering! Check your email for masterclass details.
+              Thank you for registering! The Google Meet link has been sent to your email.
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="panel-stack">
@@ -188,8 +193,13 @@ export function MasterclassSignup() {
                 </select>
               </div>
 
-              <button type="submit" className="button button-buy" style={{ width: "100%", marginTop: "8px" }}>
-                CONTINUE TO PAYMENT
+              <button
+                type="submit"
+                className="button button-buy"
+                style={{ width: "100%", marginTop: "8px" }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Processing..." : "CONTINUE TO PAYMENT"}
               </button>
             </form>
           )}

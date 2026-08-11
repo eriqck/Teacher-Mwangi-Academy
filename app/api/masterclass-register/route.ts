@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendMasterclassInviteEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
     }
 
     // TODO: Store registration in database
-    // For now, we'll just log it and return success
+    // TODO: Integrate with Paystack or other payment provider
+    // For now, we'll send the invite email after the registration is accepted.
     console.log("Masterclass Registration:", {
       fullName,
       email,
@@ -24,19 +26,15 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // TODO: Integrate with Paystack or other payment provider
-    // For now, return a simple success response
-    // In production, you would:
-    // 1. Create a payment record in the database
-    // 2. Initialize a Paystack payment
-    // 3. Return the payment URL
+    await sendMasterclassInviteEmail({
+      email,
+      fullName,
+    });
 
     return NextResponse.json(
       {
         success: true,
-        message: "Registration successful",
-        // In production, include payment URL:
-        // paymentUrl: "https://checkout.paystack.com/...",
+        message: "Registration successful. The meeting link has been sent to your email.",
       },
       { status: 200 }
     );
