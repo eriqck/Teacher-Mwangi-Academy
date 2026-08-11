@@ -1,9 +1,4 @@
 import MasterclassRegistration from "@/components/MasterclassRegistration";
-
-export default function MasterclassPage() {
-  return <MasterclassRegistration />;
-}
-import { MasterclassSignup } from "@/components/masterclass-signup";
 import Link from "next/link";
 
 export const metadata = {
@@ -18,13 +13,11 @@ export default function MasterclassPage() {
       <nav className="teacher-tools-breadcrumbs" aria-label="Breadcrumb">
         <Link href="/">Home</Link>
         <span>/</span>
-        <Link href="/teacher-tools">Teacher tools</Link>
-        <span>/</span>
-        <span>KJSEA Masterclass</span>
+        <Link href="/masterclass">Masterclass</Link>
       </nav>
 
       <article className="teacher-tools-card">
-        <MasterclassSignup />
+        <MasterclassRegistration />
       </article>
     </section>
   );
