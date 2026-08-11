@@ -31,7 +31,7 @@ create table if not exists password_reset_tokens (
 create table if not exists payments (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
-  kind text not null check (kind in ('subscription', 'scheme', 'resource', 'tool-access', 'generated-scheme', 'generated-lesson-plan')),
+  kind text not null check (kind in ('subscription', 'scheme', 'resource', 'tool-access', 'generated-scheme', 'generated-lesson-plan', 'masterclass')),
   status text not null check (status in ('pending', 'paid', 'failed')),
   provider text,
   currency text,

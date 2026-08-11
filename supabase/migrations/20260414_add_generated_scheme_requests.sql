@@ -17,4 +17,4 @@ alter table payments
 
 alter table payments
   add constraint payments_kind_check
-  check (kind in ('subscription', 'scheme', 'resource', 'tool-access', 'generated-scheme'));
+  check (kind in ('subscription', 'scheme', 'resource', 'tool-access', 'generated-scheme', 'masterclass'));
