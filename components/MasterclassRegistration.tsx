@@ -155,18 +155,6 @@ export default function MasterclassRegistration() {
                 <TimeBox value={timeLeft.seconds} label="Seconds" />
               </div>
             </div>
-          </div>
-        </section>
-
-        <section className="registration-section">
-          <div className="registration-form">
-            <div className="form-header">
-              <h2>Register now</h2>
-              <div className="price">
-                <span>KSh</span> 100
-              </div>
-              <p>Secure your place in this exclusive masterclass.</p>
-            </div>
 
             <div className="payment-only-panel">
               <p>
@@ -186,13 +174,13 @@ export default function MasterclassRegistration() {
                 {isSubmitting ? "Redirecting to payment…" : "Continue to Payment"}
                 <span>→</span>
               </button>
-            </div>
 
-            <div className="secure-payment">
-              <span>🔒</span>
-              <div>
-                <strong>Secure registration</strong>
-                <small>Registration fee: KSh 100</small>
+              <div className="secure-payment">
+                <span>🔒</span>
+                <div>
+                  <strong>Secure registration</strong>
+                  <small>Registration fee: KSh 100</small>
+                </div>
               </div>
             </div>
           </div>
