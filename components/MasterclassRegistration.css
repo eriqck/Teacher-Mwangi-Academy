@@ -381,19 +381,20 @@
   .secure-payment {
     margin-top: 18px;
   }
-  border-radius: 7px;
 
-  background: white;
-
-  color: #1976d2;
-
-  font-size: 26px;
-
-  font-weight: 800;
-
-  box-shadow:
-    0 3px 8px
-    rgba(0, 0, 0, 0.04);
+  .time-number {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d5e0ec;
+    border-radius: 7px;
+    background: white;
+    color: #1976d2;
+    font-size: 26px;
+    font-weight: 800;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  }
 }
 
 
