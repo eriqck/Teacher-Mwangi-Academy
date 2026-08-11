@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createId } from "@/lib/auth";
+import { createId, getCurrentUser } from "@/lib/auth";
 import { getPaystackCallbackUrl, initializePaystackTransaction } from "@/lib/paystack";
 import { savePaymentRecord } from "@/lib/repository";
 import { isSupabaseConfigured } from "@/lib/supabase";
@@ -29,6 +29,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: "Please sign in to register for the masterclass." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { fullName, email, phone, childGrade, amount } = body;
 
@@ -44,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const payment: PaymentRecord = {
       id: paymentId,
-      userId: "",
+      userId: user.id,
       kind: "masterclass",
       status: "pending",
       provider: "paystack",
