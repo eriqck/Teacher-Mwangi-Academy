@@ -81,7 +81,7 @@ export default function MasterclassRegistration() {
     setIsSubmitting(true);
 
     try {
-      window.location.href = "https://paystack.shop/pay/4tl2d8rd4";
+      window.location.href = "https://paystack.shop/pay/4tl2d8rd4-";
     } catch (error) {
       setRequestError(
         error instanceof Error ? error.message : "An unexpected error occurred."
