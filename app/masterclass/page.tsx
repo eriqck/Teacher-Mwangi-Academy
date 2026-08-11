@@ -1,3 +1,8 @@
+import MasterclassRegistration from "@/components/MasterclassRegistration";
+
+export default function MasterclassPage() {
+  return <MasterclassRegistration />;
+}
 import { MasterclassSignup } from "@/components/masterclass-signup";
 import Link from "next/link";
 

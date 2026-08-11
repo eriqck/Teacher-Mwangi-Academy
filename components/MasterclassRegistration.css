@@ -1,0 +1,815 @@
+/* MasterclassRegistration styles (copied from user) */
+* {
+  box-sizing: border-box;
+}
+
+.masterclass-page {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px 20px;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      #e8f1ff,
+      transparent 35%
+    ),
+    #f5f7fb;
+}
+
+
+/* =================================
+   MAIN CARD
+================================= */
+
+.masterclass-card {
+  width: 100%;
+  max-width: 1150px;
+
+  min-height: 620px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.55fr)
+    minmax(340px, 0.85fr);
+
+  background: white;
+
+  border-radius: 22px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 25px 70px rgba(20, 45, 80, 0.15);
+}
+
+
+/* =================================
+   LEFT CONTENT
+================================= */
+
+.masterclass-content {
+  position: relative;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(7, 32, 72, 0.96),
+      rgba(14, 70, 130, 0.88)
+    ),
+    url("https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1400&q=80");
+
+  background-size: cover;
+
+  background-position: center;
+
+  overflow: hidden;
+}
+
+
+/* Left blue strip */
+
+.masterclass-content::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 18px;
+
+  background: #17158e;
+}
+
+
+/* Decorative circle */
+
+.masterclass-content::after {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+  height: 350px;
+
+  right: -170px;
+  bottom: -170px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.05);
+}
+
+
+/* =================================
+   LOGO
+================================= */
+
+.academy-logo {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 30px 45px;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+.logo-mark {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: white;
+
+  color: #17158e;
+
+  font-weight: 900;
+}
+
+
+/* =================================
+   CONTENT
+================================= */
+
+.content-wrapper {
+  position: relative;
+
+  z-index: 2;
+
+  padding:
+    20px 60px
+    55px 60px;
+}
+
+
+.eyebrow {
+  margin-bottom: 14px;
+
+  color: #65b6ff;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+.content-wrapper h1 {
+  margin: 0 0 25px;
+
+  font-size: clamp(
+    34px,
+    4vw,
+    48px
+  );
+
+  line-height: 1.1;
+
+  letter-spacing: -1.5px;
+}
+
+
+.content-wrapper h1 span {
+  color: white;
+}
+
+
+/* Questions */
+
+.questions {
+  margin-bottom: 22px;
+}
+
+
+.questions p {
+  margin: 5px 0;
+
+  font-size: 18px;
+
+  font-weight: 650;
+
+  line-height: 1.5;
+}
+
+
+/* Description */
+
+.description {
+  max-width: 650px;
+
+  margin: 12px 0;
+
+  color: #dbe8f6;
+
+  font-size: 15px;
+
+  line-height: 1.65;
+}
+
+
+.description strong {
+  color: white;
+}
+
+
+/* =================================
+   EVENT DETAILS
+================================= */
+
+.event-info {
+  display: flex;
+
+  gap: 35px;
+
+  margin-top: 25px;
+
+  margin-bottom: 25px;
+}
+
+
+.event-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+.event-icon {
+  font-size: 21px;
+}
+
+
+.event-item div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.event-item small {
+  color: #91c9f5;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+.event-item strong {
+  font-size: 13px;
+}
+
+
+/* =================================
+   COUNTDOWN
+================================= */
+
+.countdown-container {
+  max-width: 620px;
+
+  margin-top: 25px;
+
+  padding: 19px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.95);
+
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.08);
+}
+
+
+.countdown-title {
+  margin: 0 0 17px;
+
+  text-align: center;
+
+  color: #333;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+.countdown {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 12px;
+}
+
+
+.time-item {
+  text-align: center;
+}
+
+
+.time-number {
+  height: 64px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px solid #d5e0ec;
+
+  border-radius: 7px;
+
+  background: white;
+
+  color: #1976d2;
+
+  font-size: 26px;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 3px 8px
+    rgba(0, 0, 0, 0.04);
+}
+
+
+.time-item span {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #4c4c4c;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+
+/* =================================
+   REGISTRATION SECTION
+================================= */
+
+.registration-section {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 45px;
+}
+
+
+.registration-form {
+  width: 100%;
+
+  max-width: 360px;
+}
+
+
+/* Header */
+
+.form-header h2 {
+  margin: 0;
+
+  color: #252525;
+
+  font-size: 28px;
+
+  font-weight: 800;
+}
+
+
+.form-header .price {
+  margin-top: 7px;
+
+  color: #1976d2;
+
+  font-size: 25px;
+
+  font-weight: 800;
+}
+
+
+.form-header .price span {
+  font-size: 15px;
+}
+
+
+.form-header p {
+  margin: 7px 0 25px;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =================================
+   INPUTS
+================================= */
+
+.input-group {
+  margin-bottom: 17px;
+}
+
+
+.input-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #333;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+.input-group input,
+.input-group select {
+  width: 100%;
+
+  height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid transparent;
+
+  border-radius: 6px;
+
+  outline: none;
+
+  background: #f1f3f6;
+
+  color: #333;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  transition: 0.2s;
+}
+
+
+.input-group input::placeholder {
+  color: #999;
+}
+
+
+.input-group input:focus,
+.input-group select:focus {
+  border-color: #1976d2;
+
+  background: white;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(25, 118, 210, 0.08);
+}
+
+
+/* =================================
+   BUTTON
+================================= */
+
+.payment-button {
+  width: 100%;
+
+  height: 49px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  margin-top: 7px;
+
+  border: none;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1976d2,
+      #1265bb
+    );
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+
+.payment-button span {
+  font-size: 20px;
+
+  line-height: 0;
+}
+
+
+.payment-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(25, 118, 210, 0.28);
+}
+
+
+/* =================================
+   SECURITY
+================================= */
+
+.secure-payment {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 20px;
+
+  color: #777;
+
+  font-size: 12px;
+}
+
+
+.secure-payment div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+
+.secure-payment strong {
+  color: #444;
+
+  font-size: 11px;
+}
+
+
+.secure-payment small {
+  font-size: 10px;
+}
+
+
+/* =================================
+   SUCCESS STATE
+================================= */
+
+.success-state {
+  width: 100%;
+
+  max-width: 350px;
+
+  text-align: center;
+}
+
+
+.success-icon {
+  width: 65px;
+  height: 65px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin: 0 auto 20px;
+
+  border-radius: 50%;
+
+  background: #e7f7ee;
+
+  color: #20a15a;
+
+  font-size: 30px;
+
+  font-weight: 800;
+}
+
+
+.success-state h2 {
+  margin-bottom: 10px;
+
+  color: #252525;
+
+  font-size: 25px;
+}
+
+
+.success-state p {
+  margin: 7px 0;
+
+  color: #666;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+.success-details {
+  margin: 25px 0;
+
+  padding: 17px;
+
+  border-radius: 10px;
+
+  background: #f6f8fa;
+
+  text-align: left;
+}
+
+
+.success-details div {
+  margin-bottom: 13px;
+}
+
+
+.success-details div:last-child {
+  margin-bottom: 0;
+}
+
+
+.success-details span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #888;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+}
+
+
+.success-details strong {
+  color: #333;
+
+  font-size: 13px;
+}
+
+
+/* =================================
+   TABLET
+================================= */
+
+@media (max-width: 900px) {
+
+  .masterclass-card {
+    grid-template-columns: 1fr;
+  }
+
+
+  .masterclass-content {
+    min-height: 600px;
+  }
+
+
+  .registration-section {
+    padding: 45px 30px;
+  }
+}
+
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 600px) {
+
+  .masterclass-page {
+    padding: 15px;
+  }
+
+
+  .masterclass-card {
+    border-radius: 14px;
+  }
+
+
+  .academy-logo {
+    padding: 25px 30px;
+  }
+
+
+  .content-wrapper {
+    padding:
+      15px 30px
+      40px;
+  }
+
+
+  .content-wrapper h1 {
+    font-size: 34px;
+  }
+
+
+  .questions p {
+    font-size: 16px;
+  }
+
+
+  .event-info {
+    gap: 20px;
+
+    flex-direction: column;
+  }
+
+
+  .countdown {
+    gap: 6px;
+  }
+
+
+  .time-number {
+    height: 55px;
+
+    font-size: 20px;
+  }
+
+
+  .time-item span {
+    font-size: 9px;
+  }
+
+
+  .registration-section {
+    padding: 35px 25px;
+  }
+}

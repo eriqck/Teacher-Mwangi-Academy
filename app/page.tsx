@@ -48,6 +48,7 @@ export default async function HomePage() {
 
   const navLinks = [
     { href: "#levels", label: "Levels" },
+    { href: "/masterclass", label: "Masterclass" },
     { href: "#plans", label: "Plans" },
     { href: "#results", label: "Results" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
