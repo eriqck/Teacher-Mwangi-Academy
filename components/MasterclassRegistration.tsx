@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import "./MasterclassRegistration.css";
 
 const MASTERCLASS_DATE = new Date(
@@ -13,13 +12,6 @@ interface TimeLeft {
   hours: number;
   minutes: number;
   seconds: number;
-}
-
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  grade: string;
 }
 
 const calculateTimeLeft = (): TimeLeft => {
@@ -73,19 +65,8 @@ export default function MasterclassRegistration() {
   const [timeLeft, setTimeLeft] =
     useState<TimeLeft>(calculateTimeLeft());
 
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    phone: "",
-    grade: "",
-  });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const paymentStatus = searchParams.get("payment");
-  const paymentSuccess = paymentStatus === "success";
-  const paymentFailed = paymentStatus === "failed";
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -95,53 +76,12 @@ export default function MasterclassRegistration() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleChange = (
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = event.target;
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
     setRequestError(null);
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/masterclass-register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          fullName: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          childGrade: formData.grade,
-          amount: 100
-        })
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.error ?? "Payment initialization failed.");
-      }
-
-      const payload = await response.json();
-      if (payload.paymentUrl) {
-        window.location.href = payload.paymentUrl;
-        return;
-      }
-
-      throw new Error("Unable to start payment. Please try again.");
+      window.location.href = "https://paystack.shop/pay/xrvg4rnxrl";
     } catch (error) {
       setRequestError(
         error instanceof Error ? error.message : "An unexpected error occurred."
@@ -228,117 +168,25 @@ export default function MasterclassRegistration() {
               <p>Secure your place in this exclusive masterclass.</p>
             </div>
 
-            {paymentSuccess ? (
-              <div className="success-state">
-                <div className="success-icon">✓</div>
-                <h2>Payment received!</h2>
-                <p>Thank you, <strong>{formData.name || "participant"}</strong>.</p>
-                <p>
-                  Your registration is confirmed. A Google Meet link has been sent to your email.
-                </p>
+            <div className="payment-only-panel">
+              <p>
+                Click below to complete your masterclass registration with Paystack.
+              </p>
 
-                <div className="success-details">
-                  <div>
-                    <span>Masterclass</span>
-                    <strong>One-on-One with KJSEA Examiners</strong>
-                  </div>
+              {requestError ? (
+                <div className="form-error">{requestError}</div>
+              ) : null}
 
-                  <div>
-                    <span>Date</span>
-                    <strong>August 12, 2026</strong>
-                  </div>
-
-                  <div>
-                    <span>Time</span>
-                    <strong>8:00 PM EAT</strong>
-                  </div>
-
-                  <div>
-                    <span>Registration fee</span>
-                    <strong>KSh 100</strong>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                  <label htmlFor="name">Full Name</label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="email">Email Address</label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="phone">Phone Number</label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="07XX XXX XXX"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="grade">Child's Grade</label>
-                  <select
-                    id="grade"
-                    name="grade"
-                    value={formData.grade}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select grade</option>
-                    <option value="Grade 4">Grade 4</option>
-                    <option value="Grade 5">Grade 5</option>
-                    <option value="Grade 6">Grade 6</option>
-                    <option value="Grade 7">Grade 7</option>
-                    <option value="Grade 8">Grade 8</option>
-                    <option value="Grade 9">Grade 9</option>
-                  </select>
-                </div>
-
-                {requestError ? (
-                  <div className="form-error">{requestError}</div>
-                ) : null}
-
-                {paymentFailed ? (
-                  <div className="form-error">
-                    Payment was not completed. Please try again.
-                  </div>
-                ) : null}
-
-                <button
-                  type="submit"
-                  className="payment-button"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Redirecting to payment…" : "Continue to Payment"}
-                  <span>→</span>
-                </button>
-              </form>
-            )}
+              <button
+                type="button"
+                className="payment-button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Redirecting to payment…" : "Continue to Payment"}
+                <span>→</span>
+              </button>
+            </div>
 
             <div className="secure-payment">
               <span>🔒</span>
