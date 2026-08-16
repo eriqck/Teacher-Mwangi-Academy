@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import "./MasterclassRegistration.css";
 
 const MASTERCLASS_DATE = new Date(
-  "2026-08-13T19:00:00+03:00"
+  "2026-08-18T19:00:00+03:00"
 ).getTime();
 
 interface TimeLeft {
@@ -101,7 +101,7 @@ export default function MasterclassRegistration() {
           </div>
 
           <div className="content-wrapper">
-            <p className="eyebrow">JOIN US ON THURS</p>
+            <p className="eyebrow">JOIN US ON TUE</p>
 
             <h1>
               One-on-One with
@@ -132,7 +132,7 @@ export default function MasterclassRegistration() {
                 <span className="event-icon">📅</span>
                 <div>
                   <small>DATE</small>
-                  <strong>Thursday, August 13</strong>
+                  <strong>Tuesday, August 18</strong>
                 </div>
               </div>
 

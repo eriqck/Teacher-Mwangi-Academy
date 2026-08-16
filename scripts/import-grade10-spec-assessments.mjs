@@ -133,7 +133,7 @@ function classify(entryName) {
       group: "endterm",
       term: "term-3",
       assessmentSet: "set-1",
-      label: "End Term 2"
+      label: "Term 3"
     };
   }
 
@@ -252,8 +252,14 @@ async function main() {
   const planned = [...groups.values()]
     .map((group) => ({
       ...group,
-      title: `Grade 10 ${group.subject} ${group.label} Bundle`,
-      fileName: `Grade 10 ${group.subject} ${group.label} Bundle.zip`
+      title:
+        group.group === "endterm"
+          ? `Grade 10 ${group.subject} Term 3.zip`
+          : `Grade 10 ${group.subject} ${group.label} Bundle`,
+      fileName:
+        group.group === "endterm"
+          ? `Grade 10 ${group.subject} Term 3.zip`
+          : `Grade 10 ${group.subject} ${group.label} Bundle.zip`
     }))
     .sort((a, b) => `${a.term}${a.assessmentSet}${a.subject}`.localeCompare(`${b.term}${b.assessmentSet}${b.subject}`));
 
