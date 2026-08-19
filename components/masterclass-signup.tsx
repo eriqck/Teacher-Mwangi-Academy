@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-const MASTERCLASS_DATE = new Date("2026-08-18T19:00:00+03:00").getTime();
+const MASTERCLASS_DATE = new Date("2026-08-20T19:00:00+03:00").getTime();
 const PRICE_KSH = 100;
 
 function pad(n: number) {
