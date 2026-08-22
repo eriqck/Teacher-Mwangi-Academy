@@ -104,15 +104,10 @@ export default function MasterclassRegistration() {
             <p className="eyebrow">JOIN US ON SATURDAY</p>
 
             <h1>
-              Term 3 & Beyond 
+              Term 3 & Beyond:
               <br />
               <span>Preparing For The Future</span>
             </h1>
-
-            <div className="questions">
-              <p>How do you present your work for examination?</p>
-              <p>How are marks actually scored?</p>
-            </div>
 
             <p className="description">
               As we wrap up the holiday and prepare for Term 3, 
