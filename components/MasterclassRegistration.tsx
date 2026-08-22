@@ -104,9 +104,9 @@ export default function MasterclassRegistration() {
             <p className="eyebrow">JOIN US ON SATURDAY</p>
 
             <h1>
-              One-on-One with
+              Term 3 & Beyond 
               <br />
-              <span>KJSEA Examiners</span>
+              <span>Preparing For The Future</span>
             </h1>
 
             <div className="questions">
@@ -115,16 +115,19 @@ export default function MasterclassRegistration() {
             </div>
 
             <p className="description">
-              Did you know you can have the{" "}
-              <strong>correct answer and still fail to score</strong>
-              —simply because of how you present it?
+              As we wrap up the holiday and prepare for Term 3, 
+              join me for an important conversation with a Professional 
+              Counselling Psychologist and a Professional Career Counsellor &
+              Mentor. Key issues: • Parent–child communication • 
+              Planning for Grade 11, Grade 12 and beyond
             </p>
 
             <p className="description">
               Join us on{" "}
               <strong>Tr Mwangi Academy</strong>
-              {" "}as we engage KJSEA Examiners one-on-one and learn what truly
-              matters in exams.
+              {" "}as we engage Professional 
+              Counselling Psychologist and a Professional Career Counsellor &
+              Mentor
             </p>
 
             <div className="event-info">
