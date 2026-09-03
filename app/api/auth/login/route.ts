@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateUser, createSession } from "@/lib/auth";
+import crypto from "crypto";
+import { authenticateUser, createId, createSession, hashPassword } from "@/lib/auth";
 import { verifyFirebasePasswordSignIn } from "@/lib/firebase-auth";
-import { findUserByEmail, findUserById } from "@/lib/repository";
+import { findUserByEmail, findUserById, insertUser } from "@/lib/repository";
+import type { UserRecord } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,16 +30,32 @@ export async function POST(request: NextRequest) {
       if (firebaseUser) {
         user =
           (firebaseUser.firebaseUid ? await findUserById(firebaseUser.firebaseUid).catch(() => null) : null) ??
+          (firebaseUser.legacyUserId ? await findUserById(firebaseUser.legacyUserId).catch(() => null) : null) ??
           (await findUserByEmail(firebaseUser.email).catch(() => null));
 
         if (!user) {
-          return NextResponse.json(
-            {
-              error:
-                "Your Firebase password is correct, but this account has not been connected to the website profile yet."
-            },
-            { status: 409 }
-          );
+          const { hash, salt } = hashPassword(crypto.randomBytes(32).toString("hex"));
+          const newUser: UserRecord = {
+            id: firebaseUser.legacyUserId || firebaseUser.firebaseUid || createId("user"),
+            fullName: firebaseUser.displayName?.trim() || firebaseUser.email,
+            email: firebaseUser.email,
+            phoneNumber: firebaseUser.phoneNumber?.trim() || "",
+            role: "parent",
+            passwordHash: hash,
+            passwordSalt: salt,
+            createdAt: new Date().toISOString()
+          };
+
+          try {
+            user = await insertUser(newUser);
+          } catch {
+            return NextResponse.json(
+              {
+                error: "Your password is correct, but your website profile could not be created right now."
+              },
+              { status: 409 }
+            );
+          }
         }
       }
     }

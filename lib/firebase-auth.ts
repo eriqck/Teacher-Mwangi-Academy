@@ -1,7 +1,23 @@
 type FirebasePasswordSignInResponse = {
   email?: string;
+  displayName?: string;
   localId?: string;
   idToken?: string;
+};
+
+type FirebaseLookupResponse = {
+  users?: Array<{
+    email?: string;
+    displayName?: string;
+    localId?: string;
+    customAttributes?: string;
+  }>;
+};
+
+type FirebaseCustomAttributes = {
+  role?: string;
+  legacyUserId?: string;
+  phoneNumber?: string;
 };
 
 function getFirebaseApiKey() {
@@ -44,8 +60,42 @@ export async function verifyFirebasePasswordSignIn(email: string, password: stri
     return null;
   }
 
+  let customAttributes: FirebaseCustomAttributes = {};
+  let displayName = data.displayName ?? "";
+
+  const lookupResponse = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        idToken: data.idToken
+      })
+    }
+  );
+
+  if (lookupResponse.ok) {
+    const lookup = (await lookupResponse.json()) as FirebaseLookupResponse;
+    const profile = lookup.users?.[0];
+    displayName = profile?.displayName ?? displayName;
+
+    if (profile?.customAttributes) {
+      try {
+        customAttributes = JSON.parse(profile.customAttributes) as FirebaseCustomAttributes;
+      } catch {
+        customAttributes = {};
+      }
+    }
+  }
+
   return {
     email: data.email.trim().toLowerCase(),
-    firebaseUid: data.localId ?? ""
+    firebaseUid: data.localId ?? "",
+    displayName,
+    role: customAttributes.role,
+    legacyUserId: customAttributes.legacyUserId,
+    phoneNumber: customAttributes.phoneNumber
   };
 }
