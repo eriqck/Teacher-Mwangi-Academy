@@ -1,9 +1,11 @@
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import zlib from "node:zlib";
 import { createClient } from "@supabase/supabase-js";
 
 const defaultOutputPath = path.join(process.cwd(), "outputs", "firebase-auth-users.json");
+const defaultBackupPath = "C:\\Users\\Eric\\Desktop\\supabase backup\\db_cluster-29-07-2026@08-38-47.backup.gz";
 
 function loadLocalEnv() {
   const envPath = path.join(process.cwd(), ".env.local");
@@ -36,6 +38,7 @@ function parseArgs() {
     role: null,
     email: null,
     output: defaultOutputPath,
+    backup: null,
     dryRun: false
   };
 
@@ -88,6 +91,18 @@ function parseArgs() {
 
     if (arg.startsWith("--output=")) {
       options.output = path.resolve(arg.slice("--output=".length));
+      continue;
+    }
+
+    if (arg === "--backup") {
+      options.backup = path.resolve(args[index + 1]);
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--backup=")) {
+      options.backup = path.resolve(arg.slice("--backup=".length));
+      continue;
     }
   }
 
@@ -100,6 +115,67 @@ function parseArgs() {
   }
 
   return options;
+}
+
+function decodePostgresCopyValue(value) {
+  if (value === "\\N") return "";
+
+  return value
+    .replace(/\\\\/g, "\\")
+    .replace(/\\t/g, "\t")
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\r");
+}
+
+function parseUsersFromSqlDump(sqlDump) {
+  const copyPattern =
+    /^COPY public\.users \(id, full_name, email, phone_number, role, password_hash, password_salt, created_at\) FROM stdin;$/m;
+  const copyMatch = copyPattern.exec(sqlDump);
+
+  if (!copyMatch) {
+    throw new Error("Could not find COPY public.users data in the backup.");
+  }
+
+  const startIndex = copyMatch.index + copyMatch[0].length;
+  const nextSection = sqlDump.slice(startIndex);
+  const endIndex = nextSection.search(/\r?\n\\\.\r?\n/);
+
+  if (endIndex === -1) {
+    throw new Error("Could not find the end of COPY public.users data in the backup.");
+  }
+
+  const copyBody = nextSection.slice(0, endIndex).trim();
+  if (!copyBody) return [];
+
+  return copyBody.split(/\r?\n/).map((line) => {
+    const [id, fullName, email, phoneNumber, role, , , createdAt] = line
+      .split("\t")
+      .map((value) => decodePostgresCopyValue(value));
+
+    return {
+      id,
+      fullName,
+      email,
+      phoneNumber,
+      role,
+      createdAt
+    };
+  });
+}
+
+async function readBackupText(backupPath) {
+  const backupBuffer = await fs.readFile(backupPath);
+
+  if (/\.gz$/i.test(backupPath)) {
+    return zlib.gunzipSync(backupBuffer).toString("utf8");
+  }
+
+  return backupBuffer.toString("utf8");
+}
+
+async function readUsersFromBackup(backupPath) {
+  const backupText = await readBackupText(backupPath);
+  return parseUsersFromSqlDump(backupText);
 }
 
 function mapSupabaseUser(row) {
@@ -145,7 +221,6 @@ function toFirebaseUser(user) {
   const email = `${user.email ?? ""}`.trim().toLowerCase();
   const fullName = `${user.fullName ?? ""}`.trim();
   const role = `${user.role ?? ""}`.trim().toLowerCase();
-  const createdAt = Date.parse(user.createdAt || "") || Date.now();
 
   return {
     localId: `${user.id}`.slice(0, 128),
@@ -157,17 +232,17 @@ function toFirebaseUser(user) {
       role,
       legacyUserId: `${user.id}`,
       phoneNumber: `${user.phoneNumber ?? ""}`
-    }),
-    metadata: {
-      createdAt: `${createdAt}`
-    }
+    })
   };
 }
 
 async function main() {
   loadLocalEnv();
   const options = parseArgs();
-  const sourceUsers = (await readUsersFromSupabase()) || (await readUsersFromLocalStore());
+  const backupPath = options.backup || (fsSync.existsSync(defaultBackupPath) ? defaultBackupPath : null);
+  const sourceUsers = backupPath
+    ? await readUsersFromBackup(backupPath)
+    : (await readUsersFromSupabase()) || (await readUsersFromLocalStore());
 
   let users = sourceUsers
     .filter((user) => `${user.email ?? ""}`.trim())
