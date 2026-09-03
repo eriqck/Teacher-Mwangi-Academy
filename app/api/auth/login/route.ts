@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser, createSession } from "@/lib/auth";
 import { verifyFirebasePasswordSignIn } from "@/lib/firebase-auth";
-import { findUserByEmail } from "@/lib/repository";
+import { findUserByEmail, findUserById } from "@/lib/repository";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,13 +14,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
 
-    let user = await authenticateUser(body.email, body.password);
+    let user = null;
+
+    try {
+      user = await authenticateUser(body.email, body.password);
+    } catch {
+      user = null;
+    }
 
     if (!user) {
       const firebaseUser = await verifyFirebasePasswordSignIn(body.email, body.password);
 
       if (firebaseUser) {
-        user = await findUserByEmail(firebaseUser.email);
+        user =
+          (firebaseUser.firebaseUid ? await findUserById(firebaseUser.firebaseUid).catch(() => null) : null) ??
+          (await findUserByEmail(firebaseUser.email).catch(() => null));
+
+        if (!user) {
+          return NextResponse.json(
+            {
+              error:
+                "Your Firebase password is correct, but this account has not been connected to the website profile yet."
+            },
+            { status: 409 }
+          );
+        }
       }
     }
 

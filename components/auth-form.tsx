@@ -50,7 +50,13 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
 
       if (!response.ok) {
-        setError(data.error ?? "Unable to complete this request right now.");
+        if (response.status === 401) {
+          setError("Email or password not accepted. Please check the details and try again.");
+        } else if (response.status === 409) {
+          setError(data.error ?? "This account needs to be connected before signing in.");
+        } else {
+          setError("Unable to complete this request right now. Please try again shortly.");
+        }
         return;
       }
 
@@ -122,6 +128,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       )}
 
       {success ? <div className="message message-success">{success}</div> : null}
+      {error ? <div className="message message-error">{error}</div> : null}
 
       <button className="button" type="submit" disabled={loading}>
         {loading ? "Please wait..." : mode === "signup" ? "Create account" : "Sign in"}
