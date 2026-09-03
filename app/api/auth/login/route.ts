@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser, createSession } from "@/lib/auth";
+import { verifyFirebasePasswordSignIn } from "@/lib/firebase-auth";
+import { findUserByEmail } from "@/lib/repository";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +14,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
 
-    const user = await authenticateUser(body.email, body.password);
+    let user = await authenticateUser(body.email, body.password);
+
+    if (!user) {
+      const firebaseUser = await verifyFirebasePasswordSignIn(body.email, body.password);
+
+      if (firebaseUser) {
+        user = await findUserByEmail(firebaseUser.email);
+      }
+    }
 
     if (!user) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
