@@ -7,7 +7,7 @@ export function SiteFooter() {
         <p className="site-footer-copy">
           Copyright © {new Date().getFullYear()} {academyName}. All rights reserved. Made by{" "}
           <a
-            href="www.developererik.me"
+            href="https://www.developererik.me"
             target="_blank"
             rel="noreferrer"
             className="site-footer-link"
