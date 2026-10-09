@@ -204,13 +204,6 @@ export default async function HomePage() {
                 <article className="home-lower-level-card" data-level={level.id}>
                   <span className="home-lower-level-stage">{level.stage}</span>
                   <h3 className="home-lower-level-title">{level.title}</h3>
-                  <div className="home-lower-level-tags">
-                    {(level.cardTags ?? level.subjects).slice(0, 3).map((subject) => (
-                      <span key={subject} className="home-lower-level-chip">
-                        {shortenSubject(subject)}
-                      </span>
-                    ))}
-                  </div>
                 </article>
               </Link>
             ))}

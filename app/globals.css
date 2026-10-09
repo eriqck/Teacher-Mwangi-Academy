@@ -3794,22 +3794,6 @@ main {
   color: #0f172a;
 }
 
-.home-lower-level-tags {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.home-lower-level-chip {
-  border-radius: 999px;
-  background: #fff7ed;
-  padding: 6px 8px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #9a3412;
-}
-
 .home-level-link {
   display: block;
 }
