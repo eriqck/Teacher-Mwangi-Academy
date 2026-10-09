@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { isManagedStorageConfigured } from "@/lib/managed-storage";
 import { deleteResourceFile, getResourceFilePublicUrl } from "@/lib/repository";
 import { saveUploadedResource, saveUploadedResourceMetadata } from "@/lib/resources";
+import { composeResourceDescription } from "@/lib/resource-tags";
 import { isSchemeTerm } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
 
@@ -40,6 +41,8 @@ export async function POST(request: NextRequest) {
     const section = `${formData.get("section") ?? "notes"}`.trim();
     const assessmentSet = `${formData.get("assessmentSet") ?? ""}`.trim();
     const term = `${formData.get("term") ?? ""}`.trim();
+    const strand = `${formData.get("strand") ?? ""}`.trim();
+    const subStrand = `${formData.get("subStrand") ?? ""}`.trim();
     const audience = `${formData.get("audience") ?? "both"}`.trim();
     const storagePath = `${formData.get("storagePath") ?? ""}`.trim();
     const fileName = `${formData.get("fileName") ?? ""}`.trim();
@@ -87,12 +90,17 @@ export async function POST(request: NextRequest) {
           ? (assessmentSet as AssessmentSet)
           : null;
     const resolvedTerm: SchemeTerm = term as SchemeTerm;
+    const taggedDescription = composeResourceDescription({
+      description,
+      strand: category === "revision-material" ? strand : "",
+      subStrand: category === "revision-material" ? subStrand : ""
+    });
 
     try {
       if (isDirectSupabaseUpload) {
         await saveUploadedResourceMetadata({
           title,
-          description,
+          description: taggedDescription,
           level,
           subject,
           category,
@@ -109,7 +117,7 @@ export async function POST(request: NextRequest) {
       } else {
         await saveUploadedResource({
           title,
-          description,
+          description: taggedDescription,
           level,
           subject,
           category,

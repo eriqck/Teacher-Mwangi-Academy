@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { assessmentSets } from "@/lib/assessment-sets";
 import { schemeOfWorkPrice } from "@/lib/business";
-import { levels } from "@/lib/catalog";
+import { getSubjectsForStage, levels } from "@/lib/catalog";
+import {
+  getLowerPrimaryLevel,
+  getStrandsForLowerSubject,
+  getSubstrandsForLowerStrand,
+  isLowerPrimaryLevel
+} from "@/lib/lower-primary-curriculum";
 import { schemeTerms } from "@/lib/scheme-terms";
 
 type UploadVariant = "revision-material" | "scheme-of-work";
@@ -78,7 +84,17 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
   const isScheme = variant === "scheme-of-work";
   const [section, setSection] = useState("notes");
   const [term, setTerm] = useState("term-1");
+  const [selectedLevel, setSelectedLevel] = useState("Grade 7");
+  const [selectedSubject, setSelectedSubject] = useState("Mathematics");
+  const [selectedStrand, setSelectedStrand] = useState("");
   const showAssessmentSet = !isScheme && section === "assessment";
+  const lowerLevel = getLowerPrimaryLevel(selectedLevel);
+  const showStrandFields = Boolean(lowerLevel && isLowerPrimaryLevel(selectedLevel) && !isScheme);
+  const subjectOptions = lowerLevel
+    ? getSubjectsForStage(lowerLevel.stage)
+    : subjects;
+  const strandOptions = getStrandsForLowerSubject(selectedSubject);
+  const subStrandOptions = getSubstrandsForLowerStrand(selectedStrand || strandOptions[0] || "");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -209,6 +225,9 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       form.reset();
       setSection("notes");
       setTerm("term-1");
+      setSelectedLevel("Grade 7");
+      setSelectedSubject("Mathematics");
+      setSelectedStrand("");
       router.refresh();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
@@ -234,13 +253,17 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           <input
             id={`${variant}-subject`}
             name="subject"
-            defaultValue="Mathematics"
+            value={selectedSubject}
             list={`${variant}-subject-options`}
             placeholder="Type or choose a subject"
+            onChange={(event) => {
+              setSelectedSubject(event.target.value);
+              setSelectedStrand("");
+            }}
             required
           />
           <datalist id={`${variant}-subject-options`}>
-            {subjects.map((subject) => (
+            {subjectOptions.map((subject) => (
               <option key={subject} value={subject} />
             ))}
           </datalist>
@@ -251,7 +274,20 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
       <div className="form-grid">
         <div className="field">
           <label htmlFor={`${variant}-level`}>Level</label>
-          <select id={`${variant}-level`} name="level" defaultValue="Grade 7" required>
+          <select
+            id={`${variant}-level`}
+            name="level"
+            value={selectedLevel}
+            onChange={(event) => {
+              const nextLevel = event.target.value;
+              const nextLevelEntry = getLowerPrimaryLevel(nextLevel);
+              const nextSubjects = nextLevelEntry ? getSubjectsForStage(nextLevelEntry.stage) : subjects;
+              setSelectedLevel(nextLevel);
+              setSelectedSubject(nextSubjects[0] ?? "Mathematics");
+              setSelectedStrand("");
+            }}
+            required
+          >
             {levels.map((level) => (
               <option key={level.id} value={level.title}>
                 {level.title}
@@ -285,6 +321,44 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
 
       {!isScheme ? (
         <>
+          {showStrandFields ? (
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor={`${variant}-strand`}>Strand</label>
+                <input
+                  id={`${variant}-strand`}
+                  name="strand"
+                  value={selectedStrand}
+                  list={`${variant}-strand-options`}
+                  placeholder="Choose or type the strand"
+                  onChange={(event) => setSelectedStrand(event.target.value)}
+                />
+                <datalist id={`${variant}-strand-options`}>
+                  {strandOptions.map((strand) => (
+                    <option key={strand} value={strand} />
+                  ))}
+                </datalist>
+                <small>This helps Grade 1-5 and PP materials appear under the right strand.</small>
+              </div>
+
+              <div className="field">
+                <label htmlFor={`${variant}-substrand`}>Substrand</label>
+                <input
+                  id={`${variant}-substrand`}
+                  name="subStrand"
+                  list={`${variant}-substrand-options`}
+                  placeholder="Choose or type the substrand"
+                />
+                <datalist id={`${variant}-substrand-options`}>
+                  {subStrandOptions.map((subStrand) => (
+                    <option key={subStrand} value={subStrand} />
+                  ))}
+                </datalist>
+                <small>Optional, but useful for topical packs and answers.</small>
+              </div>
+            </div>
+          ) : null}
+
           <div className="form-grid">
             <div className="field">
               <label htmlFor={`${variant}-term`}>School term</label>

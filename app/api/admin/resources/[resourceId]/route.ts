@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAssessmentSet } from "@/lib/assessment-sets";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteResourceFile, deleteResourceRecord, readAppData, updateResourceRecord } from "@/lib/repository";
+import { composeResourceDescription } from "@/lib/resource-tags";
 import { isSchemeTerm } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
 
@@ -58,6 +59,8 @@ export async function PATCH(
     const section = `${body.section ?? ""}`.trim();
     const assessmentSet = body.assessmentSet === null ? null : `${body.assessmentSet ?? ""}`.trim();
     const term = `${body.term ?? ""}`.trim();
+    const strand = `${body.strand ?? ""}`.trim();
+    const subStrand = `${body.subStrand ?? ""}`.trim();
 
     const store = await readAppData();
     const resource = store.resources.find((entry) => entry.id === resourceId);
@@ -116,10 +119,15 @@ export async function PATCH(
 
     const resolvedAssessmentSet: AssessmentSet | null = section === "assessment" ? (assessmentSet as AssessmentSet) : null;
     const resolvedTerm: SchemeTerm = term as SchemeTerm;
+    const taggedDescription = composeResourceDescription({
+      description,
+      strand,
+      subStrand
+    });
 
     const updated = await updateResourceRecord(resourceId, {
       title,
-      description,
+      description: taggedDescription,
       level,
       subject,
       audience,

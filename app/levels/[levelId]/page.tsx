@@ -6,7 +6,12 @@ import { LevelResourceItem } from "@/components/level-resource-item";
 import { SiteHeader } from "@/components/site-header";
 import { teacherMaterialPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
+import {
+  getStrandsForLowerSubject,
+  isLowerPrimaryLevel
+} from "@/lib/lower-primary-curriculum";
 import { getLevelPageData } from "@/lib/resource-access";
+import { parseResourceTags } from "@/lib/resource-tags";
 import { schemeTerms } from "@/lib/scheme-terms";
 import type { SchemeTerm } from "@/lib/store";
 
@@ -67,6 +72,7 @@ export default async function LevelPage({
   }
 
   const { level, resources, user, hasLevelAccess, dataUnavailable } = pageData;
+  const isLowerLevel = isLowerPrimaryLevel(level.title);
   const notes = resources.filter(
     (resource) => resource.category === "revision-material" && (resource.section ?? "notes") === "notes"
   );
@@ -121,6 +127,36 @@ export default async function LevelPage({
       />
     );
   };
+  const lowerSubjectGroups = level.subjects.map((subject) => {
+    const subjectResources = revisionMaterials.filter(
+      (resource) => resource.subject.toLowerCase() === subject.toLowerCase()
+    );
+    const taggedStrands = Array.from(
+      new Set(
+        subjectResources
+          .map((resource) => parseResourceTags(resource.description).strand)
+          .filter(Boolean)
+      )
+    );
+    const fallbackStrands = getStrandsForLowerSubject(subject);
+    const strandNames = Array.from(new Set([...taggedStrands, ...fallbackStrands]));
+
+    return {
+      subject,
+      resources: subjectResources,
+      strands: strandNames.map((strand) => {
+        const strandResources = subjectResources.filter((resource) => {
+          const tags = parseResourceTags(resource.description);
+          return (tags.strand || "General Strand") === strand;
+        });
+
+        return {
+          strand,
+          resources: strandResources
+        };
+      })
+    };
+  });
 
   return (
     <main>
@@ -200,7 +236,7 @@ export default async function LevelPage({
           <article className="dashboard-card">
             <h3>Schemes of work</h3>
             <p className="subtle">
-              Open a separate schemes page to generate a new scheme or choose from ready uploaded schemes.
+              Open a separate schemes page to choose from ready uploaded schemes.
             </p>
             <div className="hero-actions">
               <Link href={`/levels/${level.id}/schemes`} className="button-secondary">
@@ -215,11 +251,72 @@ export default async function LevelPage({
         <div className="section-head">
           <div>
             <span className="eyebrow">Learning materials</span>
-            <h2>{level.title} materials by year and term.</h2>
+            <h2>{isLowerLevel ? `${level.title} materials by subject and strand.` : `${level.title} materials by year and term.`}</h2>
           </div>
         </div>
 
-        {revisionMaterialYearGroups.length > 0 ? (
+        {isLowerLevel ? (
+          <div className="lower-material-browser">
+            <div className="lower-subject-grid">
+              {lowerSubjectGroups.map((group) => (
+                <a key={group.subject} href={`#${level.id}-${group.subject.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="lower-subject-card">
+                  <span className="eyebrow">Subject</span>
+                  <strong>{group.subject}</strong>
+                  <small>{group.resources.length} material{group.resources.length === 1 ? "" : "s"}</small>
+                </a>
+              ))}
+            </div>
+
+            <div className="material-browser">
+              {lowerSubjectGroups.map((group, subjectIndex) => (
+                <article
+                  key={group.subject}
+                  id={`${level.id}-${group.subject.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  className="dashboard-card material-browser-year"
+                >
+                  <div className="material-browser-year-head">
+                    <div>
+                      <span className="eyebrow">Subject</span>
+                      <h3>{group.subject}</h3>
+                    </div>
+                    <span className="pill">{group.resources.length} item{group.resources.length === 1 ? "" : "s"}</span>
+                  </div>
+
+                  <div className="material-browser-terms">
+                    {group.strands.map((strandGroup, strandIndex) => (
+                      <details
+                        key={strandGroup.strand}
+                        className="material-browser-group"
+                        open={subjectIndex === 0 && strandIndex === 0}
+                      >
+                        <summary className="material-browser-group-head">
+                          <h4>{strandGroup.strand}</h4>
+                          <span className="pill">{strandGroup.resources.length}</span>
+                        </summary>
+
+                        {strandGroup.resources.length > 0 ? (
+                          <ul className="material-link-list">
+                            {strandGroup.resources.map((resource) => {
+                              const tags = parseResourceTags(resource.description);
+                              const label =
+                                tags.subStrand ||
+                                (resource.section === "assessment"
+                                  ? assessmentSets.find((set) => set.id === resource.assessmentSet)?.label ?? "Assessment"
+                                  : "Notes");
+                              return renderRevisionResourceLink(resource, label);
+                            })}
+                          </ul>
+                        ) : (
+                          <p className="subtle">No files uploaded under this strand yet.</p>
+                        )}
+                      </details>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : revisionMaterialYearGroups.length > 0 ? (
           <div className="material-browser">
             {revisionMaterialYearGroups.map((yearGroup) => (
               <article key={yearGroup.year} className="dashboard-card material-browser-year">
