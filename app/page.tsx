@@ -58,6 +58,12 @@ export default async function HomePage() {
     membershipPlans.find((plan) => plan.name === "Parent Subscription") ?? membershipPlans[0];
   const teacherPlan =
     membershipPlans.find((plan) => plan.name === "Teacher Subscription") ?? membershipPlans[1];
+  const lowerLevels = levels.filter((level) =>
+    ["Early Years", "Lower Primary", "Upper Primary"].includes(level.stage)
+  );
+  const mainLevels = levels.filter(
+    (level) => level.stage === "Junior School" || level.stage === "Senior School"
+  );
 
   return (
     <main className="home-landing">
@@ -186,8 +192,33 @@ export default async function HomePage() {
           </div>
         </div>
 
+        <div className="home-lower-level-panel">
+          <div className="home-lower-level-head">
+            <span className="home-section-kicker">Lower grades</span>
+            <p className="home-section-copy">Small cards for PP1 to Grade 5 materials.</p>
+          </div>
+
+          <div className="home-lower-level-grid">
+            {lowerLevels.map((level) => (
+              <Link key={level.id} href={`/levels/${level.id}`} className="home-lower-level-link">
+                <article className="home-lower-level-card" data-level={level.id}>
+                  <span className="home-lower-level-stage">{level.stage}</span>
+                  <h3 className="home-lower-level-title">{level.title}</h3>
+                  <div className="home-lower-level-tags">
+                    {(level.cardTags ?? level.subjects).slice(0, 3).map((subject) => (
+                      <span key={subject} className="home-lower-level-chip">
+                        {shortenSubject(subject)}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="home-level-grid">
-          {levels.map((level) => (
+          {mainLevels.map((level) => (
             <Link key={level.id} href={`/levels/${level.id}`} className="home-level-link">
               <article className="home-level-card" data-level={level.id}>
                 <span className="home-level-stage">{level.stage}</span>

@@ -7,6 +7,17 @@ import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
 
 const subjects = [
+  "Language Activities",
+  "Kiswahili Activities",
+  "Mathematical Activities",
+  "Environmental Activities",
+  "Creative Activities",
+  "Religious Activities",
+  "English Activities",
+  "Mathematics Activities",
+  "Creative Arts",
+  "Science and Technology",
+  "Agriculture and Nutrition",
   "Mathematics",
   "English",
   "Kiswahili",

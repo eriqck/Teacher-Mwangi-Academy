@@ -322,7 +322,11 @@ export function SchemeGeneratorForm({
   function handleLevelChange(nextLevel: string) {
     setShowAuthPrompt(false);
     setPendingAuthResume(false);
-    const nextLevelStage = levels.find((entry) => entry.id === nextLevel)?.stage ?? formState.stage;
+    const resolvedStage = levels.find((entry) => entry.id === nextLevel)?.stage ?? formState.stage;
+    const nextLevelStage =
+      resolvedStage === "Junior School" || resolvedStage === "Senior School"
+        ? resolvedStage
+        : formState.stage;
     const nextSubjects = getSubjectOptionsByStage(nextLevelStage);
     const nextSubject = nextSubjects.includes(formState.subject) ? formState.subject : nextSubjects[0] ?? "";
     const nextReferenceBook = getReferenceBooksForSubject(nextSubject)[0] ?? "Teacher Guide";

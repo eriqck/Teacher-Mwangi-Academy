@@ -1,12 +1,14 @@
 export type Level = {
   id: string;
   title: string;
-  stage: "Junior School" | "Senior School";
+  stage: "Early Years" | "Lower Primary" | "Upper Primary" | "Junior School" | "Senior School";
   description: string;
   subjects: string[];
   cardTags?: string[];
   formats: string[];
 };
+
+export type SchemeStage = "Junior School" | "Senior School";
 
 export const juniorSchoolSubjects = [
   "English",
@@ -54,10 +56,151 @@ export const seniorSchoolSubjects = [
 ];
 
 export function getSubjectsForStage(stage: Level["stage"]) {
+  if (stage === "Early Years") {
+    return [
+      "Language Activities",
+      "Kiswahili Activities",
+      "Mathematical Activities",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Activities"
+    ];
+  }
+
+  if (stage === "Lower Primary") {
+    return [
+      "English Activities",
+      "Kiswahili Activities",
+      "Mathematics Activities",
+      "Environmental Activities",
+      "Creative Arts",
+      "Religious Education"
+    ];
+  }
+
+  if (stage === "Upper Primary") {
+    return [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Agriculture and Nutrition",
+      "Creative Arts",
+      "Social Studies",
+      "Religious Education"
+    ];
+  }
+
   return stage === "Junior School" ? juniorSchoolSubjects : seniorSchoolSubjects;
 }
 
 export const levels: Level[] = [
+  {
+    id: "pp1-pp2",
+    title: "PP1 & PP2",
+    stage: "Early Years",
+    description:
+      "Early-years learning activities grouped for simple access to foundational practice and parent support.",
+    subjects: [
+      "Language Activities",
+      "Kiswahili Activities",
+      "Mathematical Activities",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Activities"
+    ],
+    cardTags: ["Language", "Math", "Creative"],
+    formats: ["Activity sheets", "Foundation practice", "Answer guides"]
+  },
+  {
+    id: "grade-1",
+    title: "Grade 1",
+    stage: "Lower Primary",
+    description:
+      "Lower primary learning support with simple activities, practice tasks, and answer-guided materials.",
+    subjects: [
+      "English Activities",
+      "Kiswahili Activities",
+      "Mathematics Activities",
+      "Environmental Activities",
+      "Creative Arts",
+      "Religious Education"
+    ],
+    cardTags: ["English", "Kiswahili", "Math"],
+    formats: ["Activity sheets", "Topical practice", "Answer guides"]
+  },
+  {
+    id: "grade-2",
+    title: "Grade 2",
+    stage: "Lower Primary",
+    description:
+      "Step-by-step lower primary resources for core activities, home practice, and classroom revision.",
+    subjects: [
+      "English Activities",
+      "Kiswahili Activities",
+      "Mathematics Activities",
+      "Environmental Activities",
+      "Creative Arts",
+      "Religious Education"
+    ],
+    cardTags: ["English", "Kiswahili", "Math"],
+    formats: ["Activity sheets", "Topical practice", "Answer guides"]
+  },
+  {
+    id: "grade-3",
+    title: "Grade 3",
+    stage: "Lower Primary",
+    description:
+      "Focused lower primary revision materials organized by activity area for easier parent and teacher use.",
+    subjects: [
+      "English Activities",
+      "Kiswahili Activities",
+      "Mathematics Activities",
+      "Environmental Activities",
+      "Creative Arts",
+      "Religious Education"
+    ],
+    cardTags: ["English", "Kiswahili", "Math"],
+    formats: ["Activity sheets", "Topical practice", "Answer guides"]
+  },
+  {
+    id: "grade-4",
+    title: "Grade 4",
+    stage: "Upper Primary",
+    description:
+      "Upper primary topical practice and assessment support arranged for quick subject access.",
+    subjects: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Agriculture and Nutrition",
+      "Creative Arts",
+      "Social Studies",
+      "Religious Education"
+    ],
+    cardTags: ["English", "Math", "Science"],
+    formats: ["Topical PDFs", "Practice tasks", "Answer guides"]
+  },
+  {
+    id: "grade-5",
+    title: "Grade 5",
+    stage: "Upper Primary",
+    description:
+      "Upper primary topical materials, assessment practice, and answer-guided revision support.",
+    subjects: [
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Agriculture and Nutrition",
+      "Creative Arts",
+      "Social Studies",
+      "Religious Education"
+    ],
+    cardTags: ["English", "Math", "Science"],
+    formats: ["Topical PDFs", "Practice tasks", "Answer guides"]
+  },
   {
     id: "grade-6",
     title: "Grade 6",

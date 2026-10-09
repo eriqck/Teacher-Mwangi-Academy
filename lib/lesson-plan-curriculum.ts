@@ -62,7 +62,7 @@ function buildUploadedMaterialUnit(
 }
 
 export function getLessonPlanLevels() {
-  return levels;
+  return levels.filter((level) => level.stage === "Junior School" || level.stage === "Senior School");
 }
 
 export function getLessonPlanSubjects(levelId: string) {

@@ -1,4 +1,4 @@
-import { getSubjectsForStage, levels } from "@/lib/catalog";
+import { getSubjectsForStage, levels, type SchemeStage } from "@/lib/catalog";
 import type { SchemeTerm } from "@/lib/store";
 
 export type SchemeTopicGroup = {
@@ -349,11 +349,13 @@ export function getTopicGroupsForScheme(subject: string, term: SchemeTerm) {
   return matchedTemplate ? matchedTemplate.topics(term) : defaultTopics(subject, term);
 }
 
-export function getLevelOptionsByStage(stage: "Junior School" | "Senior School" | "") {
-  return stage ? levels.filter((level) => level.stage === stage) : levels;
+export function getLevelOptionsByStage(stage: SchemeStage | "") {
+  return stage
+    ? levels.filter((level) => level.stage === stage)
+    : levels.filter((level) => level.stage === "Junior School" || level.stage === "Senior School");
 }
 
-export function getSubjectOptionsByStage(stage: "Junior School" | "Senior School" | "") {
+export function getSubjectOptionsByStage(stage: SchemeStage | "") {
   return stage ? getSubjectsForStage(stage) : [];
 }
 
