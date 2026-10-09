@@ -12,7 +12,7 @@ export async function SiteHeader({ user: initialUser }: { user?: UserRecord | nu
     { href: "#team", label: "Team" },
     { href: "/dashboard", label: "Dashboard" },
     ...(user?.role === "teacher" || user?.role === "admin"
-      ? [{ href: "/teacher-tools", label: "Scheme Bot" }]
+      ? [{ href: "/teacher-tools", label: "Teacher Tools" }]
       : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
   ];

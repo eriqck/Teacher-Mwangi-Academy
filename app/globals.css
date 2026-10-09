@@ -1612,8 +1612,7 @@ main {
   background: #fff;
 }
 
-.scheme-wizard,
-.scheme-generator-form {
+.scheme-wizard {
   display: grid;
   gap: 18px;
 }

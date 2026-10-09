@@ -5,6 +5,6 @@ export default async function LegacySchemeDetailPage({
 }: {
   params: Promise<{ schemeId: string }>;
 }) {
-  const { schemeId } = await params;
-  redirect(`/teacher-tools/schemes/${schemeId}`);
+  await params;
+  redirect("/teacher-tools/lesson-plans");
 }

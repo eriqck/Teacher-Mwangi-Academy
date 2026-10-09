@@ -11,14 +11,11 @@ export default async function TeacherToolsLayout({
 
   const teacherLinks = [
     { href: "/teacher-tools", label: "Dashboard" },
-    { href: "/teacher-tools/schemes", label: "My Schemes" },
-    { href: "/teacher-tools/schemes/new", label: "Create Scheme" },
     { href: "/teacher-tools/lesson-plans", label: "Lesson Plans" }
   ];
 
   const guestLinks = [
     { href: "/teacher-tools", label: "Bot Home" },
-    { href: "/teacher-tools/schemes/new", label: "Create Scheme" },
     { href: "/teacher-tools/lesson-plans", label: "Lesson Plans" },
     { href: "/login", label: "Teacher Sign In" }
   ];
@@ -29,8 +26,8 @@ export default async function TeacherToolsLayout({
         <div className="teacher-tools-brand">
           <div className="teacher-tools-brand-mark">TM</div>
           <div>
-            <strong>Teacher Mwangi Bot</strong>
-            <p>Teacher workspace</p>
+            <strong>Teacher Mwangi Tools</strong>
+            <p>Lesson-plan workspace</p>
           </div>
         </div>
 
@@ -47,7 +44,7 @@ export default async function TeacherToolsLayout({
             <div className="teacher-tools-avatar">T</div>
             <div>
               <strong>Teacher access</strong>
-              <p>Open the workspace first, then sign in to generate.</p>
+              <p>Open lesson plans first, then sign in to generate.</p>
             </div>
           </div>
         )}
@@ -62,7 +59,7 @@ export default async function TeacherToolsLayout({
 
         <div className="teacher-tools-sidebar-footer">
           <span className={`teacher-tools-status ${isTeacherWorkspaceUser ? "is-active" : "is-pending"}`}>
-            {isTeacherWorkspaceUser ? "Per-output payment model" : "Teacher sign-in available here"}
+            {isTeacherWorkspaceUser ? "Lesson-plan generation" : "Teacher sign-in available here"}
           </span>
 
           <Link href="/" className="teacher-tools-home-link">

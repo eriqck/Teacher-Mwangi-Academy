@@ -14,7 +14,6 @@ const heroCards = [
 ];
 
 const serviceSlides = [
-  { title: "Scheme generation", href: "/teacher-tools/schemes" },
   { title: "Lesson plans", href: "/teacher-tools/lesson-plans" },
   { title: "Assessments", href: "/levels/grade-6" },
   { title: "Notes", href: "/levels/grade-6" },

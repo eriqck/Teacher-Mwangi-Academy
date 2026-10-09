@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
-import { schemeOfWorkPrice, teacherSchemeGenerationPrice } from "@/lib/business";
+import { schemeOfWorkPrice } from "@/lib/business";
 import { getLevelById } from "@/lib/levels";
 import { getLevelPageData } from "@/lib/resource-access";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
@@ -24,7 +24,7 @@ export async function generateMetadata({
 
   return {
     title: `${level.title} schemes of work`,
-    description: `Generate schemes of work or choose ready uploaded schemes for ${level.title} at Teacher Mwangi Academy.`,
+    description: `Choose ready uploaded schemes for ${level.title} at Teacher Mwangi Academy.`,
     alternates: {
       canonical: `/levels/${level.id}/schemes`
     }
@@ -66,25 +66,10 @@ export default async function LevelSchemesPage({
             <span className="eyebrow">{level.stage}</span>
             <h2>{level.title} schemes of work</h2>
           </div>
-          <p>
-            Generate a new scheme with the Teacher Bot or choose a ready uploaded scheme for this level.
-          </p>
+          <p>Choose a ready uploaded scheme for this level.</p>
         </div>
 
         <div className="dashboard-grid">
-          <article className="dashboard-card">
-            <h3>Generate a scheme</h3>
-            <p className="subtle">
-              Use the Teacher Bot to create a fresh scheme of work. The first generation is free, then KSh{" "}
-              {teacherSchemeGenerationPrice} per generated scheme.
-            </p>
-            <div className="hero-actions">
-              <Link href="/teacher-tools/schemes/new" className="button">
-                Open scheme generator
-              </Link>
-            </div>
-          </article>
-
           <article className="dashboard-card">
             <h3>Get ready schemes</h3>
             <p className="subtle">
@@ -159,14 +144,7 @@ export default async function LevelSchemesPage({
         ) : (
           <article className="resource-card">
             <h3>No ready schemes uploaded yet</h3>
-            <p className="subtle">
-              There are no uploaded ready schemes for {level.title} yet. You can still generate one with the Teacher Bot.
-            </p>
-            <div className="hero-actions">
-              <Link href="/teacher-tools/schemes/new" className="button">
-                Generate a scheme
-              </Link>
-            </div>
+            <p className="subtle">There are no uploaded ready schemes for {level.title} yet.</p>
           </article>
         )}
       </section>
