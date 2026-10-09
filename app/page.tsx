@@ -195,7 +195,6 @@ export default async function HomePage() {
         <div className="home-lower-level-panel">
           <div className="home-lower-level-head">
             <span className="home-section-kicker">Lower grades</span>
-            <p className="home-section-copy">Small cards for PP1 to Grade 5 materials.</p>
           </div>
 
           <div className="home-lower-level-grid">
