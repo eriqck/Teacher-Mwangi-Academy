@@ -1089,34 +1089,39 @@ main {
   gap: 16px;
 }
 
-.lower-material-browser {
+.strand-assessment-subjects {
   display: grid;
-  gap: 22px;
+  gap: 12px;
 }
 
-.lower-subject-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+.strand-assessment-subject {
+  overflow: hidden;
+  border: 1px solid rgba(31, 111, 95, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
 }
 
-.lower-subject-card {
-  display: grid;
-  gap: 8px;
-  border-radius: 22px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  padding: 18px;
-  background: #fff7ed;
-  box-shadow: 0 18px 42px -34px rgba(15, 23, 42, 0.35);
-  color: #0f172a;
+.strand-assessment-subject-head {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  list-style: none;
 }
 
-.lower-subject-card strong {
-  font-size: 1.12rem;
+.strand-assessment-subject-head::-webkit-details-marker {
+  display: none;
 }
 
-.lower-subject-card small {
-  color: #64748b;
+.strand-assessment-subject-head strong {
+  color: var(--secondary);
+  font-size: 0.82rem;
+}
+
+.strand-assessment-subject .material-link-list {
+  padding: 0 14px 14px;
 }
 
 .material-browser-year {
@@ -4324,22 +4329,6 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
-}
-
-@media (max-width: 1120px) {
-  .lower-subject-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .lower-subject-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .lower-subject-card {
-    text-align: center;
-  }
 }
 
 @media (max-width: 1120px) {

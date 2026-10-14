@@ -5,6 +5,7 @@ export const assessmentSets: Array<{ id: AssessmentSet; label: string }> = [
   { id: "set-2", label: "Set 2" },
   { id: "set-3", label: "Set 3" },
   { id: "set-4", label: "Set 4" },
+  { id: "strand-based-assessments", label: "Strand-based assessments" },
   { id: "cekena-exams", label: "CEKENA Exams" },
   { id: "kala-exams", label: "KALA EXAMS" }
 ];

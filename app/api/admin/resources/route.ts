@@ -4,7 +4,6 @@ import { getCurrentUser } from "@/lib/auth";
 import { isManagedStorageConfigured } from "@/lib/managed-storage";
 import { deleteResourceFile, getResourceFilePublicUrl } from "@/lib/repository";
 import { saveUploadedResource, saveUploadedResourceMetadata } from "@/lib/resources";
-import { composeResourceDescription } from "@/lib/resource-tags";
 import { isSchemeTerm } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
 
@@ -41,8 +40,6 @@ export async function POST(request: NextRequest) {
     const section = `${formData.get("section") ?? "notes"}`.trim();
     const assessmentSet = `${formData.get("assessmentSet") ?? ""}`.trim();
     const term = `${formData.get("term") ?? ""}`.trim();
-    const strand = `${formData.get("strand") ?? ""}`.trim();
-    const subStrand = `${formData.get("subStrand") ?? ""}`.trim();
     const audience = `${formData.get("audience") ?? "both"}`.trim();
     const storagePath = `${formData.get("storagePath") ?? ""}`.trim();
     const fileName = `${formData.get("fileName") ?? ""}`.trim();
@@ -74,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (category === "revision-material" && section === "assessment" && !isAssessmentSet(assessmentSet)) {
-      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, Set 3, or CEKENA Exams." }, { status: 400 });
+      return NextResponse.json({ error: "Assessment materials must include a valid assessment section." }, { status: 400 });
     }
 
     if (!isSchemeTerm(term)) {
@@ -90,17 +87,12 @@ export async function POST(request: NextRequest) {
           ? (assessmentSet as AssessmentSet)
           : null;
     const resolvedTerm: SchemeTerm = term as SchemeTerm;
-    const taggedDescription = composeResourceDescription({
-      description,
-      strand: category === "revision-material" ? strand : "",
-      subStrand: category === "revision-material" ? subStrand : ""
-    });
 
     try {
       if (isDirectSupabaseUpload) {
         await saveUploadedResourceMetadata({
           title,
-          description: taggedDescription,
+          description,
           level,
           subject,
           category,
@@ -117,7 +109,7 @@ export async function POST(request: NextRequest) {
       } else {
         await saveUploadedResource({
           title,
-          description: taggedDescription,
+          description,
           level,
           subject,
           category,

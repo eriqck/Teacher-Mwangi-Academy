@@ -3,12 +3,6 @@
 import { useState } from "react";
 import { assessmentSets, getAssessmentSetLabel } from "@/lib/assessment-sets";
 import { levels } from "@/lib/catalog";
-import {
-  getStrandsForLowerSubject,
-  getSubstrandsForLowerStrand,
-  isLowerPrimaryLevel
-} from "@/lib/lower-primary-curriculum";
-import { parseResourceTags } from "@/lib/resource-tags";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
 
@@ -42,23 +36,18 @@ type ResourceFormState = {
   section: ResourceSection;
   assessmentSet: AssessmentSet | "";
   term: SchemeTerm | "";
-  strand: string;
-  subStrand: string;
 };
 
 function buildFormState(resource: ResourceRecord): ResourceFormState {
-  const tags = parseResourceTags(resource.description);
   return {
     title: resource.title,
-    description: tags.cleanDescription,
+    description: resource.description,
     level: resource.level,
     subject: resource.subject,
     audience: resource.audience,
     section: resource.section ?? "notes",
     assessmentSet: resource.assessmentSet ?? "",
-    term: resource.term ?? "term-1",
-    strand: tags.strand,
-    subStrand: tags.subStrand
+    term: resource.term ?? "term-1"
   };
 }
 
@@ -127,9 +116,7 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
             : formState.section === "assessment"
               ? formState.assessmentSet
               : null,
-        term: formState.term || "term-1",
-        strand: isLowerPrimaryLevel(formState.level) ? formState.strand : "",
-        subStrand: isLowerPrimaryLevel(formState.level) ? formState.subStrand : ""
+        term: formState.term || "term-1"
       })
     });
 
@@ -194,12 +181,6 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
             const isEditing = editingId === resource.id && formState;
             const showAssessmentFields =
               resource.category === "revision-material" && formState?.section === "assessment";
-            const showStrandFields =
-              resource.category === "revision-material" && Boolean(formState && isLowerPrimaryLevel(formState.level));
-            const strandOptions = formState ? getStrandsForLowerSubject(formState.subject) : [];
-            const subStrandOptions = formState
-              ? getSubstrandsForLowerStrand(formState.strand || strandOptions[0] || "")
-              : [];
 
             return (
               <section key={resource.id} className="resource-admin-card">
@@ -263,7 +244,7 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                           placeholder="Type or choose a subject"
                           onChange={(event) =>
                             setFormState((current) =>
-                              current ? { ...current, subject: event.target.value, strand: "", subStrand: "" } : current
+                              current ? { ...current, subject: event.target.value } : current
                             )
                           }
                           required
@@ -285,9 +266,7 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                           value={formState.level}
                           onChange={(event) =>
                             setFormState((current) =>
-                              current
-                                ? { ...current, level: event.target.value, strand: "", subStrand: "" }
-                                : current
+                              current ? { ...current, level: event.target.value } : current
                             )
                           }
                         >
@@ -330,50 +309,6 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                         </small>
                       </div>
                     </div>
-
-                    {showStrandFields ? (
-                      <div className="form-grid">
-                        <div className="field">
-                          <label htmlFor={`edit-strand-${resource.id}`}>Strand</label>
-                          <input
-                            id={`edit-strand-${resource.id}`}
-                            value={formState.strand}
-                            list={`edit-strand-options-${resource.id}`}
-                            placeholder="Choose or type the strand"
-                            onChange={(event) =>
-                              setFormState((current) =>
-                                current ? { ...current, strand: event.target.value, subStrand: "" } : current
-                              )
-                            }
-                          />
-                          <datalist id={`edit-strand-options-${resource.id}`}>
-                            {strandOptions.map((strand) => (
-                              <option key={strand} value={strand} />
-                            ))}
-                          </datalist>
-                        </div>
-
-                        <div className="field">
-                          <label htmlFor={`edit-substrand-${resource.id}`}>Substrand</label>
-                          <input
-                            id={`edit-substrand-${resource.id}`}
-                            value={formState.subStrand}
-                            list={`edit-substrand-options-${resource.id}`}
-                            placeholder="Choose or type the substrand"
-                            onChange={(event) =>
-                              setFormState((current) =>
-                                current ? { ...current, subStrand: event.target.value } : current
-                              )
-                            }
-                          />
-                          <datalist id={`edit-substrand-options-${resource.id}`}>
-                            {subStrandOptions.map((subStrand) => (
-                              <option key={subStrand} value={subStrand} />
-                            ))}
-                          </datalist>
-                        </div>
-                      </div>
-                    ) : null}
 
                     {resource.category === "revision-material" ? (
                       <div className="form-grid">

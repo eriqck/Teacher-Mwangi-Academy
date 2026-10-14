@@ -320,6 +320,26 @@ export const levels: Level[] = [
     formats: ["Topic mastery packs", "Holiday revision kits", "Assessment blueprints"]
   },
   {
+    id: "grade-11",
+    title: "Grade 11",
+    stage: "Senior School",
+    description:
+      "Senior school continuation materials for deeper pathway coverage, topical practice, and exam readiness.",
+    subjects: seniorSchoolSubjects,
+    cardTags: ["Core Mathematics", "English", "Biology", "Chemistry", "Business Studies", "Computer Studies"],
+    formats: ["Topical packs", "Assessment bundles", "Pathway revision"]
+  },
+  {
+    id: "grade-12",
+    title: "Grade 12",
+    stage: "Senior School",
+    description:
+      "Final senior school preparation with pathway-focused revision, assessment practice, and answer support.",
+    subjects: seniorSchoolSubjects,
+    cardTags: ["Core Mathematics", "English", "Physics", "Chemistry", "Geography", "History & Citizenship"],
+    formats: ["Exam practice", "Marking guides", "Final revision packs"]
+  },
+  {
     id: "form-3",
     title: "Form 3",
     stage: "Senior School",

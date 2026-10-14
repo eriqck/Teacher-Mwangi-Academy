@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAssessmentSet } from "@/lib/assessment-sets";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteResourceFile, deleteResourceRecord, readAppData, updateResourceRecord } from "@/lib/repository";
-import { composeResourceDescription } from "@/lib/resource-tags";
 import { isSchemeTerm } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceCategory, ResourceSection, SchemeTerm } from "@/lib/store";
 
@@ -59,8 +58,6 @@ export async function PATCH(
     const section = `${body.section ?? ""}`.trim();
     const assessmentSet = body.assessmentSet === null ? null : `${body.assessmentSet ?? ""}`.trim();
     const term = `${body.term ?? ""}`.trim();
-    const strand = `${body.strand ?? ""}`.trim();
-    const subStrand = `${body.subStrand ?? ""}`.trim();
 
     const store = await readAppData();
     const resource = store.resources.find((entry) => entry.id === resourceId);
@@ -110,7 +107,7 @@ export async function PATCH(
     }
 
     if (section === "assessment" && (!assessmentSet || !isAssessmentSet(assessmentSet))) {
-      return NextResponse.json({ error: "Assessment materials must include Set 1, Set 2, Set 3, or CEKENA Exams." }, { status: 400 });
+      return NextResponse.json({ error: "Assessment materials must include a valid assessment section." }, { status: 400 });
     }
 
     if (!isSchemeTerm(term)) {
@@ -119,15 +116,10 @@ export async function PATCH(
 
     const resolvedAssessmentSet: AssessmentSet | null = section === "assessment" ? (assessmentSet as AssessmentSet) : null;
     const resolvedTerm: SchemeTerm = term as SchemeTerm;
-    const taggedDescription = composeResourceDescription({
-      description,
-      strand,
-      subStrand
-    });
 
     const updated = await updateResourceRecord(resourceId, {
       title,
-      description: taggedDescription,
+      description,
       level,
       subject,
       audience,

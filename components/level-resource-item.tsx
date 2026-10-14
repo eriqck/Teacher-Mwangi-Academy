@@ -3,12 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { assessmentSets } from "@/lib/assessment-sets";
-import {
-  getStrandsForLowerSubject,
-  getSubstrandsForLowerStrand,
-  isLowerPrimaryLevel
-} from "@/lib/lower-primary-curriculum";
-import { parseResourceTags } from "@/lib/resource-tags";
 import { getSchemeTermLabel, schemeTerms } from "@/lib/scheme-terms";
 import type { AssessmentSet, ResourceRecord, ResourceSection, SchemeTerm } from "@/lib/store";
 
@@ -58,21 +52,16 @@ type FormState = {
   section: ResourceSection;
   assessmentSet: AssessmentSet | "";
   term: SchemeTerm;
-  strand: string;
-  subStrand: string;
 };
 
 function createFormState(resource: ResourceRecord): FormState {
-  const tags = parseResourceTags(resource.description);
   return {
     title: resource.title,
-    description: tags.cleanDescription,
+    description: resource.description,
     subject: resource.subject,
     section: resource.section ?? "notes",
     assessmentSet: resource.assessmentSet ?? "",
-    term: resource.term ?? "term-1",
-    strand: tags.strand,
-    subStrand: tags.subStrand
+    term: resource.term ?? "term-1"
   };
 }
 
@@ -102,9 +91,6 @@ export function LevelResourceItem({
   const linkText = currentResource.fileName || currentResource.title;
   const meta = getMetaText(currentResource, label);
   const showAssessmentFields = formState.section === "assessment";
-  const showStrandFields = isLowerPrimaryLevel(currentResource.level);
-  const strandOptions = getStrandsForLowerSubject(formState.subject);
-  const subStrandOptions = getSubstrandsForLowerStrand(formState.strand || strandOptions[0] || "");
 
   async function handleSave() {
     setSaving(true);
@@ -124,9 +110,7 @@ export function LevelResourceItem({
           audience: currentResource.audience,
           section: formState.section,
           assessmentSet: formState.section === "assessment" ? formState.assessmentSet : null,
-          term: formState.term,
-          strand: showStrandFields ? formState.strand : "",
-          subStrand: showStrandFields ? formState.subStrand : ""
+          term: formState.term
         })
       });
 
@@ -262,40 +246,6 @@ export function LevelResourceItem({
               </datalist>
             </label>
           </div>
-
-          {showStrandFields ? (
-            <div className="form-grid">
-              <label className="field">
-                <span>Strand</span>
-                <input
-                  value={formState.strand}
-                  list={`level-resource-strands-${currentResource.id}`}
-                  onChange={(event) =>
-                    setFormState((current) => ({ ...current, strand: event.target.value, subStrand: "" }))
-                  }
-                />
-                <datalist id={`level-resource-strands-${currentResource.id}`}>
-                  {strandOptions.map((strand) => (
-                    <option key={strand} value={strand} />
-                  ))}
-                </datalist>
-              </label>
-
-              <label className="field">
-                <span>Substrand</span>
-                <input
-                  value={formState.subStrand}
-                  list={`level-resource-substrands-${currentResource.id}`}
-                  onChange={(event) => setFormState((current) => ({ ...current, subStrand: event.target.value }))}
-                />
-                <datalist id={`level-resource-substrands-${currentResource.id}`}>
-                  {subStrandOptions.map((subStrand) => (
-                    <option key={subStrand} value={subStrand} />
-                  ))}
-                </datalist>
-              </label>
-            </div>
-          ) : null}
 
           <div className="form-grid">
             <label className="field">
