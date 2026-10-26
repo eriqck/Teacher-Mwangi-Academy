@@ -1238,9 +1238,10 @@ main {
 .material-browser-assessment-set--cekena-exams .material-browser-group-head {
   padding: 11px 14px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #5b21b6, #7e22ce);
-  color: #ffffff;
-  box-shadow: 0 8px 20px rgba(91, 33, 182, 0.2);
+  border: 1px solid #4c1d95;
+  background: #6d28d9 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(76, 29, 149, 0.32);
 }
 
 .material-browser-assessment-set--set-1 .material-browser-group-head h4,
@@ -1248,7 +1249,7 @@ main {
 .material-browser-assessment-set--set-3 .material-browser-group-head h4,
 .material-browser-assessment-set--strand-based-assessments .material-browser-group-head h4,
 .material-browser-assessment-set--cekena-exams .material-browser-group-head h4 {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .material-browser-assessment-set--set-1 .material-browser-group-head .pill,
@@ -1256,8 +1257,8 @@ main {
 .material-browser-assessment-set--set-3 .material-browser-group-head .pill,
 .material-browser-assessment-set--strand-based-assessments .material-browser-group-head .pill,
 .material-browser-assessment-set--cekena-exams .material-browser-group-head .pill {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #ede9fe;
+  color: #4c1d95;
 }
 
 .material-link-list {
