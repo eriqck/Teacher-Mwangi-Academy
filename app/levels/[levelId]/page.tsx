@@ -280,7 +280,7 @@ export default async function LevelPage({
                             {group.setGroups.map((assessmentSet, assessmentIndex) => (
                               <details
                                 key={assessmentSet.id}
-                                className="material-browser-group"
+                                className={`material-browser-group material-browser-assessment-set material-browser-assessment-set--${assessmentSet.id}`}
                                 open={assessmentIndex === 0}
                               >
                                 <summary className="material-browser-group-head">

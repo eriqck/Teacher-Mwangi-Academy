@@ -1230,6 +1230,36 @@ main {
   font-size: 1.02rem;
 }
 
+/* Make the main assessment collections easy to scan before opening a set. */
+.material-browser-assessment-set--set-1 .material-browser-group-head,
+.material-browser-assessment-set--set-2 .material-browser-group-head,
+.material-browser-assessment-set--set-3 .material-browser-group-head,
+.material-browser-assessment-set--strand-based-assessments .material-browser-group-head,
+.material-browser-assessment-set--cekena-exams .material-browser-group-head {
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #5b21b6, #7e22ce);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(91, 33, 182, 0.2);
+}
+
+.material-browser-assessment-set--set-1 .material-browser-group-head h4,
+.material-browser-assessment-set--set-2 .material-browser-group-head h4,
+.material-browser-assessment-set--set-3 .material-browser-group-head h4,
+.material-browser-assessment-set--strand-based-assessments .material-browser-group-head h4,
+.material-browser-assessment-set--cekena-exams .material-browser-group-head h4 {
+  color: #ffffff;
+}
+
+.material-browser-assessment-set--set-1 .material-browser-group-head .pill,
+.material-browser-assessment-set--set-2 .material-browser-group-head .pill,
+.material-browser-assessment-set--set-3 .material-browser-group-head .pill,
+.material-browser-assessment-set--strand-based-assessments .material-browser-group-head .pill,
+.material-browser-assessment-set--cekena-exams .material-browser-group-head .pill {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
 .material-link-list {
   display: grid;
   gap: 7px;
