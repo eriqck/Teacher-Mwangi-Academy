@@ -321,33 +321,38 @@ export default async function LevelPage({
 
       {strandAssessmentSubjectGroups.length > 0 ? (
         <section className="page-shell section strand-assessment-library">
-          <div className="strand-assessment-library-head">
-            <h2>Strand-based assessments</h2>
-          </div>
+          <details className="strand-assessment-library-panel">
+            <summary className="strand-assessment-library-head">
+              <span>Strand-based assessments</span>
+              <strong>
+                {strandAssessments.length} item{strandAssessments.length === 1 ? "" : "s"}
+              </strong>
+            </summary>
 
-          <article className="dashboard-card strand-assessment-library-card">
-            <div className="strand-assessment-subjects">
-              {strandAssessmentSubjectGroups.map((subjectGroup, subjectIndex) => (
-                <details
-                  key={subjectGroup.subject}
-                  className="strand-assessment-subject"
-                  open={subjectIndex === 0}
-                >
-                  <summary className="strand-assessment-subject-head">
-                    <span>{subjectGroup.subject}</span>
-                    <strong>
-                      {subjectGroup.resources.length} item{subjectGroup.resources.length === 1 ? "" : "s"}
-                    </strong>
-                  </summary>
-                  <ul className="material-link-list">
-                    {subjectGroup.resources.map((resource) =>
-                      renderRevisionResourceLink(resource, subjectGroup.subject)
-                    )}
-                  </ul>
-                </details>
-              ))}
-            </div>
-          </article>
+            <article className="dashboard-card strand-assessment-library-card">
+              <div className="strand-assessment-subjects">
+                {strandAssessmentSubjectGroups.map((subjectGroup, subjectIndex) => (
+                  <details
+                    key={subjectGroup.subject}
+                    className="strand-assessment-subject"
+                    open={subjectIndex === 0}
+                  >
+                    <summary className="strand-assessment-subject-head">
+                      <span>{subjectGroup.subject}</span>
+                      <strong>
+                        {subjectGroup.resources.length} item{subjectGroup.resources.length === 1 ? "" : "s"}
+                      </strong>
+                    </summary>
+                    <ul className="material-link-list">
+                      {subjectGroup.resources.map((resource) =>
+                        renderRevisionResourceLink(resource, subjectGroup.subject)
+                      )}
+                    </ul>
+                  </details>
+                ))}
+              </div>
+            </article>
+          </details>
         </section>
       ) : null}
 
