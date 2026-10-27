@@ -73,7 +73,21 @@ export default async function LevelPage({
   const assessments = resources.filter(
     (resource) => resource.category === "revision-material" && resource.section === "assessment"
   );
-  const revisionMaterials = [...notes, ...assessments];
+  const strandAssessments = assessments.filter(
+    (resource) => resource.assessmentSet === "strand-based-assessments"
+  );
+  const standardAssessments = assessments.filter(
+    (resource) => resource.assessmentSet !== "strand-based-assessments"
+  );
+  const strandAssessmentSubjectGroups = Array.from(
+    new Set(strandAssessments.map((resource) => resource.subject))
+  )
+    .sort((left, right) => left.localeCompare(right))
+    .map((subject) => ({
+      subject,
+      resources: strandAssessments.filter((resource) => resource.subject === subject)
+    }));
+  const revisionMaterials = [...notes, ...standardAssessments];
   const materialYears = Array.from(new Set(revisionMaterials.map((resource) => getResourceYear(resource)))).sort(
     (left, right) => right.localeCompare(left)
   );
@@ -86,24 +100,16 @@ export default async function LevelPage({
         );
         const setGroups = assessmentSets
           .map((assessmentSet) => {
-            const setResources = assessments.filter(
+            const setResources = standardAssessments.filter(
               (resource) =>
                 getResourceYear(resource) === year &&
                 getResourceTerm(resource) === term.id &&
                 resource.assessmentSet === assessmentSet.id
             );
-            const subjectGroups =
-              assessmentSet.id === "strand-based-assessments"
-                ? Array.from(new Set(setResources.map((resource) => resource.subject))).map((subject) => ({
-                    subject,
-                    resources: setResources.filter((resource) => resource.subject === subject)
-                  }))
-                : [];
 
             return {
               ...assessmentSet,
-              resources: setResources,
-              subjectGroups
+              resources: setResources
             };
           })
           .filter((group) => group.resources.length > 0);
@@ -287,36 +293,11 @@ export default async function LevelPage({
                                   <h4>{assessmentSet.label}</h4>
                                   <span className="pill">{assessmentSet.resources.length}</span>
                                 </summary>
-                                {assessmentSet.id === "strand-based-assessments" ? (
-                                  <div className="strand-assessment-subjects">
-                                    {assessmentSet.subjectGroups.map((subjectGroup, subjectIndex) => (
-                                      <details
-                                        key={subjectGroup.subject}
-                                        className="strand-assessment-subject"
-                                        open={subjectIndex === 0}
-                                      >
-                                        <summary className="strand-assessment-subject-head">
-                                          <span>{subjectGroup.subject}</span>
-                                          <strong>
-                                            {subjectGroup.resources.length} item
-                                            {subjectGroup.resources.length === 1 ? "" : "s"}
-                                          </strong>
-                                        </summary>
-                                        <ul className="material-link-list">
-                                          {subjectGroup.resources.map((resource) =>
-                                            renderRevisionResourceLink(resource, subjectGroup.subject)
-                                          )}
-                                        </ul>
-                                      </details>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <ul className="material-link-list">
-                                    {assessmentSet.resources.map((resource) =>
-                                      renderRevisionResourceLink(resource, assessmentSet.label)
-                                    )}
-                                  </ul>
-                                )}
+                                <ul className="material-link-list">
+                                  {assessmentSet.resources.map((resource) =>
+                                    renderRevisionResourceLink(resource, assessmentSet.label)
+                                  )}
+                                </ul>
                               </details>
                             ))}
                           </section>
@@ -337,6 +318,42 @@ export default async function LevelPage({
           </article>
         )}
       </section>
+
+      {strandAssessmentSubjectGroups.length > 0 ? (
+        <section className="page-shell section strand-assessment-library">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Independent collection</span>
+              <h2>Strand-based assessments</h2>
+            </div>
+            <p>Choose a subject to access assessments arranged by strand.</p>
+          </div>
+
+          <article className="dashboard-card strand-assessment-library-card">
+            <div className="strand-assessment-subjects">
+              {strandAssessmentSubjectGroups.map((subjectGroup, subjectIndex) => (
+                <details
+                  key={subjectGroup.subject}
+                  className="strand-assessment-subject"
+                  open={subjectIndex === 0}
+                >
+                  <summary className="strand-assessment-subject-head">
+                    <span>{subjectGroup.subject}</span>
+                    <strong>
+                      {subjectGroup.resources.length} item{subjectGroup.resources.length === 1 ? "" : "s"}
+                    </strong>
+                  </summary>
+                  <ul className="material-link-list">
+                    {subjectGroup.resources.map((resource) =>
+                      renderRevisionResourceLink(resource, subjectGroup.subject)
+                    )}
+                  </ul>
+                </details>
+              ))}
+            </div>
+          </article>
+        </section>
+      ) : null}
 
     </main>
   );
