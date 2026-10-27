@@ -1094,6 +1094,27 @@ main {
   gap: 12px;
 }
 
+.strand-assessment-library-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 1px solid #4c1d95;
+  border-radius: 22px;
+  background: #6d28d9;
+  box-shadow: 0 8px 20px rgba(76, 29, 149, 0.32);
+  text-align: center;
+}
+
+.strand-assessment-library-head h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+
 .strand-assessment-subject {
   overflow: hidden;
   border: 1px solid rgba(31, 111, 95, 0.12);

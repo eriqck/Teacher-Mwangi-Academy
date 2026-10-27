@@ -321,12 +321,8 @@ export default async function LevelPage({
 
       {strandAssessmentSubjectGroups.length > 0 ? (
         <section className="page-shell section strand-assessment-library">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Independent collection</span>
-              <h2>Strand-based assessments</h2>
-            </div>
-            <p>Choose a subject to access assessments arranged by strand.</p>
+          <div className="strand-assessment-library-head">
+            <h2>Strand-based assessments</h2>
           </div>
 
           <article className="dashboard-card strand-assessment-library-card">
