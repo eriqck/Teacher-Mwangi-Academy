@@ -40,7 +40,11 @@ export async function generateMetadata({
   };
 }
 
-function getResourceYear(resource: { createdAt: string }) {
+function getResourceYear(resource: { level: string; createdAt: string }) {
+  if (resource.level === "Grade 11") {
+    return "2027";
+  }
+
   const date = new Date(resource.createdAt);
 
   if (Number.isNaN(date.getTime())) {
