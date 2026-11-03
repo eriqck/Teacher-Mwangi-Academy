@@ -366,22 +366,14 @@ export default async function LevelPage({
       ) : null}
 
       {level.title === "Grade 9" ? (
-        <section className="page-shell section">
-          <article className="dashboard-card">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Grade 9</span>
-                <h2>KJSEA Past Papers</h2>
-                <p className="subtle">
-                  {kjseaPastPapers.length > 0
-                    ? "Download past KJSEA papers grouped by exam year."
-                    : "Past KJSEA papers will appear here once they are uploaded."}
-                </p>
-              </div>
+        <section className="page-shell section strand-assessment-library">
+          <details className="strand-assessment-library-panel">
+            <summary className="strand-assessment-library-head">
+              <span>KJSEA Past Papers</span>
               <strong>
                 {kjseaPastPapers.length} paper{kjseaPastPapers.length === 1 ? "" : "s"}
               </strong>
-            </div>
+            </summary>
             {kjseaPastPapers.length > 0 ? (
               <ul className="material-link-list">
                 {[...kjseaPastPapers]
@@ -391,7 +383,7 @@ export default async function LevelPage({
                   )}
               </ul>
             ) : null}
-          </article>
+          </details>
         </section>
       ) : null}
 
