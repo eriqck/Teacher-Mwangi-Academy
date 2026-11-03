@@ -28,7 +28,6 @@ function buildResourceRecord(input: {
   category: ResourceCategory;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
-  examYear?: number | null;
   term: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
@@ -47,7 +46,6 @@ function buildResourceRecord(input: {
     category: input.category,
     section: input.category === "scheme-of-work" ? "notes" : input.section,
     assessmentSet: input.category === "scheme-of-work" ? null : input.assessmentSet,
-    examYear: input.examYear ?? null,
     term: input.term,
     audience: input.category === "scheme-of-work" ? "teacher" : input.audience,
     price: input.category === "scheme-of-work" ? schemeOfWorkPrice : null,
@@ -71,7 +69,6 @@ export async function saveUploadedResourceMetadata(input: {
   category: ResourceCategory;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
-  examYear?: number | null;
   term: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
@@ -93,7 +90,6 @@ export async function saveUploadedResource(input: {
   category: ResourceCategory;
   section: ResourceSection;
   assessmentSet: AssessmentSet | null;
-  examYear?: number | null;
   term: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   uploadedByUserId: string;
@@ -130,7 +126,6 @@ export async function saveUploadedResource(input: {
     category: input.category,
     section: input.section,
     assessmentSet: input.assessmentSet,
-    examYear: input.examYear,
     term: input.term,
     audience: input.audience,
     uploadedByUserId: input.uploadedByUserId,

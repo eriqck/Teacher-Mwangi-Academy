@@ -16,7 +16,7 @@ function isCategory(value: string): value is ResourceCategory {
 }
 
 function isSection(value: string): value is ResourceSection {
-  return value === "notes" || value === "assessment" || value === "kjsea-past-papers";
+  return value === "notes" || value === "assessment";
 }
 
 export async function POST(request: NextRequest) {
@@ -40,8 +40,6 @@ export async function POST(request: NextRequest) {
     const section = `${formData.get("section") ?? "notes"}`.trim();
     const assessmentSet = `${formData.get("assessmentSet") ?? ""}`.trim();
     const term = `${formData.get("term") ?? ""}`.trim();
-    const examYearValue = `${formData.get("examYear") ?? ""}`.trim();
-    const examYear = examYearValue ? Number(examYearValue) : null;
     const audience = `${formData.get("audience") ?? "both"}`.trim();
     const storagePath = `${formData.get("storagePath") ?? ""}`.trim();
     const fileName = `${formData.get("fileName") ?? ""}`.trim();
@@ -76,10 +74,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Assessment materials must include a valid assessment section." }, { status: 400 });
     }
 
-    if (section === "kjsea-past-papers" && (level !== "Grade 9" || examYear === null || !Number.isInteger(examYear) || examYear < 2000 || examYear > 2100)) {
-      return NextResponse.json({ error: "Grade 9 KJSEA Past Papers must include a valid exam year." }, { status: 400 });
-    }
-
     if (!isSchemeTerm(term)) {
       return NextResponse.json({ error: "Materials must include Term 1, Term 2, or Term 3." }, { status: 400 });
     }
@@ -104,7 +98,6 @@ export async function POST(request: NextRequest) {
           category,
           section: resolvedSection,
           assessmentSet: resolvedAssessmentSet,
-          examYear: resolvedSection === "kjsea-past-papers" ? examYear : null,
           term: resolvedTerm,
           audience,
           uploadedByUserId: user.id,
@@ -122,7 +115,6 @@ export async function POST(request: NextRequest) {
           category,
           section: resolvedSection,
           assessmentSet: resolvedAssessmentSet,
-          examYear: resolvedSection === "kjsea-past-papers" ? examYear : null,
           term: resolvedTerm,
           audience,
           uploadedByUserId: user.id,

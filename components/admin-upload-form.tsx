@@ -81,7 +81,6 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
   const [selectedLevel, setSelectedLevel] = useState("Grade 7");
   const [selectedSubject, setSelectedSubject] = useState("Mathematics");
   const showAssessmentSet = !isScheme && section === "assessment";
-  const showExamYear = !isScheme && section === "kjsea-past-papers";
   const selectedLevelEntry = levels.find((level) => level.title === selectedLevel);
   const subjectOptions = selectedLevelEntry
     ? getSubjectsForStage(selectedLevelEntry.stage)
@@ -298,7 +297,6 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
               >
                 <option value="notes">Notes</option>
                 <option value="assessment">Assessment</option>
-                {selectedLevel === "Grade 9" ? <option value="kjsea-past-papers">KJSEA Past Papers</option> : null}
               </select>
               <small>Each level will show Notes and Assessment separately.</small>
             </>
@@ -344,21 +342,6 @@ export function AdminUploadForm({ variant }: { variant: UploadVariant }) {
           </div>
 
           <div className="form-grid">
-            {showExamYear ? (
-              <div className="field">
-                <label htmlFor={`${variant}-exam-year`}>Exam year</label>
-                <input
-                  id={`${variant}-exam-year`}
-                  name="examYear"
-                  type="number"
-                  min="2000"
-                  max="2100"
-                  placeholder="2025"
-                  required
-                />
-                <small>Enter the year printed on this Grade 9 KJSEA paper.</small>
-              </div>
-            ) : null}
             <div className="field">
               <label htmlFor={`${variant}-audience`}>Audience</label>
               <select id={`${variant}-audience`} name="audience" defaultValue="both">

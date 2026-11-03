@@ -36,7 +36,6 @@ type ResourceFormState = {
   section: ResourceSection;
   assessmentSet: AssessmentSet | "";
   term: SchemeTerm | "";
-  examYear: string;
 };
 
 function buildFormState(resource: ResourceRecord): ResourceFormState {
@@ -48,8 +47,7 @@ function buildFormState(resource: ResourceRecord): ResourceFormState {
     audience: resource.audience,
     section: resource.section ?? "notes",
     assessmentSet: resource.assessmentSet ?? "",
-    term: resource.term ?? "term-1",
-    examYear: resource.examYear ? `${resource.examYear}` : ""
+    term: resource.term ?? "term-1"
   };
 }
 
@@ -118,8 +116,7 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
             : formState.section === "assessment"
               ? formState.assessmentSet
               : null,
-        term: formState.term || "term-1",
-        examYear: formState.section === "kjsea-past-papers" ? Number(formState.examYear) : null
+        term: formState.term || "term-1"
       })
     });
 
@@ -184,8 +181,6 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
             const isEditing = editingId === resource.id && formState;
             const showAssessmentFields =
               resource.category === "revision-material" && formState?.section === "assessment";
-            const showExamYear =
-              resource.category === "revision-material" && formState?.section === "kjsea-past-papers";
 
             return (
               <section key={resource.id} className="resource-admin-card">
@@ -361,29 +356,8 @@ export function AdminResourceManager({ initialResources }: ResourceManagerProps)
                           >
                             <option value="notes">Notes</option>
                             <option value="assessment">Assessment</option>
-                            {formState.level === "Grade 9" ? (
-                              <option value="kjsea-past-papers">KJSEA Past Papers</option>
-                            ) : null}
                           </select>
                         </div>
-                        {showExamYear ? (
-                          <div className="field">
-                            <label htmlFor={`edit-exam-year-${resource.id}`}>Exam year</label>
-                            <input
-                              id={`edit-exam-year-${resource.id}`}
-                              type="number"
-                              min="2000"
-                              max="2100"
-                              value={formState.examYear}
-                              onChange={(event) =>
-                                setFormState((current) =>
-                                  current ? { ...current, examYear: event.target.value } : current
-                                )
-                              }
-                              required
-                            />
-                          </div>
-                        ) : null}
 
                         <div className="field">
                           <label htmlFor={`edit-assessment-set-${resource.id}`}>Assessment set</label>
