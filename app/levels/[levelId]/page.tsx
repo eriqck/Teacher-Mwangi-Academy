@@ -365,24 +365,32 @@ export default async function LevelPage({
         </section>
       ) : null}
 
-      {level.title === "Grade 9" && kjseaPastPapers.length > 0 ? (
+      {level.title === "Grade 9" ? (
         <section className="page-shell section">
           <article className="dashboard-card">
             <div className="section-head">
               <div>
                 <span className="eyebrow">Grade 9</span>
                 <h2>KJSEA Past Papers</h2>
-                <p className="subtle">Download past KJSEA papers grouped by exam year.</p>
+                <p className="subtle">
+                  {kjseaPastPapers.length > 0
+                    ? "Download past KJSEA papers grouped by exam year."
+                    : "Past KJSEA papers will appear here once they are uploaded."}
+                </p>
               </div>
-              <strong>{kjseaPastPapers.length} paper{kjseaPastPapers.length === 1 ? "" : "s"}</strong>
+              <strong>
+                {kjseaPastPapers.length} paper{kjseaPastPapers.length === 1 ? "" : "s"}
+              </strong>
             </div>
-            <ul className="material-link-list">
-              {[...kjseaPastPapers]
-                .sort((left, right) => (right.examYear ?? 0) - (left.examYear ?? 0))
-                .map((resource) =>
-                  renderRevisionResourceLink(resource, `${resource.examYear ?? "Unknown"} KJSEA`)
-                )}
-            </ul>
+            {kjseaPastPapers.length > 0 ? (
+              <ul className="material-link-list">
+                {[...kjseaPastPapers]
+                  .sort((left, right) => (right.examYear ?? 0) - (left.examYear ?? 0))
+                  .map((resource) =>
+                    renderRevisionResourceLink(resource, `${resource.examYear ?? "Unknown"} KJSEA`)
+                  )}
+              </ul>
+            ) : null}
           </article>
         </section>
       ) : null}
