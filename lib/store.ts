@@ -115,7 +115,7 @@ export type ResourcePurchaseRecord = {
 };
 
 export type ResourceCategory = "revision-material" | "scheme-of-work";
-export type ResourceSection = "notes" | "assessment";
+export type ResourceSection = "notes" | "assessment" | "kjsea-past-papers";
 export type AssessmentSet =
   | "set-1"
   | "set-2"
@@ -254,6 +254,7 @@ export type ResourceRecord = {
   category: ResourceCategory;
   section?: ResourceSection;
   assessmentSet?: AssessmentSet | null;
+  examYear?: number | null;
   term?: SchemeTerm | null;
   audience: "parent" | "teacher" | "both";
   price: number | null;

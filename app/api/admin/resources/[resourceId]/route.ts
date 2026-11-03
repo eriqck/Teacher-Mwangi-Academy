@@ -14,7 +14,7 @@ function isCategory(value: string): value is ResourceCategory {
 }
 
 function isSection(value: string): value is ResourceSection {
-  return value === "notes" || value === "assessment";
+  return value === "notes" || value === "assessment" || value === "kjsea-past-papers";
 }
 
 async function requireAdminUser() {
@@ -58,6 +58,8 @@ export async function PATCH(
     const section = `${body.section ?? ""}`.trim();
     const assessmentSet = body.assessmentSet === null ? null : `${body.assessmentSet ?? ""}`.trim();
     const term = `${body.term ?? ""}`.trim();
+    const examYearValue = `${body.examYear ?? ""}`.trim();
+    const examYear = examYearValue ? Number(examYearValue) : null;
 
     const store = await readAppData();
     const resource = store.resources.find((entry) => entry.id === resourceId);
@@ -87,6 +89,7 @@ export async function PATCH(
         audience: "teacher",
         section: "notes",
         assessmentSet: null,
+        examYear: null,
         term: term as SchemeTerm,
         updatedAt: new Date().toISOString()
       });
@@ -110,6 +113,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Assessment materials must include a valid assessment section." }, { status: 400 });
     }
 
+    if (section === "kjsea-past-papers" && (level !== "Grade 9" || examYear === null || !Number.isInteger(examYear) || examYear < 2000 || examYear > 2100)) {
+      return NextResponse.json({ error: "Grade 9 KJSEA Past Papers must include a valid exam year." }, { status: 400 });
+    }
+
     if (!isSchemeTerm(term)) {
       return NextResponse.json({ error: "Materials must include Term 1, Term 2, or Term 3." }, { status: 400 });
     }
@@ -125,6 +132,7 @@ export async function PATCH(
       audience,
       section,
       assessmentSet: resolvedAssessmentSet,
+      examYear: section === "kjsea-past-papers" ? examYear : null,
       term: resolvedTerm,
       updatedAt: new Date().toISOString()
     });

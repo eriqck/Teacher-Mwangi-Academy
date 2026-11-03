@@ -89,8 +89,9 @@ create table if not exists resources (
   level text not null,
   subject text not null,
   category text not null check (category in ('revision-material', 'scheme-of-work')),
-  section text check (section in ('notes', 'assessment')),
+  section text check (section in ('notes', 'assessment', 'kjsea-past-papers')),
   assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3', 'cekena-exams')),
+  exam_year integer check (exam_year is null or exam_year between 2000 and 2100),
   term text check (term in ('term-1', 'term-2', 'term-3')),
   audience text not null check (audience in ('parent', 'teacher', 'both')),
   price integer,
@@ -110,7 +111,7 @@ create table if not exists resource_purchases (
   title text not null,
   level text not null,
   subject text not null,
-  section text not null check (section in ('notes', 'assessment')),
+  section text not null check (section in ('notes', 'assessment', 'kjsea-past-papers')),
   assessment_set text check (assessment_set in ('set-1', 'set-2', 'set-3', 'cekena-exams')),
   amount integer not null,
   status text not null check (status in ('pending', 'paid', 'failed')),
@@ -218,7 +219,7 @@ alter table resources
 
 alter table resources
   add constraint resources_section_check
-  check (section in ('notes', 'assessment') or section is null);
+  check (section in ('notes', 'assessment', 'kjsea-past-papers') or section is null);
 
 alter table resources
   drop constraint if exists resources_assessment_set_check;
