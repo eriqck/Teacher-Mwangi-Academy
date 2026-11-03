@@ -80,8 +80,13 @@ export default async function LevelPage({
   const strandAssessments = assessments.filter(
     (resource) => resource.assessmentSet === "strand-based-assessments"
   );
+  const kjseaPastPapers = assessments.filter(
+    (resource) => resource.section === "kjsea-past-papers"
+  );
   const standardAssessments = assessments.filter(
-    (resource) => resource.assessmentSet !== "strand-based-assessments"
+    (resource) =>
+      resource.assessmentSet !== "strand-based-assessments" &&
+      resource.section !== "kjsea-past-papers"
   );
   const strandAssessmentSubjectGroups = Array.from(
     new Set(strandAssessments.map((resource) => resource.subject))
@@ -357,6 +362,28 @@ export default async function LevelPage({
               </div>
             </article>
           </details>
+        </section>
+      ) : null}
+
+      {level.title === "Grade 9" && kjseaPastPapers.length > 0 ? (
+        <section className="page-shell section">
+          <article className="dashboard-card">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Grade 9</span>
+                <h2>KJSEA Past Papers</h2>
+                <p className="subtle">Download past KJSEA papers grouped by exam year.</p>
+              </div>
+              <strong>{kjseaPastPapers.length} paper{kjseaPastPapers.length === 1 ? "" : "s"}</strong>
+            </div>
+            <ul className="material-link-list">
+              {[...kjseaPastPapers]
+                .sort((left, right) => (right.examYear ?? 0) - (left.examYear ?? 0))
+                .map((resource) =>
+                  renderRevisionResourceLink(resource, `${resource.examYear ?? "Unknown"} KJSEA`)
+                )}
+            </ul>
+          </article>
         </section>
       ) : null}
 
