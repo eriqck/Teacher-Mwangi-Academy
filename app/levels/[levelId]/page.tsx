@@ -80,13 +80,13 @@ export default async function LevelPage({
   const strandAssessments = assessments.filter(
     (resource) => resource.assessmentSet === "strand-based-assessments"
   );
-  const kjseaPastPapers = assessments.filter(
-    (resource) => resource.section === "kjsea-past-papers"
+  const kjseaPastPapers = resources.filter(
+    (resource) =>
+      resource.category === "revision-material" &&
+      resource.section === "kjsea-past-papers"
   );
   const standardAssessments = assessments.filter(
-    (resource) =>
-      resource.assessmentSet !== "strand-based-assessments" &&
-      resource.section !== "kjsea-past-papers"
+    (resource) => resource.assessmentSet !== "strand-based-assessments"
   );
   const strandAssessmentSubjectGroups = Array.from(
     new Set(strandAssessments.map((resource) => resource.subject))
