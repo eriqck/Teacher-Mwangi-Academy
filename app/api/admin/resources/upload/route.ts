@@ -59,7 +59,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Grade 9 KJSEA Past Papers must include a valid exam year." }, { status: 400 });
     }
 
-    if (!isSchemeTerm(term) || !["parent", "teacher", "both"].includes(audience)) {
+    const resolvedTerm = section === "kjsea-past-papers" ? null : isSchemeTerm(term) ? term : null;
+
+    if (resolvedTerm === null && section !== "kjsea-past-papers") {
+      return NextResponse.json({ error: "Invalid upload metadata." }, { status: 400 });
+    }
+
+    if (!["parent", "teacher", "both"].includes(audience)) {
       return NextResponse.json({ error: "Invalid upload metadata." }, { status: 400 });
     }
 
@@ -92,7 +98,7 @@ export async function POST(request: NextRequest) {
       section: resolvedSection,
       assessmentSet: resolvedAssessmentSet,
       examYear: resolvedSection === "kjsea-past-papers" ? examYear : null,
-      term: term as SchemeTerm,
+      term: resolvedTerm as SchemeTerm | null,
       audience: audience as "parent" | "teacher" | "both",
       uploadedByUserId: user.id,
       fileName: file.name,

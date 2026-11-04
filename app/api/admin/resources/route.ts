@@ -80,7 +80,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Grade 9 KJSEA Past Papers must include a valid exam year." }, { status: 400 });
     }
 
-    if (!isSchemeTerm(term)) {
+    const resolvedTerm = section === "kjsea-past-papers" ? null : isSchemeTerm(term) ? term : null;
+
+    if (resolvedTerm === null && section !== "kjsea-past-papers") {
       return NextResponse.json({ error: "Materials must include Term 1, Term 2, or Term 3." }, { status: 400 });
     }
 
@@ -92,8 +94,6 @@ export async function POST(request: NextRequest) {
         : resolvedSection === "assessment"
           ? (assessmentSet as AssessmentSet)
           : null;
-    const resolvedTerm: SchemeTerm = term as SchemeTerm;
-
     try {
       if (isDirectSupabaseUpload) {
         await saveUploadedResourceMetadata({

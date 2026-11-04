@@ -54,6 +54,10 @@ function buildFormState(resource: ResourceRecord): ResourceFormState {
 }
 
 function getResourceTypeLabel(resource: ResourceRecord) {
+  if (resource.section === "kjsea-past-papers") {
+    return `${resource.examYear ?? "Unknown"} KJSEA`;
+  }
+
   const termLabel = getSchemeTermLabel(resource.term ?? "term-1");
 
   if (resource.category === "scheme-of-work") {
